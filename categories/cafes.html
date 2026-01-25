@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>كافيهات السويس - دليل السويس</title>
+    <title data-i18n="page_title_cafes">كافيهات السويس - دليل السويس</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="../css/reset.css">
     <link rel="stylesheet" href="../css/layout.css">
@@ -19,11 +19,12 @@
             <span data-i18n="app_name">دليل <span>السويس</span></span>
         </a>
         <nav class="top-nav">
-            <a href="../index.html" class="top-nav-link">الرئيسية</a>
-            <a href="cafes.html" class="top-nav-link active">الأقسام</a>
-            <a href="#" class="top-nav-link">المفضلة</a>
-            <a href="#" class="top-nav-link">حسابي</a>
-            <a href="../pages/contact.html" class="top-nav-link">تواصل معنا</a>
+            <a href="../index.html" class="top-nav-link" data-i18n="nav_home">الرئيسية</a>
+            <a href="cafes.html" class="top-nav-link active" data-i18n="nav_categories">الأقسام</a>
+            <a href="#" class="top-nav-link" data-i18n="nav_favorites">المفضلة</a>
+            <a href="#" class="top-nav-link" data-i18n="nav_account">حسابي</a>
+            <a href="../pages/contact.html" class="top-nav-link" data-i18n="nav_contact">تواصل معنا</a>
+            <button class="top-nav-link" onclick="toggleLanguage()" id="lang-toggle">English</button>
             <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-toggle">
                 <i data-lucide="sun" class="theme-toggle-icon"></i>
             </button>
@@ -44,7 +45,7 @@
 
         <section class="section-wrapper">
             <div class="section-head">
-                <h1>كافيهات السويس</h1>
+                <h1><span data-i18n="title_cafe_original">كافيهات السويس</span></h1>
             </div>
             
             <div class="ad-slot" data-ad-position="category-top" id="ad-cat-top"></div>

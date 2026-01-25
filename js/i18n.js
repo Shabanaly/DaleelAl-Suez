@@ -6,6 +6,7 @@
 const translations = {
     ar: {
         "app_name": "دليل <span>السويس</span>",
+        "app_title": "دليل السويس",
         "nav_home": "الرئيسية",
         "nav_categories": "الأقسام",
         "nav_favorites": "المفضلة",
@@ -22,6 +23,20 @@ const translations = {
         "cat_shops": "محلات",
         "cat_services": "خدمات",
         
+        "header_restaurants": "أفضل المطاعم في السويس",
+        "header_cafes": "كافيهات السويس",
+        "header_doctors": "دليل أطباء السويس",
+        "header_pharmacies": "دليل صيدليات السويس",
+        "header_shops": "محلات في السويس",
+        "header_services": "دليل خدمات السويس",
+
+        "page_title_restaurants": "المطاعم في السويس",
+        "page_title_cafes": "كافيهات السويس",
+        "page_title_doctors": "أطباء السويس",
+        "page_title_pharmacies": "صيدليات السويس",
+        "page_title_shops": "محلات السويس",
+        "page_title_services": "خدمات السويس",
+
         "sub_all": "الكل",
         "sub_rest_grill": "مشويات",
         "sub_rest_seafood": "مأكولات بحرية",
@@ -51,7 +66,6 @@ const translations = {
         
         "sub_pharm_delivery": "توصيل منزلي",
         
-        "btn_view_all": "عرض الكل",
         
         "title_rest_grill": "مطاعم مشويات في السويس",
         "title_rest_seafood": "مطاعم مأكولات بحرية في السويس",
@@ -78,7 +92,7 @@ const translations = {
         
         "title_pharm_24h": "صيدليات 24 ساعة في السويس",
         "title_pharm_delivery": "صيدليات توصيل منزلي في السويس",
-
+        
         "section_latest": "أحدث الإضافات",
         "footer_brand_desc": "دليلك الأول لكل كافيهات السويس.",
         "footer_desc": "المنصة الأكبر والأكثر موثوقية لاكتشاف مدينة السويس.",
@@ -92,6 +106,7 @@ const translations = {
     },
     en: {
         "app_name": "Daleel <span>Al-Suez</span>",
+        "app_title": "Suez Guide",
         "nav_home": "Home",
         "nav_categories": "Categories",
         "nav_favorites": "Favorites",
@@ -108,6 +123,20 @@ const translations = {
         "cat_shops": "Shops",
         "cat_services": "Services",
         
+        "header_restaurants": "Best Restaurants in Suez",
+        "header_cafes": "Cafes in Suez",
+        "header_doctors": "Suez Doctors Guide",
+        "header_pharmacies": "Suez Pharmacies Guide",
+        "header_shops": "Shops in Suez",
+        "header_services": "Suez Services Guide",
+
+        "page_title_restaurants": "Restaurants in Suez",
+        "page_title_cafes": "Cafes in Suez",
+        "page_title_doctors": "Doctors in Suez",
+        "page_title_pharmacies": "Pharmacies in Suez",
+        "page_title_shops": "Shops in Suez",
+        "page_title_services": "Services in Suez",
+
         "sub_all": "All",
         "sub_rest_grill": "Grill",
         "sub_rest_seafood": "Seafood",
@@ -127,7 +156,7 @@ const translations = {
         "sub_shop_supermarket": "Supermarket",
         "sub_shop_electronics": "Electronics",
         "sub_shop_shoes": "Shoes",
-
+        
         "sub_serv_car": "Car Service",
         "sub_serv_cleaning": "Cleaning",
         "sub_serv_maintenance": "Home Maintenance",
@@ -137,7 +166,6 @@ const translations = {
         
         "sub_pharm_delivery": "Delivery",
         
-        "btn_view_all": "View All",
         
         "title_rest_grill": "Grill Restaurants in Suez",
         "title_rest_seafood": "Seafood Restaurants in Suez",
@@ -164,7 +192,7 @@ const translations = {
         
         "title_pharm_24h": "24-Hour Pharmacies in Suez",
         "title_pharm_delivery": "Home Delivery Pharmacies in Suez",
-
+        
         "section_latest": "Latest Additions",
         "footer_brand_desc": "Your #1 guide for all Suez cafes.",
         "footer_desc": "The most reliable platform to explore Suez City.",
@@ -212,6 +240,9 @@ function updatePageContent(lang) {
         if (dict[key]) {
             if (el.tagName === "INPUT" && el.hasAttribute("placeholder")) {
                 el.placeholder = dict[key];
+            } else if (el.tagName === "TITLE") {
+                 // Special handling for Page Title
+                 document.title = dict[key] + " - " + dict["app_title"];
             } else {
                 if (dict[key].includes("<")) el.innerHTML = dict[key];
                 else el.textContent = dict[key];
@@ -254,8 +285,20 @@ function toggleLanguage() {
     const lang = getPreferredLanguage();
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+    
+    // Anti-Flash: Hide i18n elements until translated
+    const style = document.createElement('style');
+    style.id = 'i18n-cloak';
+    style.textContent = '[data-i18n] { opacity: 0 !important; }'; // Use opacity to avoid layout shift, or visibility
+    document.head.appendChild(style);
 })();
 
 document.addEventListener("DOMContentLoaded", () => {
     updatePageContent(getPreferredLanguage());
+    
+    // Uncloak after translation
+    requestAnimationFrame(() => {
+        const cloak = document.getElementById('i18n-cloak');
+        if (cloak) cloak.remove();
+    });
 });
