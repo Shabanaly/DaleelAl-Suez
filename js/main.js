@@ -64,3 +64,81 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // No Scroll or Toggle Logic needed for Grid-only mobile view
 });
+
+/* --- Mobile Account Modal Logic (Static / No Management) --- */
+function createAccountModal() {
+    if (document.querySelector('.account-modal')) return;
+
+    const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : "ar";
+    const isAr = lang === "ar";
+
+    const modalHTML = `
+        <div class="modal-backdrop" onclick="closeAccountModal()"></div>
+        <div class="account-modal">
+            <div class="modal-header">
+                <h3 data-i18n="nav_account">${isAr ? "حسابي" : "Account"}</h3>
+                <div class="modal-close" onclick="closeAccountModal()"><i data-lucide="x"></i></div>
+            </div>
+            
+            <div class="modal-section">
+                <h4 data-i18n="nav_home">${isAr ? "اللغة" : "Language"}</h4>
+                <button class="modal-action-btn" onclick="toggleLanguage()">
+                    <span>${isAr ? "English" : "العربية"}</span>
+                    <i data-lucide="globe"></i>
+                </button>
+            </div>
+
+            <div class="modal-section">
+                <h4 data-i18n="theme_toggle">${isAr ? "المظهر" : "Theme"}</h4>
+                <button class="modal-action-btn" onclick="toggleTheme()">
+                    <span>Dark / Light</span>
+                    <i data-lucide="moon"></i>
+                </button>
+            </div>
+
+            <div class="modal-section">
+                <h4>${isAr ? "تسجيل الدخول" : "Login"}</h4>
+                <button class="modal-action-btn auth-btn" disabled>
+                    <span>${isAr ? "متابعة باستخدام Google" : "Continue with Google"}</span>
+                    <span class="badge-soon">${isAr ? "قريبًا" : "Soon"}</span>
+                </button>
+                <button class="modal-action-btn auth-btn" disabled>
+                    <span>${isAr ? "متابعة باستخدام Facebook" : "Continue with Facebook"}</span>
+                    <span class="badge-soon">${isAr ? "قريبًا" : "Soon"}</span>
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
+function openAccountModal(e) {
+    if(e) e.preventDefault();
+    createAccountModal();
+    
+    // Helper delay to ensure DOM is ready before adding active class for animation
+    requestAnimationFrame(() => {
+        document.querySelector('.modal-backdrop').classList.add('active');
+        document.querySelector('.account-modal').classList.add('active');
+    });
+}
+
+function closeAccountModal() {
+    const backdrop = document.querySelector('.modal-backdrop');
+    const modal = document.querySelector('.account-modal');
+    if (backdrop) backdrop.classList.remove('active');
+    if (modal) modal.classList.remove('active');
+}
+
+// Attach click handler to mobile account nav item
+document.addEventListener('DOMContentLoaded', function() {
+    // Find the link that contains the account translation span
+    const accountSpan = document.querySelector('.bottom-nav .nav-item-mobile [data-i18n="nav_account"]');
+    const accountLink = accountSpan ? accountSpan.closest('.nav-item-mobile') : null;
+    
+    if (accountLink) {
+        accountLink.addEventListener('click', openAccountModal);
+    }
+});

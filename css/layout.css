@@ -59,7 +59,7 @@
 body {
     background-color: var(--bg-main);
     color: var(--text-main);
-    padding-bottom: var(--nav-bottom-height);
+    /* padding-bottom removed to fix footer gap - footer has its own padding */
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     user-select: none; /* Prevents accidental selection during tap */
     -webkit-user-select: none;
@@ -357,4 +357,119 @@ button, a, .top-nav-link, .cat-nav-item, .nav-item-mobile {
 
 /* RESPONSIVE CONTROL */
 @media (max-width: 1023px) { .top-nav { display: none; } }
-@media (min-width: 1024px) { body { padding-bottom: 0; } .bottom-nav { display: none; } }
+@media (min-width: 1024px) { .bottom-nav { display: none; } }
+
+/* ==================== ACCOUNT MODAL (BOTTOM SHEET) ==================== */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 4000;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s ease;
+}
+
+.modal-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.account-modal {
+    position: fixed;
+    bottom: -100%;
+    left: 0;
+    width: 100%;
+    background: var(--bg-card);
+    border-radius: 24px 24px 0 0;
+    padding: 32px 24px 100px; /* Extra padding for bottom nav safely */
+    z-index: 4001;
+    transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+}
+
+.account-modal.active {
+    bottom: 0;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.modal-header h3 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.modal-close {
+    width: 32px;
+    height: 32px;
+    background: var(--bg-input);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-muted);
+}
+
+.modal-section {
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+}
+
+.modal-section:last-child {
+    border-bottom: none;
+}
+
+.modal-section h4 {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Modal Actions */
+.modal-action-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text-main);
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    margin-bottom: 12px;
+}
+
+.modal-action-btn i { width: 20px; height: 20px; }
+
+.auth-btn {
+    opacity: 0.6;
+    cursor: not-allowed;
+    position: relative;
+    overflow: hidden;
+}
+
+.badge-soon {
+    font-size: 10px;
+    background: var(--primary);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 10px;
+}

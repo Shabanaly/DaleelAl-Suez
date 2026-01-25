@@ -251,7 +251,7 @@ function updatePageContent(lang) {
     });
 
     // 2. Buttons
-    document.querySelectorAll("#lang-toggle, #lang-toggle-mobile").forEach(btn => {
+    document.querySelectorAll("#lang-toggle, #lang-toggle-mobile, #lang-toggle-mobile-2").forEach(btn => {
         btn.textContent = dict["lang_switch"];
     });
 
