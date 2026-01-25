@@ -15,6 +15,16 @@ document.addEventListener("DOMContentLoaded", function() {
         if (typeof restaurants !== "undefined") allPlaces = allPlaces.concat(restaurants.slice(0, 2));
         if (typeof cafes !== "undefined") allPlaces = allPlaces.concat(cafes.slice(0, 2));
         if (typeof doctors !== "undefined") allPlaces = allPlaces.concat(doctors.slice(0, 2));
+        if (typeof entertainment !== "undefined") allPlaces = allPlaces.concat(entertainment.slice(0, 2));
+        if (typeof emergency !== "undefined") allPlaces = allPlaces.concat(emergency.slice(0, 2));
+        if (typeof home_living !== "undefined") allPlaces = allPlaces.concat(home_living.slice(0, 2));
+        if (typeof cars !== "undefined") allPlaces = allPlaces.concat(cars.slice(0, 2));
+        if (typeof jobs !== "undefined") allPlaces = allPlaces.concat(jobs.slice(0, 2));
+        if (typeof education !== "undefined") allPlaces = allPlaces.concat(education.slice(0, 2));
+        if (typeof events !== "undefined") allPlaces = allPlaces.concat(events.slice(0, 2));
+        if (typeof tourism !== "undefined") allPlaces = allPlaces.concat(tourism.slice(0, 2));
+        if (typeof government !== "undefined") allPlaces = allPlaces.concat(government.slice(0, 2));
+        if (typeof selection !== "undefined") allPlaces = allPlaces.concat(selection.slice(0, 2));
         if (typeof shops !== "undefined") allPlaces = allPlaces.concat(shops.slice(0, 2));
         
         renderPlaces(allPlaces, "places-container");

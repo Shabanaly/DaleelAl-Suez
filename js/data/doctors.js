@@ -26,19 +26,6 @@ var doctors = [
         image: "https://images.unsplash.com/photo-1606811841689-23dfddce3e95?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
-    {
-        id: 3,
-        name: "دكتور علي للأسنان",
-        slug: "doc-dent-3",
-        category: "doctors",
-        subCategory: "dentist",
-        address: "حي السويس، السويس",
-        phone: "01200000003",
-        hours: "4 م - 11 م",
-        description: "أخصائي تقويم الأسنان والفكين للأطفال والكبار.",
-        image: "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    },
     // Pediatric
     {
         id: 4,
@@ -64,19 +51,6 @@ var doctors = [
         hours: "5 م - 10 م",
         description: "متابعة تطور الطفل البدني والذهني وعلاج أمراض الصدر.",
         image: "https://images.unsplash.com/photo-1559839734-2b71ef159955?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    },
-    {
-        id: 6,
-        name: "مركز رعاية الطفل",
-        slug: "doc-ped-3",
-        category: "doctors",
-        subCategory: "pediatric",
-        address: "السلام، السويس",
-        phone: "01200000006",
-        hours: "9 ص - 5 م",
-        description: "فريق متخصص لرعاية طفلك منذ الولادة وحتى المراهقة.",
-        image: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
     // Internal
@@ -106,19 +80,6 @@ var doctors = [
         image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
-    {
-        id: 9,
-        name: "دكتور شادي الباطنة",
-        slug: "doc-int-3",
-        category: "doctors",
-        subCategory: "internal",
-        address: "الأربعين، السويس",
-        phone: "01200000009",
-        hours: "6 م - 11 م",
-        description: "متابعة دورية وفحوصات شاملة لكافة أمراض الباطنة.",
-        image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    },
     // Orthopedic
     {
         id: 10,
@@ -146,17 +107,4 @@ var doctors = [
         image: "https://images.unsplash.com/photo-1530026405186-ed1f1305b3c2?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
-    {
-        id: 12,
-        name: "دكتور مروان للعظام",
-        slug: "doc-ortho-3",
-        category: "doctors",
-        subCategory: "orthopedic",
-        address: "شارع الجيش، السويس",
-        phone: "01200000012",
-        hours: "5 م - 11 م",
-        description: "علاج الانزلاق الغضروفي وآلام الظهر والرقبة.",
-        image: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    }
 ];

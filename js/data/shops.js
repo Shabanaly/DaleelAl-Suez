@@ -26,19 +26,6 @@ var shops = [
         image: "https://images.unsplash.com/photo-1445205170230-053b83016050?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
-    {
-        id: 3,
-        name: "كيدز وورلد - ملابس أطفال",
-        slug: "shop-clothes-3",
-        category: "shops",
-        subCategory: "clothes",
-        address: "شارع الجيش، السويس",
-        phone: "01200009993",
-        hours: "10 ص - 10 م",
-        description: "كل ما يحتاجه الأطفال من ملابس حديثي ولادة حتى سن المراهقة.",
-        image: "https://images.unsplash.com/photo-1622290291468-a28f73976397?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    },
     // Supermarket (سوبر ماركت)
     {
         id: 4,
@@ -64,19 +51,6 @@ var shops = [
         hours: "7 ص - 2 ص",
         description: "منتجات محلية ومستوردة، خضروات وفاكهة طازجة يومياً.",
         image: "https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    },
-    {
-        id: 6,
-        name: "بقالة المدينة المنورة",
-        slug: "shop-super-3",
-        category: "shops",
-        subCategory: "supermarket",
-        address: "حي السويس، السويس",
-        phone: "01200008883",
-        hours: "8 ص - 12 ص",
-        description: "كافة احتياجات المنزل من السلع التموينية والبقالة السريعة.",
-        image: "https://images.unsplash.com/photo-1534723452862-4c874018d66d?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
     // Electronics (إلكترونيات)
@@ -106,19 +80,6 @@ var shops = [
         image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
-    {
-        id: 9,
-        name: "سمارت لايف للأجهزة المنزلية",
-        slug: "shop-elec-3",
-        category: "shops",
-        subCategory: "electronics",
-        address: "شارع الجيش، السويس",
-        phone: "01200007773",
-        hours: "12 م - 12 ص",
-        description: "شاشات، غسالات، بوتاجازات، وكافة الأجهزة الكهربائية.",
-        image: "https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    },
     // Shoes (أحذية)
     {
         id: 10,
@@ -146,17 +107,4 @@ var shops = [
         image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
-    {
-        id: 12,
-        name: "أحذية المدينة - شبابي وأطفال",
-        slug: "shop-shoes-3",
-        category: "shops",
-        subCategory: "shoes",
-        address: "حي السويس، السويس",
-        phone: "01200006663",
-        hours: "10 ص - 10 م",
-        description: "أحذية مدرسية ورياضية للأطفال والشباب بأسعار مخفضة.",
-        image: "https://images.unsplash.com/photo-1606107557035-073f2178c592?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    }
 ];

@@ -26,19 +26,6 @@ var services = [
         image: "https://images.unsplash.com/photo-1520340356584-f9917d1eea6f?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
-    {
-        id: 3,
-        name: "تغيير زيوت وفلاتر",
-        slug: "serv-car-3",
-        category: "services",
-        subCategory: "car",
-        address: "طريق القناة، السويس",
-        phone: "01200005553",
-        hours: "24 ساعة",
-        description: "تغيير سريع للزيوت والفلاتر والكشف على العفشة.",
-        image: "https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    },
     // Cleaning
     {
         id: 4,
@@ -64,19 +51,6 @@ var services = [
         hours: "10 ص - 10 م",
         description: "غسيل سجاد ومفروشات مع التعقيم التام.",
         image: "https://images.unsplash.com/photo-1558317374-067fb5f30001?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    },
-    {
-        id: 6,
-        name: "رويال كليم للمنازل",
-        slug: "serv-clean-3",
-        category: "services",
-        subCategory: "cleaning",
-        address: "بورتوفيق، السويس",
-        phone: "01200004443",
-        hours: "9 ص - 9 م",
-        description: "خدمات نظافة دورية بأسعار ومميزات خاصة.",
-        image: "https://images.unsplash.com/photo-1528740561666-dc2479dc08ab?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
     // Home Maintenance
@@ -106,17 +80,4 @@ var services = [
         image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
-    {
-        id: 9,
-        name: "صيانة الأجهزة المنزلية",
-        slug: "serv-home-3",
-        category: "services",
-        subCategory: "home-maintenance",
-        address: "الأربعين، السويس",
-        phone: "01200003333",
-        hours: "9 ص - 8 م",
-        description: "تصليح غسالات، ثلاجات، وأفران غاز بوقت قياسي.",
-        image: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    }
 ];

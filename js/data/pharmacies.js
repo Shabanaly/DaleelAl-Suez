@@ -26,19 +26,6 @@ var pharmacies = [
         image: "https://images.unsplash.com/photo-1631549916768-4119b295f789?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
-    {
-        id: 3,
-        name: "صيدلية الحجاز",
-        slug: "ph-24h-3",
-        category: "pharmacies",
-        subCategory: "24h",
-        address: "بورتوفيق، السويس",
-        phone: "01233330000",
-        hours: "24 ساعة",
-        description: "نوفر أدوية مستوردة ومستحضرات تجميل عالمية.",
-        image: "https://images.unsplash.com/photo-1586015555751-63bb77f4322a?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    },
     // Delivery
     {
         id: 4,
@@ -66,17 +53,4 @@ var pharmacies = [
         image: "https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
-    {
-        id: 6,
-        name: "صيدلية كويك ميد",
-        slug: "ph-delivery-3",
-        category: "pharmacies",
-        subCategory: "delivery",
-        address: "السلام، السويس",
-        phone: "01266660000",
-        hours: "10 ص - 2 ص",
-        description: "أحدث أنظمة الدليفري الصيدلي لسرعة الوصول إليكم.",
-        image: "https://images.unsplash.com/photo-1585435557343-3b092031a831?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    }
 ];

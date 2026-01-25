@@ -26,19 +26,6 @@ var restaurants = [
         image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
-    {
-        id: 3,
-        name: "قصر المشويات",
-        slug: "rest-grill-3",
-        category: "restaurants",
-        subCategory: "grill",
-        address: "بورتوفيق، السويس",
-        phone: "01233334444",
-        hours: "11 ص - 11 م",
-        description: "إطلالة رائعة مع باقة من ألذ المشويات الشرقية.",
-        image: "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    },
     // Seafood
     {
         id: 4,
@@ -64,19 +51,6 @@ var restaurants = [
         hours: "11 ص - 11 م",
         description: "شوربة السي فود المميزة وطواجن الجمبري والكابوريا.",
         image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    },
-    {
-        id: 6,
-        name: "روكا للأسماك",
-        slug: "rest-seafood-3",
-        category: "restaurants",
-        subCategory: "seafood",
-        address: "الكورنيش الجديد، السويس",
-        phone: "01266667777",
-        hours: "12 م - 12 ص",
-        description: "مذاق فريد للمأكولات البحرية على الطريقة السويسية الأصلية.",
-        image: "https://images.unsplash.com/photo-1559739511-e67140669e45?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
     // Oriental
@@ -106,19 +80,6 @@ var restaurants = [
         image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
-    {
-        id: 9,
-        name: "فطاطري مكة",
-        slug: "rest-oriental-3",
-        category: "restaurants",
-        subCategory: "oriental",
-        address: "شارع نمسا، السويس",
-        phone: "01299990000",
-        hours: "24 ساعة",
-        description: "فطائر وحواوشي وبيتزا شرقية على أصولها.",
-        image: "https://images.unsplash.com/photo-1593504049359-74330189a345?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    },
     // Fast Food
     {
         id: 10,
@@ -146,17 +107,4 @@ var restaurants = [
         image: "https://images.unsplash.com/photo-1567620832903-9fc6debc209f?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
-    {
-        id: 12,
-        name: "تاكو تايم",
-        slug: "rest-fastfood-3",
-        category: "restaurants",
-        subCategory: "fastfood",
-        address: "شارع الجيش، السويس",
-        phone: "01222223333",
-        hours: "1 ص - 1 ص",
-        description: "وجبات سريعة خفيفة وساندوتشات تيك واي لذيذة.",
-        image: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    }
 ];

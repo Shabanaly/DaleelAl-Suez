@@ -26,19 +26,6 @@ var cafes = [
         image: "https://images.unsplash.com/photo-1521017432531-fbd92d744264?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
-    {
-        id: 3,
-        name: "سكاي فيو",
-        slug: "cafe-sea-3",
-        category: "cafes",
-        subCategory: "sea-view",
-        address: "بورتوفيق، السويس",
-        phone: "01233330000",
-        hours: "10 ص - 1 ص",
-        description: "إطلالة بانورامية على القناة والبحر.",
-        image: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    },
     // Workspace
     {
         id: 4,
@@ -64,19 +51,6 @@ var cafes = [
         hours: "8 ص - 9 م",
         description: "المكان المثالي للدراسة والعمل، غرف خاصة للاجتماعات.",
         image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    },
-    {
-        id: 6,
-        name: "كافيه المكتبة",
-        slug: "cafe-work-3",
-        category: "cafes",
-        subCategory: "workspace",
-        address: "شارع الجيش، السويس",
-        phone: "01266660000",
-        hours: "10 ص - 11 م",
-        description: "بيئة ثقافية هادئة تشجع على القراءة والإبداع.",
-        image: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
     // Regular Cafes
@@ -106,17 +80,4 @@ var cafes = [
         image: "https://images.unsplash.com/photo-1445116572660-236099ec97a0?w=800&fit=crop",
         map: "https://www.google.com/maps?q=suez&output=embed"
     },
-    {
-        id: 9,
-        name: "فيولا كافيه",
-        slug: "cafe-reg-3",
-        category: "cafes",
-        subCategory: "cafes",
-        address: "المحروسة، السويس",
-        phone: "01299991111",
-        hours: "9 ص - 12 ص",
-        description: "ديكور عصري ومشروبات باردة وساخنة متنوعة.",
-        image: "https://images.unsplash.com/photo-1559496417-e7f25cb247f3?w=800&fit=crop",
-        map: "https://www.google.com/maps?q=suez&output=embed"
-    }
 ];

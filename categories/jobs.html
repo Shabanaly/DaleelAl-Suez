@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="page_title_jobs">الشغل والرزق - دليل السويس</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <script src="../js/theme.js"></script>
+    <script src="../js/i18n.js"></script>
+</head>
+<body>
+    <header class="site-header">
+        <a href="../index.html" class="logo">
+            <i data-lucide="compass"></i>
+            <span data-i18n="app_name">دليل <span>السويس</span></span>
+        </a>
+        <nav class="top-nav">
+            <a href="../index.html" class="top-nav-link" data-i18n="nav_home">الرئيسية</a>
+            <a href="restaurants.html" class="top-nav-link active" data-i18n="nav_categories">الأقسام</a>
+            <a href="../pages/favorites.html" class="top-nav-link" data-i18n="nav_favorites">المفضلة</a>
+            <a href="#" class="top-nav-link" data-i18n="nav_account">حسابي</a>
+            <a href="../pages/contact.html" class="top-nav-link" data-i18n="nav_contact">تواصل معنا</a>
+            <button class="top-nav-link" onclick="toggleLanguage()" id="lang-toggle">English</button>
+            <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-toggle">
+                <i data-lucide="sun" class="theme-toggle-icon"></i>
+            </button>
+        </nav>
+    </header>
+
+    <main>
+        <section class="categories-nav-section">
+            <div class="nav-scroll-wrapper">
+                <div class="categories-container" id="global-cats">
+                    <a href="restaurants.html" class="cat-nav-item"><i data-lucide="utensils"></i> <span data-i18n="cat_restaurants">مطاعم</span></a>
+                    <a href="cafes.html" class="cat-nav-item"><i data-lucide="coffee"></i> <span data-i18n="cat_cafes">كافيهات</span></a>
+                    <a href="doctors.html" class="cat-nav-item"><i data-lucide="stethoscope"></i> <span data-i18n="cat_doctors">أطباء</span></a>
+                    <a href="entertainment.html" class="cat-nav-item"><i data-lucide="clapperboard"></i> <span data-i18n="cat_entertainment">خروج</span></a>
+                    <a href="emergency.html" class="cat-nav-item"><i data-lucide="alert-circle"></i> <span data-i18n="cat_emergency">طوارئ</span></a>
+                    <a href="home-living.html" class="cat-nav-item"><i data-lucide="home"></i> <span data-i18n="cat_home_living">بيت</span></a>
+                    <a href="cars.html" class="cat-nav-item"><i data-lucide="car"></i> <span data-i18n="cat_cars">سيارات</span></a>
+                    <a href="jobs.html" class="cat-nav-item"><i data-lucide="briefcase"></i> <span data-i18n="cat_jobs">شغل</span></a>
+                    <a href="education.html" class="cat-nav-item"><i data-lucide="graduation-cap"></i> <span data-i18n="cat_education">تعليم</span></a>
+                    <a href="events.html" class="cat-nav-item"><i data-lucide="cake"></i> <span data-i18n="cat_events">حفلات</span></a>
+                    <a href="tourism.html" class="cat-nav-item"><i data-lucide="palmtree"></i> <span data-i18n="cat_tourism">سياحة</span></a>
+                    <a href="government.html" class="cat-nav-item"><i data-lucide="landmark"></i> <span data-i18n="cat_government">حكومة</span></a>
+                    <a href="selection.html" class="cat-nav-item"><i data-lucide="brain"></i> <span data-i18n="cat_selection">أختار إيه؟</span></a>
+                    <a href="pharmacies.html" class="cat-nav-item"><i data-lucide="pill"></i> <span data-i18n="cat_pharmacies">صيدليات</span></a>
+                    <a href="shops.html" class="cat-nav-item"><i data-lucide="shopping-bag"></i> <span data-i18n="cat_shops">محلات</span></a>
+                    <a href="services.html" class="cat-nav-item"><i data-lucide="wrench"></i> <span data-i18n="cat_services">خدمات</span></a>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-wrapper">
+            <div class="section-head">
+                <h1 data-i18n="header_jobs">الشغل والرزق</h1>
+            </div>
+            
+            <div class="sub-nav">
+                <a href="jobs.html" class="active" data-i18n="sub_all">الكل</a>
+                <a href="../subcategories/jobs-ads.html" data-i18n="sub_job_ads">ads</a>                     <a href="../subcategories/jobs-train.html" data-i18n="sub_job_train">train</a>                     <a href="../subcategories/jobs-offices.html" data-i18n="sub_job_offices">offices</a>                     <a href="../subcategories/jobs-accs.html" data-i18n="sub_job_accs">accs</a>                     <a href="../subcategories/jobs-lawyers.html" data-i18n="sub_job_lawyers">lawyers</a>                     <a href="../subcategories/jobs-clear.html" data-i18n="sub_job_clear">clear</a>                     <a href="../subcategories/jobs-ship.html" data-i18n="sub_job_ship">ship</a>                     <a href="../subcategories/jobs-free.html" data-i18n="sub_job_free">free</a>                     <a href="../subcategories/jobs-online.html" data-i18n="sub_job_online">online</a>                     
+            </div>
+
+            <div id="places-container" class="places-list"></div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h4 data-i18n="app_name">دليل السويس</h4>
+                <p data-i18n="footer_desc">المنصة الأكبر والأكثر موثوقية لاكتشاف مدينة السويس.</p>
+            </div>
+            <div class="footer-links">
+                <h5 data-i18n="footer_quick_links">روابط سريعة</h5>
+                <ul>
+                    <li><a href="../pages/about.html" data-i18n="footer_about">عن الموقع</a></li>
+                    <li><a href="../pages/terms.html" data-i18n="footer_terms">الشروط</a></li>
+                    <li><a href="../pages/privacy.html" data-i18n="footer_privacy">الخصوصية</a></li>
+                    <li><a href="../pages/contact.html" data-i18n="nav_contact">تواصل معنا</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom"><p data-i18n="footer_copyright">© 2025 دليل السويس.</p></div>
+    </footer>
+
+    <nav class="bottom-nav">
+        <a href="../index.html" class="nav-item-mobile"><i data-lucide="home"></i> <span data-i18n="nav_home">الرئيسية</span></a>
+        <a href="restaurants.html" class="nav-item-mobile active"><i data-lucide="grid"></i> <span data-i18n="nav_categories">الأقسام</span></a>
+        <a href="../pages/favorites.html" class="nav-item-mobile"><i data-lucide="heart"></i> <span data-i18n="nav_favorites">المفضلة</span></a>
+        <a href="#" class="nav-item-mobile"><i data-lucide="user"></i> <span data-i18n="nav_account">حسابي</span></a>
+    </nav>
+
+    <script src="../js/data/jobs.js"></script>
+    <script src="../js/templates.js"></script>
+    <script src="../js/render.js"></script>
+    <script src="../js/favorites.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof jobs !== 'undefined') {
+                renderPlaces(jobs, 'places-container');
+            }
+        });
+        lucide.createIcons();
+    </script>
+</body>
+</html>
