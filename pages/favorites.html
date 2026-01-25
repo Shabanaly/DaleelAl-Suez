@@ -32,6 +32,12 @@
     </header>
 
     <main>
+        <section class="categories-nav-section">
+            <div class="nav-scroll-wrapper">
+                <div class="categories-container" id="global-cats"></div>
+            </div>
+        </section>
+
         <section class="section-wrapper">
             <div class="section-head">
                 <h1 data-i18n="nav_favorites">الأماكن المفضلة</h1>
@@ -81,8 +87,8 @@
     <script src="../js/data/shops.js"></script>
     <script src="../js/templates.js"></script>
     <script src="../js/render.js"></script>
-    <script src="../js/favorites.js"></script>
-    <script src="../js/main.js"></script>
+    
+    
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof renderFavorites === 'function') {
@@ -90,5 +96,9 @@
             }
         });
     </script>
+    
+    
+    <script src="../js/favorites.js"></script>
+    <script src="../js/main.js"></script>
 </body>
 </html>

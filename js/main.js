@@ -9,6 +9,11 @@ document.addEventListener("DOMContentLoaded", function() {
     // تصحيح المسارات للصور والروابط بناءً على مستوى الصفحة
     var basePath = isHome ? "" : "../";
 
+    // 1. Initial Global Render (Always priority)
+    renderGlobalCategories(isHome, path);
+    renderBottomNav(isHome, path);
+
+    // 2. Page Specific Logic
     // عرض أحدث الأماكن في الصفحة الرئيسية
     if (isHome) {
         var allPlaces = [];

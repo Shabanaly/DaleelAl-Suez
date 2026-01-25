@@ -45,12 +45,21 @@
     }
     
     .places-list {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(2, 1fr); /* 2 Columns for much larger cards */
+        gap: 32px;
     }
     
+    .listing-card {
+        padding: 24px;
+    }
+
+    .listing-content h3 {
+        font-size: 20px;
+    }
+
     .listing-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-modern);
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     }
 }
 
@@ -69,20 +78,23 @@
         overflow: visible;
     }
 
-    /* Main Categories: Balanced Horizontal Scroll (Unified) */
+    /* Main Categories: Balanced 3-Column Grid */
     .categories-container {
-        display: flex !important;
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr);
         gap: 12px;
-        overflow-x: auto;
         padding: 10px 0;
-        -webkit-overflow-scrolling: touch;
+        overflow-x: visible;
     }
 
     .cat-nav-item {
-        flex: 0 0 auto;
-        flex-direction: row; /* Match desktop feel but compact */
-        padding: 10px 18px;
-        border-radius: var(--radius-full);
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        padding: 16px 8px;
+        height: auto;
+        gap: 8px;
+        border-radius: var(--radius-md);
         background: var(--bg-card);
     }
     
@@ -91,26 +103,18 @@
         height: 18px;
     }
 
-    /* Subcategories: Elegant Pills */
+    /* Subcategories: Unified Large Cards on Mobile */
     .sub-nav {
-        display: flex !important;
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        justify-content: flex-start;
-        gap: 10px;
-        padding: 5px 16px 12px;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px;
+        max-height: 320px;
+        padding: 5px;
     }
-    .sub-nav::-webkit-scrollbar { display: none; }
 
     .sub-nav a {
-        white-space: nowrap;
-        padding: 10px 20px;
-        border-radius: 99px;
-        background: var(--bg-card);
+        aspect-ratio: 3 / 1.5;
         font-size: 14px;
-        flex: 0 0 auto;
+        padding: 12px;
     }
     
     /* Remove old toggle/scroll elements styles if any remain */
