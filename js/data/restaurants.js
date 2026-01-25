@@ -1,0 +1,162 @@
+var restaurants = [
+    // Grill
+    {
+        id: 1,
+        name: "مشويات الهنا",
+        slug: "rest-grill-1",
+        category: "restaurants",
+        subCategory: "grill",
+        address: "شارع الجيش، السويس",
+        phone: "01011112222",
+        hours: "12 م - 12 ص",
+        description: "أفضل الكباب والكفتة المشوية على الفحم بتتبيلة سرية مميزة.",
+        image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=800&fit=crop",
+        map: "https://www.google.com/maps?q=suez&output=embed"
+    },
+    {
+        id: 2,
+        name: "كبابجي المدينة",
+        slug: "rest-grill-2",
+        category: "restaurants",
+        subCategory: "grill",
+        address: "حي الأربعين، السويس",
+        phone: "01122223333",
+        hours: "1 م - 1 ص",
+        description: "متخصصون في كافة أنواع المشويات والريش والنيفة.",
+        image: "https://images.unsplash.com/photo-1544025162-d76694265947?w=800&fit=crop",
+        map: "https://www.google.com/maps?q=suez&output=embed"
+    },
+    {
+        id: 3,
+        name: "قصر المشويات",
+        slug: "rest-grill-3",
+        category: "restaurants",
+        subCategory: "grill",
+        address: "بورتوفيق، السويس",
+        phone: "01233334444",
+        hours: "11 ص - 11 م",
+        description: "إطلالة رائعة مع باقة من ألذ المشويات الشرقية.",
+        image: "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=800&fit=crop",
+        map: "https://www.google.com/maps?q=suez&output=embed"
+    },
+    // Seafood
+    {
+        id: 4,
+        name: "أسماك الخليج",
+        slug: "rest-seafood-1",
+        category: "restaurants",
+        subCategory: "seafood",
+        address: "كوبري حوض الدرس، السويس",
+        phone: "01044445555",
+        hours: "10 ص - 10 م",
+        description: "أسماك طازجة يومياً من البحر مباشرة وطرق طهي متنوعة (سنجاري، مشوي، مقلي).",
+        image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=800&fit=crop",
+        map: "https://www.google.com/maps?q=suez&output=embed"
+    },
+    {
+        id: 5,
+        name: "مأكولات البحر الأحمر",
+        slug: "rest-seafood-2",
+        category: "restaurants",
+        subCategory: "seafood",
+        address: "منطقة الملاحة، السويس",
+        phone: "01155556666",
+        hours: "11 ص - 11 م",
+        description: "شوربة السي فود المميزة وطواجن الجمبري والكابوريا.",
+        image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=800&fit=crop",
+        map: "https://www.google.com/maps?q=suez&output=embed"
+    },
+    {
+        id: 6,
+        name: "روكا للأسماك",
+        slug: "rest-seafood-3",
+        category: "restaurants",
+        subCategory: "seafood",
+        address: "الكورنيش الجديد، السويس",
+        phone: "01266667777",
+        hours: "12 م - 12 ص",
+        description: "مذاق فريد للمأكولات البحرية على الطريقة السويسية الأصلية.",
+        image: "https://images.unsplash.com/photo-1559739511-e67140669e45?w=800&fit=crop",
+        map: "https://www.google.com/maps?q=suez&output=embed"
+    },
+    // Oriental
+    {
+        id: 7,
+        name: "مطعم ليالينا",
+        slug: "rest-oriental-1",
+        category: "restaurants",
+        subCategory: "oriental",
+        address: "شارع المحروسة، السويس",
+        phone: "01077778888",
+        hours: "8 ص - 12 ص",
+        description: "أشهى الأطباق الشرقية، ملوخية، محاشي، وطواجن فرن.",
+        image: "https://images.unsplash.com/photo-1541544741938-0af808871cc0?w=800&fit=crop",
+        map: "https://www.google.com/maps?q=suez&output=embed"
+    },
+    {
+        id: 8,
+        name: "البيت السويسي",
+        slug: "rest-oriental-2",
+        category: "restaurants",
+        subCategory: "oriental",
+        address: "السلام، السويس",
+        phone: "01188889999",
+        hours: "9 ص - 11 م",
+        description: "أكل بيتي طازج ونظيف مية في المية بأسعار تنافسية.",
+        image: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=800&fit=crop",
+        map: "https://www.google.com/maps?q=suez&output=embed"
+    },
+    {
+        id: 9,
+        name: "فطاطري مكة",
+        slug: "rest-oriental-3",
+        category: "restaurants",
+        subCategory: "oriental",
+        address: "شارع نمسا، السويس",
+        phone: "01299990000",
+        hours: "24 ساعة",
+        description: "فطائر وحواوشي وبيتزا شرقية على أصولها.",
+        image: "https://images.unsplash.com/photo-1593504049359-74330189a345?w=800&fit=crop",
+        map: "https://www.google.com/maps?q=suez&output=embed"
+    },
+    // Fast Food
+    {
+        id: 10,
+        name: "كريسبي برجر",
+        slug: "rest-fastfood-1",
+        category: "restaurants",
+        subCategory: "fastfood",
+        address: "الملاحة، السويس",
+        phone: "01000001111",
+        hours: "11 ص - 3 ص",
+        description: "ساندوتشات برجر وتشيلي تشيز فرايز لا تقاوم.",
+        image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=800&fit=crop",
+        map: "https://www.google.com/maps?q=suez&output=embed"
+    },
+    {
+        id: 11,
+        name: "وينجز أند فرايز",
+        slug: "rest-fastfood-2",
+        category: "restaurants",
+        subCategory: "fastfood",
+        address: "بورتوفيق، السويس",
+        phone: "01111112222",
+        hours: "12 م - 2 ص",
+        description: "أجنحة دجاج بصوصات متنوعة وبطاطس مقرمشة.",
+        image: "https://images.unsplash.com/photo-1567620832903-9fc6debc209f?w=800&fit=crop",
+        map: "https://www.google.com/maps?q=suez&output=embed"
+    },
+    {
+        id: 12,
+        name: "تاكو تايم",
+        slug: "rest-fastfood-3",
+        category: "restaurants",
+        subCategory: "fastfood",
+        address: "شارع الجيش، السويس",
+        phone: "01222223333",
+        hours: "1 ص - 1 ص",
+        description: "وجبات سريعة خفيفة وساندوتشات تيك واي لذيذة.",
+        image: "https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=800&fit=crop",
+        map: "https://www.google.com/maps?q=suez&output=embed"
+    }
+];

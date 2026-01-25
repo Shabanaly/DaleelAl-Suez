@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مطعم بحر السويس - دليل السويس</title>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <script src="../js/theme.js"></script>
+    <script src="../js/i18n.js"></script>
+</head>
+<body>
+    <header class="site-header">
+        <a href="../index.html" class="logo">
+            <i data-lucide="compass"></i>
+            <span data-i18n="app_name">دليل <span>السويس</span></span>
+        </a>
+        <nav class="top-nav">
+            <a href="../index.html" class="top-nav-link">الرئيسية</a>
+            <button class="top-nav-link" onclick="toggleLanguage()" id="lang-toggle">English</button>
+            <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-toggle">
+                <i data-lucide="sun" class="theme-toggle-icon"></i>
+            </button>
+        </nav>
+    </header>
+
+    <main>
+        <div class="place-hero">
+            <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&h=600&fit=crop" alt="مطعم بحر السويس">
+        </div>
+
+        <div class="place-details-card">
+            <div class="category-label">مطاعم - مأكولات بحرية</div>
+            <h1>مطعم بحر السويس</h1>
+            
+            <div class="info-grid">
+                <div class="info-item">
+                    <i data-lucide="map-pin"></i>
+                    <div>
+                        <strong>العنوان</strong>
+                        شارع البحر - السويس
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i data-lucide="phone"></i>
+                    <div>
+                        <strong>الهاتف</strong>
+                        01111111111
+                    </div>
+                </div>
+                <div class="info-item">
+                    <i data-lucide="clock"></i>
+                    <div>
+                        <strong>مواعيد العمل</strong>
+                        10 صباحًا - 11 مساءً
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="ad-slot" data-ad-position="place-details-top" id="ad-place-top"></div>
+
+        <div class="description-box">
+            <h3 style="margin-bottom:12px; font-weight:700">عن المكان</h3>
+            <p style="color:var(--text-secondary); font-size:14px; line-height:1.8">أفضل المأكولات البحرية الطازجة يومياً من خليج السويس.</p>
+        </div>
+
+        <div class="ad-slot" data-ad-position="place-details-bottom" id="ad-place-bottom"></div>
+        
+        <div class="map-container">
+            <iframe src="https://www.google.com/maps?q=suez&output=embed"></iframe>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h4 data-i18n="app_name">دليل السويس</h4>
+                <p data-i18n="footer_desc">المنصة الأكبر والأكثر موثوقية لاكتشاف مدينة السويس.</p>
+            </div>
+            <div class="footer-links">
+                <h5 data-i18n="footer_quick_links">روابط سريعة</h5>
+                <ul>
+                    <li><a href="../pages/about.html" data-i18n="footer_about">عن الموقع</a></li>
+                    <li><a href="../pages/terms.html" data-i18n="footer_terms">الشروط</a></li>
+                    <li><a href="../pages/privacy.html" data-i18n="footer_privacy">الخصوصية</a></li>
+                    <li><a href="../pages/contact.html" data-i18n="nav_contact">تواصل معنا</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom"><p data-i18n="footer_copyright">© 2025 دليل السويس.</p></div>
+    </footer>
+
+    <!-- Universal Mobile Bottom Nav -->
+    <nav class="bottom-nav">
+        <a href="../index.html" class="nav-item-mobile"><i data-lucide="home"></i> <span data-i18n="nav_home">الرئيسية</span></a>
+        <a href="../categories/restaurants.html" class="nav-item-mobile active"><i data-lucide="grid"></i> <span data-i18n="nav_categories">الأقسام</span></a>
+        <a href="#" class="nav-item-mobile"><i data-lucide="heart"></i> <span data-i18n="nav_favorites">المفضلة</span></a>
+        <a href="#" class="nav-item-mobile"><i data-lucide="user"></i> <span data-i18n="nav_account">حسابي</span></a>
+        <a href="javascript:void(0)" class="nav-item-mobile" onclick="toggleLanguage()"><i data-lucide="languages"></i> <span id="lang-toggle-mobile">English</span></a>
+        <a href="javascript:void(0)" class="nav-item-mobile" onclick="toggleTheme()"><i data-lucide="sun" class="theme-toggle-icon"></i> <span data-i18n="theme_toggle">المظهر</span></a>
+    </nav>
+
+    <script>lucide.createIcons();</script>
+</body>
+</html>

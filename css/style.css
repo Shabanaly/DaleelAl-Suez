@@ -1,0 +1,95 @@
+/* style.css - UI Elements & Transitions */
+
+.lucide { stroke-width: 2.2; }
+
+/* Section Styles */
+.section-wrapper { padding: 40px 20px; }
+.section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.section-head h3 { font-size: 22px; font-weight: 800; color: var(--text-main); }
+
+/* Places Grid */
+.places-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+
+/* Navigation Helpers */
+.sub-nav-wrapper { 
+    margin-bottom: 24px; 
+    position: relative;
+    padding: 0 32px; /* For indicators */
+}
+.sub-nav { 
+    display: flex; 
+    gap: 10px; 
+    overflow-x: auto; 
+    scrollbar-width: none; 
+    scroll-behavior: smooth;
+    padding: 5px 0;
+}
+.sub-nav::-webkit-scrollbar { display: none; }
+.sub-nav a { 
+    padding: 10px 20px; 
+    background: var(--bg-card); 
+    border: 1px solid var(--border); 
+    border-radius: var(--radius-full); 
+    font-size: 14px; 
+    font-weight: 600; 
+    text-decoration: none; 
+    color: var(--text-muted); 
+    transition: 0.3s; 
+    white-space: nowrap;
+}
+.sub-nav a:hover, .sub-nav a.active { 
+    background: var(--primary); 
+    color: #fff; 
+    border-color: var(--primary); 
+    opacity: 1; /* Ensure no opacity is inherited */
+}
+.sub-nav a:active {
+    transform: scale(0.95);
+}
+
+/* Search UI Adjustments */
+.search-ui { max-width: 600px; margin: 0 auto; position: relative; }
+.search-ui input { width: 100%; padding: 18px 24px; padding-left: 54px; border: 1px solid var(--border); border-radius: var(--radius-full); background: var(--bg-card); backdrop-filter: var(--glass-blur); font-size: 16px; color: var(--text-main); box-shadow: var(--glass-shadow); outline: none; }
+.search-ui i { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: var(--primary); width: 22px; height: 22px; }
+
+/* Place Details Adjustments */
+.place-hero { width: 100%; height: 350px; position: relative; }
+.place-hero img { width: 100%; height: 100%; object-fit: cover; border-radius: 0 0 40px 40px; border-bottom: 2px solid var(--primary); }
+.place-details-card { background: var(--bg-card); margin: -60px 20px 20px; border-radius: 30px; padding: 32px; box-shadow: var(--glass-shadow); border: 1px solid var(--border); position: relative; z-index: 10; }
+.place-details-card h1 { font-size: 28px; font-weight: 800; margin-bottom: 12px; }
+
+/* Page Content (Static) */
+.page-container { max-width: 800px; margin: 40px auto; padding: 0 24px; }
+.page-container h1 { font-size: 32px; font-weight: 800; margin-bottom: 24px; }
+.page-container p { font-size: 16px; color: var(--text-secondary); line-height: 1.8; margin-bottom: 20px; }
+
+@media (min-width: 1024px) {
+    .places-list { grid-template-columns: repeat(4, 1fr); gap: 24px; }
+}
+
+@media (min-width: 768px) {
+    .section-wrapper { padding: 60px 40px; }
+}
+
+/* Ad Slots Refinement */
+.ad-slot {
+    width: 100%;
+    margin: 20px auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    min-height: 50px;
+    background: rgba(0,0,0,0.02);
+    border-radius: var(--radius-md);
+    transition: 0.3s;
+}
+
+.ad-slot:empty {
+    margin: 0;
+    min-height: 0;
+}
+
+[data-ad-position="hero-bottom"] { max-width: 970px; margin-top: -40px; position: relative; z-index: 20; }
+[data-ad-position="section-middle"] { max-width: 1200px; padding: 0 20px; }
+[data-ad-position="sidebar"] { width: 300px; height: 600px; }
