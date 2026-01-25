@@ -49,6 +49,36 @@ const translations = {
         "sub_pharm_24h": "24 ساعة",
         "sub_pharm_delivery": "توصيل منزلي",
         
+        "sub_pharm_delivery": "توصيل منزلي",
+        
+        "btn_view_all": "عرض الكل",
+        
+        "title_rest_grill": "مطاعم مشويات في السويس",
+        "title_rest_seafood": "مطاعم مأكولات بحرية في السويس",
+        "title_rest_oriental": "مطاعم شرقية في السويس",
+        "title_rest_fastfood": "مطاعم وجبات سريعة في السويس",
+        
+        "title_cafe_seaview": "كافيهات على البحر في السويس",
+        "title_cafe_workspace": "مساحات عمل في السويس",
+        "title_cafe_original": "كافيهات السويس",
+        
+        "title_doc_dentist": "أطباء أسنان في السويس",
+        "title_doc_pediatric": "أطباء أطفال في السويس",
+        "title_doc_internal": "أطباء باطنة في السويس",
+        "title_doc_orthopedic": "أطباء عظام في السويس",
+        
+        "title_shop_clothes": "محلات ملابس في السويس",
+        "title_shop_supermarket": "سوبر ماركت في السويس",
+        "title_shop_electronics": "محلات إلكترونيات في السويس",
+        "title_shop_shoes": "محلات أحذية في السويس",
+        
+        "title_serv_car": "مراكز صيانة سيارات في السويس",
+        "title_serv_cleaning": "شركات تنظيف في السويس",
+        "title_serv_maintenance": "خدمات صيانة منزلية في السويس",
+        
+        "title_pharm_24h": "صيدليات 24 ساعة في السويس",
+        "title_pharm_delivery": "صيدليات توصيل منزلي في السويس",
+
         "section_latest": "أحدث الإضافات",
         "footer_brand_desc": "دليلك الأول لكل كافيهات السويس.",
         "footer_desc": "المنصة الأكبر والأكثر موثوقية لاكتشاف مدينة السويس.",
@@ -105,6 +135,36 @@ const translations = {
         "sub_pharm_24h": "24 Hours",
         "sub_pharm_delivery": "Delivery",
         
+        "sub_pharm_delivery": "Delivery",
+        
+        "btn_view_all": "View All",
+        
+        "title_rest_grill": "Grill Restaurants in Suez",
+        "title_rest_seafood": "Seafood Restaurants in Suez",
+        "title_rest_oriental": "Oriental Restaurants in Suez",
+        "title_rest_fastfood": "Fast Food Restaurants in Suez",
+        
+        "title_cafe_seaview": "Sea View Cafes in Suez",
+        "title_cafe_workspace": "Coworking Spaces in Suez",
+        "title_cafe_original": "Cafes in Suez",
+        
+        "title_doc_dentist": "Dentists in Suez",
+        "title_doc_pediatric": "Pediatricians in Suez",
+        "title_doc_internal": "Internal Medicine Doctors in Suez",
+        "title_doc_orthopedic": "Orthopedists in Suez",
+        
+        "title_shop_clothes": "Clothing Stores in Suez",
+        "title_shop_supermarket": "Supermarkets in Suez",
+        "title_shop_electronics": "Electronics Stores in Suez",
+        "title_shop_shoes": "Shoe Stores in Suez",
+        
+        "title_serv_car": "Car Maintenance Centers in Suez",
+        "title_serv_cleaning": "Cleaning Services in Suez",
+        "title_serv_maintenance": "Home Maintenance Services in Suez",
+        
+        "title_pharm_24h": "24-Hour Pharmacies in Suez",
+        "title_pharm_delivery": "Home Delivery Pharmacies in Suez",
+
         "section_latest": "Latest Additions",
         "footer_brand_desc": "Your #1 guide for all Suez cafes.",
         "footer_desc": "The most reliable platform to explore Suez City.",
