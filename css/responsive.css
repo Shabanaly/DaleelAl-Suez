@@ -62,77 +62,65 @@
     }
 }
 
-/* --- Mobile Grid Toggle (New Feature) --- */
+/* --- Mobile: Cards & Bubbles Grid (Default) --- */
 @media (max-width: 768px) {
     .categories-nav-section .nav-scroll-wrapper {
-        position: relative; /* Anchor for btn */
-        padding-top: 60px; /* Add breathing room for button and avoid overlap */
+        padding: 0 16px; /* Reset padding, just side padding */
+        overflow: visible;
     }
 
-    .view-toggle-btn {
-        position: absolute;
-        top: 10px; /* Position safely inside the padding area */
-        left: 20px; /* LTR default */
-        background: var(--bg-card);
-        border: 1px solid var(--border);
-        color: var(--primary);
-        width: 36px;
-        height: 36px;
-        border-radius: var(--radius-md);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        z-index: 50;
-        box-shadow: var(--glass-shadow);
-    }
-    
-    html[dir="rtl"] .view-toggle-btn {
-        left: auto;
-        right: 20px;
-    }
-    
-    /* Grid View State */
-    .categories-container.grid-view, .sub-nav.grid-view {
+    /* Main Categories: Grid Cards */
+    .categories-container {
         display: grid !important;
-        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        grid-template-columns: repeat(3, 1fr); /* 3 Columns */
         gap: 12px;
-        flex-wrap: wrap;
         overflow-x: visible;
-        padding-bottom: 12px;
-        white-space: normal;
-        justify-content: start;
+        padding-bottom: 0;
     }
 
-    .sub-nav.grid-view {
-         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-    }
-
-    .categories-container.grid-view .cat-nav-item, 
-    .sub-nav.grid-view a {
-        width: 100%;
+    .cat-nav-item {
+        flex-direction: column;
         justify-content: center;
         text-align: center;
-        flex-direction: column;
-        gap: 6px;
+        padding: 16px 8px;
         height: auto;
-        padding: 12px 6px;
+        gap: 8px;
+        border-radius: 16px; /* Card shape */
+        width: 100%;
+        background: var(--bg-card); /* Ensure card bg */
     }
     
-    .categories-container.grid-view .cat-nav-item i {
-        width: 24px;
-        height: 24px;
-        margin-bottom: 4px;
+    .cat-nav-item i {
+        width: 28px;
+        height: 28px;
+        color: var(--primary);
     }
-    
-    /* Removed the forced hidden arrows - JS handles them now */
-    
-    /* Center Arrows Adjustment for Mobile Padding */
-    .nav-indicator {
-        margin-top: 30px; /* Offset by half the top padding (60px) to center on content */
-    }
-}
 
-@media (min-width: 769px) {
-    .view-toggle-btn { display: none !important; }
+    /* Subcategories: Bubbles/Circles Layout */
+    .sub-nav-wrapper {
+        padding: 0 16px;
+        margin-bottom: 32px;
+        overflow: visible;
+    }
+
+    .sub-nav {
+        display: flex !important;
+        flex-wrap: wrap;
+        justify-content: center; /* Center bubbles */
+        gap: 10px;
+        overflow-x: visible;
+        padding: 0;
+    }
+
+    .sub-nav a {
+        border-radius: 99px; /* Bubble/Pill Shape */
+        padding: 10px 24px;
+        background: var(--bg-card);
+        font-size: 14px;
+        flex: 0 0 auto; /* Allow sizing by content */
+        text-align: center;
+    }
+    
+    /* Remove old toggle/scroll elements styles if any remain */
+    .view-toggle-btn, .nav-indicator { display: none !important; }
 }
