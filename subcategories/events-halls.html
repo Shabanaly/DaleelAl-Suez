@@ -32,6 +32,12 @@
     </header>
 
     <main>
+        <section class="categories-nav-section">
+            <div class="nav-scroll-wrapper">
+                <div class="categories-container" id="global-cats"></div>
+            </div>
+        </section>
+
         <section class="section-wrapper">
             <div class="section-head">
                 <h1 data-i18n="sub_eve_halls">halls</h1>
@@ -65,12 +71,7 @@
         <div class="footer-bottom"><p data-i18n="footer_copyright">© 2025 دليل السويس.</p></div>
     </footer>
 
-    <nav class="bottom-nav">
-        <a href="../index.html" class="nav-item-mobile"><i data-lucide="home"></i> <span data-i18n="nav_home">الرئيسية</span></a>
-        <a href="../categories/restaurants.html" class="nav-item-mobile active"><i data-lucide="grid"></i> <span data-i18n="nav_categories">الأقسام</span></a>
-        <a href="../pages/favorites.html" class="nav-item-mobile"><i data-lucide="heart"></i> <span data-i18n="nav_favorites">المفضلة</span></a>
-        <a href="#" class="nav-item-mobile"><i data-lucide="user"></i> <span data-i18n="nav_account">حسابي</span></a>
-    </nav>
+    <nav class="bottom-nav" id="bottom-nav-container"></nav>
 
     <script src="../js/data/events.js"></script>
     <script src="../js/templates.js"></script>

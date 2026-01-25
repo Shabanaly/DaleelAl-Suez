@@ -34,14 +34,7 @@
     <main>
         <section class="categories-nav-section">
             <div class="nav-scroll-wrapper">
-                <div class="categories-container">
-                    <a href="../categories/restaurants.html" class="cat-nav-item"><i data-lucide="utensils"></i> <span data-i18n="cat_restaurants">مطاعم</span></a>
-                    <a href="../categories/cafes.html" class="cat-nav-item"><i data-lucide="coffee"></i> <span data-i18n="cat_cafes">كافيهات</span></a>
-                    <a href="../categories/doctors.html" class="cat-nav-item"><i data-lucide="stethoscope"></i> <span data-i18n="cat_doctors">أطباء</span></a>
-                    <a href="../categories/pharmacies.html" class="cat-nav-item active"><i data-lucide="pill"></i> <span data-i18n="cat_pharmacies">صيدليات</span></a>
-                    <a href="../categories/shops.html" class="cat-nav-item"><i data-lucide="shopping-bag"></i> <span data-i18n="cat_shops">محلات</span></a>
-                    <a href="../categories/services.html" class="cat-nav-item"><i data-lucide="wrench"></i> <span data-i18n="cat_services">خدمات</span></a>
-                </div>
+                <div class="categories-container" id="global-cats"></div>
             </div>
         </section>
 
@@ -83,13 +76,7 @@
         <div class="footer-bottom"><p data-i18n="footer_copyright">© 2025 دليل السويس.</p></div>
     </footer>
 
-    <nav class="bottom-nav">
-        <a href="../index.html" class="nav-item-mobile"><i data-lucide="home"></i> <span data-i18n="nav_home">الرئيسية</span></a>
-        <a href="../categories/pharmacies.html" class="nav-item-mobile active"><i data-lucide="grid"></i> <span data-i18n="nav_categories">الأقسام</span></a>
-        <a href="../pages/favorites.html" class="nav-item-mobile">
-            <i data-lucide="heart"></i> <span data-i18n="nav_favorites">المفضلة</span></a>
-        <a href="#" class="nav-item-mobile"><i data-lucide="user"></i> <span data-i18n="nav_account">حسابي</span></a>
-    </nav>
+    <nav class="bottom-nav" id="bottom-nav-container"></nav>
 
     <script src="../js/data/pharmacies.js"></script>
     <script src="../js/templates.js"></script>

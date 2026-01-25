@@ -69,56 +69,48 @@
         overflow: visible;
     }
 
-    /* Main Categories: Grid Cards */
+    /* Main Categories: Balanced Horizontal Scroll (Unified) */
     .categories-container {
-        display: grid !important;
-        grid-template-columns: repeat(3, 1fr); /* 3 Columns */
+        display: flex !important;
         gap: 12px;
-        overflow-x: visible;
-        padding-bottom: 0;
+        overflow-x: auto;
+        padding: 10px 0;
+        -webkit-overflow-scrolling: touch;
     }
 
     .cat-nav-item {
-        flex-direction: column;
-        justify-content: center;
-        text-align: center;
-        padding: 16px 8px;
-        height: auto;
-        gap: 8px;
-        border-radius: 16px; /* Card shape */
-        width: 100%;
-        background: var(--bg-card); /* Ensure card bg */
+        flex: 0 0 auto;
+        flex-direction: row; /* Match desktop feel but compact */
+        padding: 10px 18px;
+        border-radius: var(--radius-full);
+        background: var(--bg-card);
     }
     
     .cat-nav-item i {
-        width: 28px;
-        height: 28px;
-        color: var(--primary);
+        width: 18px;
+        height: 18px;
     }
 
-    /* Subcategories: Bubbles/Circles Layout */
-    .sub-nav-wrapper {
-        padding: 0 16px;
-        margin-bottom: 32px;
-        overflow: visible;
-    }
-
+    /* Subcategories: Elegant Pills */
     .sub-nav {
         display: flex !important;
-        flex-wrap: wrap;
-        justify-content: center; /* Center bubbles */
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
         gap: 10px;
-        overflow-x: visible;
-        padding: 0;
+        padding: 5px 16px 12px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
     }
+    .sub-nav::-webkit-scrollbar { display: none; }
 
     .sub-nav a {
-        border-radius: 99px; /* Bubble/Pill Shape */
-        padding: 10px 24px;
+        white-space: nowrap;
+        padding: 10px 20px;
+        border-radius: 99px;
         background: var(--bg-card);
         font-size: 14px;
-        flex: 0 0 auto; /* Allow sizing by content */
-        text-align: center;
+        flex: 0 0 auto;
     }
     
     /* Remove old toggle/scroll elements styles if any remain */
