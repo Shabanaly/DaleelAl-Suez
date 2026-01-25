@@ -6,10 +6,8 @@ document.addEventListener("DOMContentLoaded", function() {
     // التحقق من الصفحة الرئيسية (سواء كانت / أو index.html أو المجلد الرئيسي)
     var isHome = path === "/" || path.endsWith("index.html") || path.endsWith("/") || path === "";
     
-    // تصحيح المسارات للصور والروابط بناءً على مستوى الصفحة
-    var basePath = isHome ? "" : "../";
 
-    // 1. Initial Global Render (Always priority)
+    // 1. Initial Global Render (Universal)
     renderGlobalCategories(isHome, path);
     renderBottomNav(isHome, path);
 
@@ -77,10 +75,10 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // Dynamic Categories Rendering
-    renderGlobalCategories(isHome, path);
-    // Dynamic Bottom Navigation Rendering
-    renderBottomNav(isHome, path);
+    // 3. Final i18n Pass (Ensure all dynamic content is translated)
+    if (typeof updatePageContent === "function") {
+        updatePageContent(getPreferredLanguage());
+    }
 });
 
 /**
@@ -147,23 +145,35 @@ function renderBottomNav(isHome, currentPath) {
     const container = document.getElementById('bottom-nav-container');
     if (!container) return;
 
-    const basePath = isHome ? "" : "../";
-    const activePage = currentPath.split('/').pop() || "index.html";
+    // Determine path prefix based on directory depth
+    let toHome = isHome ? "index.html" : "../index.html";
+    let toCats = isHome ? "categories/restaurants.html" : "restaurants.html";
+    let toFavs = isHome ? "pages/favorites.html" : "../pages/favorites.html";
 
-    const items = [
-        { id: "home", icon: "home", ar: "الرئيسية", url: isHome ? "index.html" : "../index.html" },
-        { id: "categories", icon: "grid", ar: "الأقسام", url: isHome ? "categories/restaurants.html" : "restaurants.html" },
-        { id: "favorites", icon: "heart", ar: "المفضلة", url: isHome ? "pages/favorites.html" : "../pages/favorites.html" },
+    if (currentPath.includes("/pages/") || currentPath.includes("/subcategories/")) {
+        toCats = "../categories/restaurants.html";
+        toFavs = currentPath.includes("/pages/") ? "favorites.html" : "../pages/favorites.html";
+    }
+    
+    if (currentPath.includes("/categories/")) {
+        toHome = "../index.html";
+        toCats = currentPath.split('/').pop(); // already there
+        toFavs = "../pages/favorites.html";
+    }
+
+    const navItems = [
+        { id: "home", icon: "home", ar: "الرئيسية", url: toHome },
+        { id: "categories", icon: "grid", ar: "الأقسام", url: toCats },
+        { id: "favorites", icon: "heart", ar: "المفضلة", url: toFavs },
         { id: "account", icon: "user", ar: "حسابي", url: "#" }
     ];
 
     let html = "";
-    items.forEach(item => {
+    navItems.forEach(item => {
         let isActive = "";
         if (item.id === "home" && isHome) isActive = "active";
-        if (item.id === "categories" && currentPath.includes("/categories/")) isActive = "active";
-        if (item.id === "categories" && currentPath.includes("/subcategories/")) isActive = "active";
-        if (item.id === "favorites" && currentPath.includes("/favorites.html")) isActive = "active";
+        if (item.id === "categories" && (currentPath.includes("/categories/") || currentPath.includes("/subcategories/"))) isActive = "active";
+        if (item.id === "favorites" && currentPath.includes("favorites.html")) isActive = "active";
 
         const onClick = item.id === "account" ? 'onclick="openAccountModal(event)"' : "";
         
