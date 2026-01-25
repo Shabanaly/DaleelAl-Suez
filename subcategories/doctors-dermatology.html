@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="title_cafe_workspace">مساحات عمل في السويس - دليل السويس</title>
+    <title data-i18n="title_doc_dermatology">dermatology - Doctors</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="../css/reset.css">
     <link rel="stylesheet" href="../css/layout.css">
@@ -15,11 +15,12 @@
 <body>
     <header class="site-header">
         <a href="../index.html" class="logo">
-            <i data-lucide="compass"></i> <span data-i18n="app_name"><span data-i18n="app_name">دليل <span>السويس</span></span></span>
+            <i data-lucide="compass"></i>
+            <span data-i18n="app_name">دليل <span>السويس</span></span>
         </a>
         <nav class="top-nav">
             <a href="../index.html" class="top-nav-link" data-i18n="nav_home">الرئيسية</a>
-            <a href="../categories/restaurants.html" class="top-nav-link" data-i18n="nav_categories">الأقسام</a>
+            <a href="../categories/restaurants.html" class="top-nav-link active" data-i18n="nav_categories">الأقسام</a>
             <a href="../pages/favorites.html" class="top-nav-link" data-i18n="nav_favorites">المفضلة</a>
             <a href="#" class="top-nav-link" data-i18n="nav_account">حسابي</a>
             <a href="../pages/contact.html" class="top-nav-link" data-i18n="nav_contact">تواصل معنا</a>
@@ -39,21 +40,15 @@
 
         <section class="section-wrapper">
             <div class="section-head">
-                <h1><span data-i18n="title_cafe_workspace">مساحات عمل في السويس</span></h1>
+                <h1 data-i18n="title_doc_dermatology">dermatology</h1>
             </div>
-            <div class="ad-slot" data-ad-position="subcat-top" id="ad-subcat-top"></div>
-
-            <div class="sub-nav-wrapper">
-                <div class="sub-nav">
-                    <a href="../categories/cafes.html" data-i18n="sub_all">الكل</a>
-                    <a href="cafes-sea-view.html" data-i18n="sub_cafe_seaview">على البحر</a>
-                    <a href="cafes-workspace.html" class="active" data-i18n="sub_cafe_workspace">مساحات عمل</a>
-                    <a href="cafes-regular.html" data-i18n="sub_cafe_original">كافيهات</a>
-                </div>
+            
+            <div class="sub-nav">
+                <a href="../categories/doctors.html" data-i18n="sub_all">الكل</a>
+                <a href="doctors-internal.html" data-i18n="sub_doc_internal">internal</a>                <a href="doctors-pediatric.html" data-i18n="sub_doc_pediatric">pediatric</a>                <a href="doctors-obgyn.html" data-i18n="sub_doc_obgyn">obgyn</a>                <a href="doctors-dermatology.html" class="active" data-i18n="sub_doc_dermatology">dermatology</a>                <a href="doctors-dentist.html" data-i18n="sub_doc_dentist">dentist</a>                <a href="doctors-ophthalmology.html" data-i18n="sub_doc_ophthalmology">ophthalmology</a>                <a href="doctors-orthopedic.html" data-i18n="sub_doc_orthopedic">orthopedic</a>                <a href="doctors-neurology.html" data-i18n="sub_doc_neurology">neurology</a>                <a href="doctors-cardiology.html" data-i18n="sub_doc_cardiology">cardiology</a>                <a href="doctors-ent.html" data-i18n="sub_doc_ent">ent</a>                <a href="doctors-psychiatry.html" data-i18n="sub_doc_psychiatry">psychiatry</a>                <a href="doctors-slimming.html" data-i18n="sub_doc_slimming">slimming</a>                <a href="doctors-physiotherapy.html" data-i18n="sub_doc_physiotherapy">physiotherapy</a>                <a href="doctors-lab_xray.html" data-i18n="sub_doc_lab_xray">lab_xray</a>
             </div>
 
             <div id="places-container" class="places-list"></div>
-            <div class="ad-slot" data-ad-position="subcat-bottom" id="ad-subcat-bottom"></div>
         </section>
     </main>
 
@@ -78,19 +73,19 @@
 
     <nav class="bottom-nav" id="bottom-nav-container"></nav>
 
-    <script src="../js/data/cafes.js"></script>
+    <script src="../js/data/doctors.js"></script>
     <script src="../js/templates.js"></script>
     <script src="../js/render.js"></script>
-    <script src="../js/filter.js"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            var places = filterBySubCategory(cafes, "workspace");
-            renderPlaces(places, "places-container");
-            lucide.createIcons();
-        });
-    </script>
-        
     
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof doctors !== 'undefined') {
+                const filtered = doctors.filter(p => p.subCategory === 'dermatology');
+                renderPlaces(filtered, 'places-container');
+            }
+        });
+        lucide.createIcons();
+    </script>
     <script src="../js/favorites.js"></script>
     <script src="../js/main.js"></script>
 </body>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="title_rest_fried_chicken">fried_chicken - Restaurants</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <script src="../js/theme.js"></script>
+    <script src="../js/i18n.js"></script>
+</head>
+<body>
+    <header class="site-header">
+        <a href="../index.html" class="logo">
+            <i data-lucide="compass"></i>
+            <span data-i18n="app_name">دليل <span>السويس</span></span>
+        </a>
+        <nav class="top-nav">
+            <a href="../index.html" class="top-nav-link" data-i18n="nav_home">الرئيسية</a>
+            <a href="../categories/restaurants.html" class="top-nav-link active" data-i18n="nav_categories">الأقسام</a>
+            <a href="../pages/favorites.html" class="top-nav-link" data-i18n="nav_favorites">المفضلة</a>
+            <a href="#" class="top-nav-link" data-i18n="nav_account">حسابي</a>
+            <a href="../pages/contact.html" class="top-nav-link" data-i18n="nav_contact">تواصل معنا</a>
+            <button class="top-nav-link" onclick="toggleLanguage()" id="lang-toggle">English</button>
+            <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-toggle">
+                <i data-lucide="sun" class="theme-toggle-icon"></i>
+            </button>
+        </nav>
+    </header>
+
+    <main>
+        <section class="categories-nav-section">
+            <div class="nav-scroll-wrapper">
+                <div class="categories-container" id="global-cats"></div>
+            </div>
+        </section>
+
+        <section class="section-wrapper">
+            <div class="section-head">
+                <h1 data-i18n="title_rest_fried_chicken">fried_chicken</h1>
+            </div>
+            
+            <div class="sub-nav">
+                <a href="../categories/restaurants.html" data-i18n="sub_all">الكل</a>
+                <a href="restaurants-popular.html" data-i18n="sub_rest_popular">popular</a>                <a href="restaurants-homemade.html" data-i18n="sub_rest_homemade">homemade</a>                <a href="restaurants-grill.html" data-i18n="sub_rest_grill">grill</a>                <a href="restaurants-seafood.html" data-i18n="sub_rest_seafood">seafood</a>                <a href="restaurants-traditional.html" data-i18n="sub_rest_traditional">traditional</a>                <a href="restaurants-pizza.html" data-i18n="sub_rest_pizza">pizza</a>                <a href="restaurants-burger.html" data-i18n="sub_rest_burger">burger</a>                <a href="restaurants-fried_chicken.html" class="active" data-i18n="sub_rest_fried_chicken">fried_chicken</a>                <a href="restaurants-shawarma.html" data-i18n="sub_rest_shawarma">shawarma</a>                <a href="restaurants-international.html" data-i18n="sub_rest_international">international</a>                <a href="restaurants-family.html" data-i18n="sub_rest_family">family</a>                <a href="restaurants-budget.html" data-i18n="sub_rest_budget">budget</a>                <a href="restaurants-luxury.html" data-i18n="sub_rest_luxury">luxury</a>                <a href="restaurants-delivery_only.html" data-i18n="sub_rest_delivery_only">delivery_only</a>                <a href="restaurants-open_24h.html" data-i18n="sub_rest_open_24h">open_24h</a>
+            </div>
+
+            <div id="places-container" class="places-list"></div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h4 data-i18n="app_name">دليل السويس</h4>
+                <p data-i18n="footer_desc">المنصة الأكبر والأكثر موثوقية لاكتشاف مدينة السويس.</p>
+            </div>
+            <div class="footer-links">
+                <h5 data-i18n="footer_quick_links">روابط سريعة</h5>
+                <ul>
+                    <li><a href="../pages/about.html" data-i18n="footer_about">عن الموقع</a></li>
+                    <li><a href="../pages/terms.html" data-i18n="footer_terms">الشروط</a></li>
+                    <li><a href="../pages/privacy.html" data-i18n="footer_privacy">الخصوصية</a></li>
+                    <li><a href="../pages/contact.html" data-i18n="nav_contact">تواصل معنا</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom"><p data-i18n="footer_copyright">© 2025 دليل السويس.</p></div>
+    </footer>
+
+    <nav class="bottom-nav" id="bottom-nav-container"></nav>
+
+    <script src="../js/data/restaurants.js"></script>
+    <script src="../js/templates.js"></script>
+    <script src="../js/render.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof restaurants !== 'undefined') {
+                const filtered = restaurants.filter(p => p.subCategory === 'fried_chicken');
+                renderPlaces(filtered, 'places-container');
+            }
+        });
+        lucide.createIcons();
+    </script>
+    <script src="../js/favorites.js"></script>
+    <script src="../js/main.js"></script>
+</body>
+</html>

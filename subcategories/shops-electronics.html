@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محلات إلكترونيات في السويس - دليل السويس</title>
+    <title data-i18n="title_shop_electronics">electronics - Shops</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="../css/reset.css">
     <link rel="stylesheet" href="../css/layout.css">
@@ -15,11 +15,12 @@
 <body>
     <header class="site-header">
         <a href="../index.html" class="logo">
-            <i data-lucide="compass"></i> <span data-i18n="app_name"><span data-i18n="app_name">دليل <span>السويس</span></span></span>
+            <i data-lucide="compass"></i>
+            <span data-i18n="app_name">دليل <span>السويس</span></span>
         </a>
         <nav class="top-nav">
             <a href="../index.html" class="top-nav-link" data-i18n="nav_home">الرئيسية</a>
-            <a href="../categories/shops.html" class="top-nav-link active" data-i18n="nav_categories">الأقسام</a>
+            <a href="../categories/restaurants.html" class="top-nav-link active" data-i18n="nav_categories">الأقسام</a>
             <a href="../pages/favorites.html" class="top-nav-link" data-i18n="nav_favorites">المفضلة</a>
             <a href="#" class="top-nav-link" data-i18n="nav_account">حسابي</a>
             <a href="../pages/contact.html" class="top-nav-link" data-i18n="nav_contact">تواصل معنا</a>
@@ -39,22 +40,15 @@
 
         <section class="section-wrapper">
             <div class="section-head">
-                <h1><span data-i18n="title_shop_electronics">محلات إلكترونيات في السويس</span></h1>
+                <h1 data-i18n="title_shop_electronics">electronics</h1>
             </div>
-            <div class="ad-slot" data-ad-position="subcat-top" id="ad-subcat-top"></div>
             
-            <div class="sub-nav-wrapper">
-                <div class="sub-nav">
-                    <a href="../categories/shops.html" data-i18n="sub_all">الكل</a>
-                    <a href="shops-clothes.html" data-i18n="sub_shop_clothes">ملابس</a>
-                    <a href="shops-supermarket.html" data-i18n="sub_shop_supermarket">سوبر ماركت</a>
-                    <a href="shops-electronics.html" class="active" data-i18n="sub_shop_electronics">إلكترونيات</a>
-                    <a href="shops-shoes.html" data-i18n="sub_shop_shoes">أحذية</a>
-                </div>
+            <div class="sub-nav">
+                <a href="../categories/shops.html" data-i18n="sub_all">الكل</a>
+                <a href="shops-men_clothes.html" data-i18n="sub_shop_men_clothes">men_clothes</a>                <a href="shops-women_clothes.html" data-i18n="sub_shop_women_clothes">women_clothes</a>                <a href="shops-kids_clothes.html" data-i18n="sub_shop_kids_clothes">kids_clothes</a>                <a href="shops-shoes.html" data-i18n="sub_shop_shoes">shoes</a>                <a href="shops-bags_acc.html" data-i18n="sub_shop_bags_acc">bags_acc</a>                <a href="shops-electronics.html" class="active" data-i18n="sub_shop_electronics">electronics</a>                <a href="shops-mobiles.html" data-i18n="sub_shop_mobiles">mobiles</a>                <a href="shops-computers.html" data-i18n="sub_shop_computers">computers</a>                <a href="shops-home_tools.html" data-i18n="sub_shop_home_tools">home_tools</a>                <a href="shops-supermarket.html" data-i18n="sub_shop_supermarket">supermarket</a>                <a href="shops-spices.html" data-i18n="sub_shop_spices">spices</a>                <a href="shops-cosmetics.html" data-i18n="sub_shop_cosmetics">cosmetics</a>                <a href="shops-jewelry.html" data-i18n="sub_shop_jewelry">jewelry</a>
             </div>
 
             <div id="places-container" class="places-list"></div>
-            <div class="ad-slot" data-ad-position="subcat-bottom" id="ad-subcat-bottom"></div>
         </section>
     </main>
 
@@ -82,17 +76,17 @@
     <script src="../js/data/shops.js"></script>
     <script src="../js/templates.js"></script>
     <script src="../js/render.js"></script>
-    <script src="../js/filter.js"></script>
-    
     
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            var places = filterBySubCategory(shops, "electronics");
-            renderPlaces(places, "places-container");
-            lucide.createIcons();
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof shops !== 'undefined') {
+                const filtered = shops.filter(p => p.subCategory === 'electronics');
+                renderPlaces(filtered, 'places-container');
+            }
         });
+        lucide.createIcons();
     </script>
-        <script src="../js/favorites.js"></script>
+    <script src="../js/favorites.js"></script>
     <script src="../js/main.js"></script>
 </body>
 </html>

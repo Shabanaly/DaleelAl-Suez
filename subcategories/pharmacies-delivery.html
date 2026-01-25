@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>صيدليات توصيل في السويس - دليل السويس</title>
+    <title data-i18n="title_pharm_delivery">delivery - Pharmacies</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="../css/reset.css">
     <link rel="stylesheet" href="../css/layout.css">
@@ -15,11 +15,12 @@
 <body>
     <header class="site-header">
         <a href="../index.html" class="logo">
-            <i data-lucide="compass"></i> <span data-i18n="app_name"><span data-i18n="app_name">دليل <span>السويس</span></span></span>
+            <i data-lucide="compass"></i>
+            <span data-i18n="app_name">دليل <span>السويس</span></span>
         </a>
         <nav class="top-nav">
             <a href="../index.html" class="top-nav-link" data-i18n="nav_home">الرئيسية</a>
-            <a href="../categories/pharmacies.html" class="top-nav-link active" data-i18n="nav_categories">الأقسام</a>
+            <a href="../categories/restaurants.html" class="top-nav-link active" data-i18n="nav_categories">الأقسام</a>
             <a href="../pages/favorites.html" class="top-nav-link" data-i18n="nav_favorites">المفضلة</a>
             <a href="#" class="top-nav-link" data-i18n="nav_account">حسابي</a>
             <a href="../pages/contact.html" class="top-nav-link" data-i18n="nav_contact">تواصل معنا</a>
@@ -39,20 +40,15 @@
 
         <section class="section-wrapper">
             <div class="section-head">
-                <h1><span data-i18n="title_pharm_delivery">صيدليات توصيل في السويس</span></h1>
+                <h1 data-i18n="title_pharm_delivery">delivery</h1>
             </div>
-            <div class="ad-slot" data-ad-position="subcat-top" id="ad-subcat-top"></div>
             
-            <div class="sub-nav-wrapper">
-                <div class="sub-nav">
-                    <a href="../categories/pharmacies.html" data-i18n="sub_all">الكل</a>
-                    <a href="pharmacies-24h.html" data-i18n="sub_pharm_24h">24 ساعة</a>
-                    <a href="pharmacies-delivery.html" class="active">توصيل منزلي</a>
-                </div>
+            <div class="sub-nav">
+                <a href="../categories/pharmacies.html" data-i18n="sub_all">الكل</a>
+                <a href="pharmacies-open_24h.html" data-i18n="sub_pharm_open_24h">open_24h</a>                <a href="pharmacies-insurance.html" data-i18n="sub_pharm_insurance">insurance</a>                <a href="pharmacies-medical_supplies.html" data-i18n="sub_pharm_medical_supplies">medical_supplies</a>                <a href="pharmacies-cosmetics.html" data-i18n="sub_pharm_cosmetics">cosmetics</a>                <a href="pharmacies-imported_meds.html" data-i18n="sub_pharm_imported_meds">imported_meds</a>                <a href="pharmacies-delivery.html" class="active" data-i18n="sub_pharm_delivery">delivery</a>                <a href="pharmacies-emergency.html" data-i18n="sub_pharm_emergency">emergency</a>
             </div>
 
             <div id="places-container" class="places-list"></div>
-            <div class="ad-slot" data-ad-position="subcat-bottom" id="ad-subcat-bottom"></div>
         </section>
     </main>
 
@@ -80,17 +76,17 @@
     <script src="../js/data/pharmacies.js"></script>
     <script src="../js/templates.js"></script>
     <script src="../js/render.js"></script>
-    <script src="../js/filter.js"></script>
-    
     
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            var places = filterBySubCategory(pharmacies, "delivery");
-            renderPlaces(places, "places-container");
-            lucide.createIcons();
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof pharmacies !== 'undefined') {
+                const filtered = pharmacies.filter(p => p.subCategory === 'delivery');
+                renderPlaces(filtered, 'places-container');
+            }
         });
+        lucide.createIcons();
     </script>
-        <script src="../js/favorites.js"></script>
+    <script src="../js/favorites.js"></script>
     <script src="../js/main.js"></script>
 </body>
 </html>
