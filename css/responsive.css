@@ -108,7 +108,7 @@
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 12px;
         max-height: 320px;
-        padding: 5px;
+        padding: 20px;
     }
 
     .sub-nav a {
