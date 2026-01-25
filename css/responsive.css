@@ -54,8 +54,85 @@
     }
 }
 
+/* ... existing ... */
+
 @media (min-width: 1400px) {
     main {
         max-width: 1400px;
     }
+}
+
+/* --- Mobile Grid Toggle (New Feature) --- */
+@media (max-width: 768px) {
+    .categories-nav-section .nav-scroll-wrapper {
+        position: relative; /* Anchor for btn */
+        padding-top: 60px; /* Add breathing room for button and avoid overlap */
+    }
+
+    .view-toggle-btn {
+        position: absolute;
+        top: 10px; /* Position safely inside the padding area */
+        left: 20px; /* LTR default */
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        color: var(--primary);
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 50;
+        box-shadow: var(--glass-shadow);
+    }
+    
+    html[dir="rtl"] .view-toggle-btn {
+        left: auto;
+        right: 20px;
+    }
+    
+    /* Grid View State */
+    .categories-container.grid-view, .sub-nav.grid-view {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+        gap: 12px;
+        flex-wrap: wrap;
+        overflow-x: visible;
+        padding-bottom: 12px;
+        white-space: normal;
+        justify-content: start;
+    }
+
+    .sub-nav.grid-view {
+         grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+
+    .categories-container.grid-view .cat-nav-item, 
+    .sub-nav.grid-view a {
+        width: 100%;
+        justify-content: center;
+        text-align: center;
+        flex-direction: column;
+        gap: 6px;
+        height: auto;
+        padding: 12px 6px;
+    }
+    
+    .categories-container.grid-view .cat-nav-item i {
+        width: 24px;
+        height: 24px;
+        margin-bottom: 4px;
+    }
+    
+    /* Removed the forced hidden arrows - JS handles them now */
+    
+    /* Center Arrows Adjustment for Mobile Padding */
+    .nav-indicator {
+        margin-top: 30px; /* Offset by half the top padding (60px) to center on content */
+    }
+}
+
+@media (min-width: 769px) {
+    .view-toggle-btn { display: none !important; }
 }

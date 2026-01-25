@@ -67,6 +67,21 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // استرجاع موضع التمرير للأقسام (Mobile UX)
     restoreScrollPositions();
+
+    // استعادة وضع العرض (Grid/List)
+    const savedView = localStorage.getItem("viewMode");
+    if (savedView === 'grid') {
+        const containers = document.querySelectorAll('.categories-container, .sub-nav');
+        containers.forEach(el => el.classList.add('grid-view'));
+        
+        // Update Icon Initial State
+        const btn = document.querySelector('.view-toggle-btn i');
+        if (btn) btn.setAttribute('data-lucide', 'list');
+        
+        // Update Arrows Initial State
+        const indicators = document.querySelectorAll('.nav-indicator');
+        indicators.forEach(ind => ind.style.display = 'none');
+    }
 });
 
 function restoreScrollPositions() {
@@ -113,10 +128,19 @@ function initScrollIndicators() {
         const rightBtn = wrapper.querySelector('.nav-indicator-right');
 
         const updateArrows = () => {
+            // Check if grid view is active - hide arrows if so
+            if (container.classList.contains('grid-view')) {
+                leftBtn.style.display = 'none';
+                rightBtn.style.display = 'none';
+                return;
+            }
+
             const isScrollable = container.scrollWidth > container.clientWidth + 2;
             if (!isScrollable) {
                 leftBtn.classList.remove('visible');
                 rightBtn.classList.remove('visible');
+                leftBtn.style.display = ''; // Reset display to allow visibility check
+                rightBtn.style.display = '';
                 return;
             }
 
@@ -135,10 +159,46 @@ function initScrollIndicators() {
 
             leftBtn.classList.toggle('visible', hasMoreLeft);
             rightBtn.classList.toggle('visible', hasMoreRight);
+            
+            // Ensure they are displayed (not none) when visible
+            leftBtn.style.display = '';
+            rightBtn.style.display = '';
         };
 
         container.addEventListener('scroll', updateArrows);
         window.addEventListener('resize', updateArrows);
-        updateArrows(); // الحالة الأولية
+        // Delay initial update slightly to ensure grid class is applied if saved
+        setTimeout(updateArrows, 50); 
     });
+}
+
+function toggleViewMode() {
+    const containers = document.querySelectorAll('.categories-container, .sub-nav');
+    const btn = document.querySelector('.view-toggle-btn i');
+    
+    let isGrid = false;
+    containers.forEach(el => {
+        el.classList.toggle('grid-view');
+        if (el.classList.contains('grid-view')) isGrid = true;
+    });
+
+    // Save State
+    localStorage.setItem("viewMode", isGrid ? "grid" : "list");
+
+    // Toggle Icon
+    if (btn) {
+        btn.setAttribute('data-lucide', isGrid ? 'list' : 'layout-grid');
+        if (typeof lucide !== "undefined") lucide.createIcons();
+    }
+    
+    // Toggle Arrows Visibility
+    const indicators = document.querySelectorAll('.nav-indicator');
+    indicators.forEach(ind => {
+        ind.style.display = isGrid ? 'none' : '';
+    });
+    
+    // Trigger resize to update arrow visibility logic if switching back to list
+    if (!isGrid) {
+        window.dispatchEvent(new Event('resize'));
+    }
 }
