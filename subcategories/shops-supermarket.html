@@ -21,7 +21,7 @@
         <nav class="top-nav">
             <a href="../index.html" class="top-nav-link" data-i18n="nav_home">الرئيسية</a>
             <a href="../categories/shops.html" class="top-nav-link active" data-i18n="nav_categories">الأقسام</a>
-            <a href="#" class="top-nav-link" data-i18n="nav_favorites">المفضلة</a>
+            <a href="../pages/favorites.html" class="top-nav-link" data-i18n="nav_favorites">المفضلة</a>
             <a href="#" class="top-nav-link" data-i18n="nav_account">حسابي</a>
             <a href="../pages/contact.html" class="top-nav-link" data-i18n="nav_contact">تواصل معنا</a>
             <button class="top-nav-link" onclick="toggleLanguage()" id="lang-toggle">English</button>
@@ -88,7 +88,8 @@
     <nav class="bottom-nav">
         <a href="../index.html" class="nav-item-mobile"><i data-lucide="home"></i> <span data-i18n="nav_home">الرئيسية</span></a>
         <a href="../categories/shops.html" class="nav-item-mobile active"><i data-lucide="grid"></i> <span data-i18n="nav_categories">الأقسام</span></a>
-        <a href="#" class="nav-item-mobile"><i data-lucide="heart"></i> <span data-i18n="nav_favorites">المفضلة</span></a>
+        <a href="../pages/favorites.html" class="nav-item-mobile">
+            <i data-lucide="heart"></i> <span data-i18n="nav_favorites">المفضلة</span></a>
         <a href="#" class="nav-item-mobile"><i data-lucide="user"></i> <span data-i18n="nav_account">حسابي</span></a>
     </nav>
 
@@ -96,6 +97,7 @@
     <script src="../js/templates.js"></script>
     <script src="../js/render.js"></script>
     <script src="../js/filter.js"></script>
+    <script src="../js/favorites.js"></script>
     <script src="../js/main.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {

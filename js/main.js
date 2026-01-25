@@ -132,13 +132,14 @@ function closeAccountModal() {
     if (modal) modal.classList.remove('active');
 }
 
-// Attach click handler to mobile account nav item
+// Attach click handler to account nav items (both top and bottom)
 document.addEventListener('DOMContentLoaded', function() {
-    // Find the link that contains the account translation span
-    const accountSpan = document.querySelector('.bottom-nav .nav-item-mobile [data-i18n="nav_account"]');
-    const accountLink = accountSpan ? accountSpan.closest('.nav-item-mobile') : null;
-    
-    if (accountLink) {
-        accountLink.addEventListener('click', openAccountModal);
-    }
+    // Find all links that contain the account translation span
+    const accountSpans = document.querySelectorAll('[data-i18n="nav_account"]');
+    accountSpans.forEach(span => {
+        const accountLink = span.closest('a, button');
+        if (accountLink) {
+            accountLink.addEventListener('click', openAccountModal);
+        }
+    });
 });

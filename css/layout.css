@@ -473,3 +473,60 @@ button, a, .top-nav-link, .cat-nav-item, .nav-item-mobile {
     padding: 2px 8px;
     border-radius: 10px;
 }
+
+/* ==================== FAVORITES BUTTON ==================== */
+.fav-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #fff;
+    z-index: 10;
+    transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.fav-btn i {
+    width: 20px;
+    height: 20px;
+    fill: transparent;
+    transition: 0.3s;
+}
+
+.fav-btn:hover {
+    transform: scale(1.1);
+    background: var(--primary);
+}
+
+.fav-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+
+.fav-btn.active i {
+    fill: #fff;
+    stroke: #fff;
+}
+
+.fav-btn:active {
+    transform: scale(0.9);
+}
+
+[data-theme="light"] .fav-btn {
+    color: var(--text-muted);
+}
+
+[data-theme="light"] .fav-btn.active {
+    color: #fff;
+}

@@ -102,7 +102,9 @@ const translations = {
         "footer_privacy": "الخصوصية",
         "footer_copyright": "© 2025 دليل السويس.",
         "lang_switch": "English",
-        "theme_toggle": "المظهر"
+        "theme_toggle": "المظهر",
+        "no_favorites_title": "لا توجد عناصر مفضلة",
+        "no_favorites_desc": "قم بإضافة الأماكن التي تعجبك بالضغط على أيقونة القلب لتراها هنا."
     },
     en: {
         "app_name": "Daleel <span>Al-Suez</span>",
@@ -202,7 +204,9 @@ const translations = {
         "footer_privacy": "Privacy",
         "footer_copyright": "© 2025 Suez Guide.",
         "lang_switch": "العربية",
-        "theme_toggle": "Theme"
+        "theme_toggle": "Theme",
+        "no_favorites_title": "No Favorites Added",
+        "no_favorites_desc": "Add places you like by clicking the heart icon to see them here."
     }
 };
 

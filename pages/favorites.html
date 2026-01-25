@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="nav_favorites">المفضلة - دليل السويس</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <script src="../js/theme.js"></script>
+    <script src="../js/i18n.js"></script>
+</head>
+<body>
+    <header class="site-header">
+        <a href="../index.html" class="logo">
+            <i data-lucide="compass"></i>
+            <span data-i18n="app_name">دليل <span>السويس</span></span>
+        </a>
+        <nav class="top-nav">
+            <a href="../index.html" class="top-nav-link" data-i18n="nav_home">الرئيسية</a>
+            <a href="../categories/restaurants.html" class="top-nav-link" data-i18n="nav_categories">الأقسام</a>
+            <a href="favorites.html" class="top-nav-link active" data-i18n="nav_favorites">المفضلة</a>
+            <a href="#" class="top-nav-link" data-i18n="nav_account">حسابي</a>
+            <a href="contact.html" class="top-nav-link" data-i18n="nav_contact">تواصل معنا</a>
+            <button class="top-nav-link" onclick="toggleLanguage()" id="lang-toggle">English</button>
+            <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-toggle">
+                <i data-lucide="sun" class="theme-toggle-icon"></i>
+            </button>
+        </nav>
+    </header>
+
+    <main>
+        <section class="section-wrapper">
+            <div class="section-head">
+                <h1 data-i18n="nav_favorites">الأماكن المفضلة</h1>
+                <p style="color:var(--text-muted); margin-top:8px;" id="fav-count-meta"></p>
+            </div>
+            
+            <div id="favorites-container" class="places-list">
+                <!-- Favorites Rendered Here -->
+            </div>
+
+            <div id="no-favorites" style="display:none; text-align:center; padding:80px 20px;">
+                <i data-lucide="heart" style="width:64px; height:64px; color:var(--text-muted); opacity:0.3; margin-bottom:20px;"></i>
+                <h3 style="color:var(--text-main); margin-bottom:12px;" data-i18n="no_favorites_title">لا توجد عناصر مفضلة</h3>
+                <p style="color:var(--text-muted);" data-i18n="no_favorites_desc">قم بإضافة الأماكن التي تعجبك بالضغط على أيقونة القلب لتراها هنا.</p>
+                <a href="../index.html" class="modal-action-btn" style="display:inline-flex; width:auto; padding:12px 32px; margin-top:32px; text-decoration:none;" data-i18n="nav_home">استكشف الأماكن</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h4 data-i18n="app_name">دليل السويس</h4>
+                <p data-i18n="footer_desc">المنصة الأكبر والأكثر موثوقية لاكتشاف مدينة السويس.</p>
+            </div>
+            <div class="footer-links">
+                <h5 data-i18n="footer_quick_links">روابط سريعة</h5>
+                <ul>
+                    <li><a href="about.html" data-i18n="footer_about">عن الموقع</a></li>
+                    <li><a href="terms.html" data-i18n="footer_terms">الشروط</a></li>
+                    <li><a href="privacy.html" data-i18n="footer_privacy">الخصوصية</a></li>
+                    <li><a href="contact.html" data-i18n="nav_contact">تواصل معنا</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom"><p data-i18n="footer_copyright">© 2025 دليل السويس.</p></div>
+    </footer>
+
+    <nav class="bottom-nav">
+        <a href="../index.html" class="nav-item-mobile"><i data-lucide="home"></i> <span data-i18n="nav_home">الرئيسية</span></a>
+        <a href="../categories/restaurants.html" class="nav-item-mobile"><i data-lucide="grid"></i> <span data-i18n="nav_categories">الأقسام</span></a>
+        <a href="favorites.html" class="nav-item-mobile active"><i data-lucide="heart"></i> <span data-i18n="nav_favorites">المفضلة</span></a>
+        <a href="#" class="nav-item-mobile"><i data-lucide="user"></i> <span data-i18n="nav_account">حسابي</span></a>
+    </nav>
+
+    <!-- Project Logic Assets -->
+    <script src="../js/data/restaurants.js"></script>
+    <script src="../js/data/cafes.js"></script>
+    <script src="../js/data/doctors.js"></script>
+    <script src="../js/data/pharmacies.js"></script>
+    <script src="../js/data/services.js"></script>
+    <script src="../js/data/shops.js"></script>
+    <script src="../js/templates.js"></script>
+    <script src="../js/render.js"></script>
+    <script src="../js/favorites.js"></script>
+    <script src="../js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof renderFavorites === 'function') {
+                renderFavorites();
+            }
+        });
+    </script>
+</body>
+</html>
