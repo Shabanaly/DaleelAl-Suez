@@ -241,6 +241,7 @@ body {
     width: 44px;
     height: 44px;
     padding: 0;
+    margin-bottom: 10px;
 }
 
 /* Header Action Button (e.g., Add Category) */
