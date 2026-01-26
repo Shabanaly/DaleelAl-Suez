@@ -613,3 +613,66 @@ html, body {
 [data-theme="light"] .fav-btn.active {
     color: #fff;
 }
+
+/* ==================== SITE PRELOADER (SUEZ LOGO) ==================== */
+#site-preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--bg-main);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    transition: opacity 0.6s ease, visibility 0.6s;
+}
+
+#site-preloader.fade-out {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.loader-logo-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 24px;
+}
+
+/* Animated Gear */
+.loader-gear {
+    animation: gear-rotate 10s linear infinite;
+    transform-origin: 256px 256px; /* Exact center of 512x512 viewBox */
+}
+
+/* Animated Waves */
+.loader-waves {
+    animation: wave-flow 3s ease-in-out infinite alternate;
+    transform-origin: center;
+}
+
+@keyframes gear-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes wave-flow {
+    from { transform: translateX(-5px); }
+    to { transform: translateX(5px); }
+}
+
+.loader-text {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: 1px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+}
