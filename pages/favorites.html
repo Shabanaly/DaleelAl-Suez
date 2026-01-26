@@ -75,27 +75,19 @@
 
     <nav class="bottom-nav" id="bottom-nav-container"></nav>
 
-    <!-- Project Logic Assets -->
-    <script src="../js/data/restaurants.js"></script>
-    <script src="../js/data/cafes.js"></script>
-    <script src="../js/data/doctors.js"></script>
-    <script src="../js/data/pharmacies.js"></script>
-    <script src="../js/data/services.js"></script>
-    <script src="../js/data/shops.js"></script>
-    <script src="../js/templates.js"></script>
-    <script src="../js/render.js"></script>
-    
+    <!-- Global Logic -->
+    <script src="../js/favorites.js"></script>
+    <script src="../js/services/places.service.js"></script>
+    <script src="../js/services/categories.service.js"></script>
+    <script src="../js/main.js"></script>
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // favorites.js handles data fetching and rendering now
             if (typeof renderFavorites === 'function') {
                 renderFavorites();
             }
         });
     </script>
-    
-    
-    <script src="../js/favorites.js"></script>
-    <script src="../js/main.js"></script>
 </body>
 </html>

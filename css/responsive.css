@@ -61,6 +61,11 @@
         transform: translateY(-8px);
         box-shadow: 0 20px 40px rgba(0,0,0,0.2);
     }
+
+    /* Hide Categories link only on desktop as requested */
+    .top-nav [data-i18n="nav_categories"] {
+        display: none !important;
+    }
 }
 
 /* ... existing ... */

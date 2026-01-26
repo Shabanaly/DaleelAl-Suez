@@ -1,15 +1,33 @@
-// favorites.js - Local Favorites System (LocalStorage)
+// favorites.js - Local Favorites System (LocalStorage using Supabase IDs)
 
 const FAVORITES_KEY = 'suez_guide_favorites';
 
 /**
- * Get all favorite slugs from LocalStorage
+ * Validates if a string is a valid UUID
+ */
+function isUUID(str) {
+    const regex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    return regex.test(str);
+}
+
+/**
+ * Get all favorite IDs from LocalStorage (Cleans legacy data)
  * @returns {Array<string>}
  */
 function getFavorites() {
     try {
-        const favs = localStorage.getItem(FAVORITES_KEY);
-        return favs ? JSON.parse(favs) : [];
+        const raw = localStorage.getItem(FAVORITES_KEY);
+        const favs = raw ? JSON.parse(raw) : [];
+        
+        // Filter out legacy slugs or corrupted 'undefined' strings
+        const validFavs = favs.filter(id => id && typeof id === 'string' && isUUID(id));
+        
+        // If we cleaned up some bad data, save the clean version back
+        if (favs.length !== validFavs.length) {
+            saveFavorites(validFavs);
+        }
+        
+        return validFavs;
     } catch (e) {
         console.error('Error reading favorites from localStorage', e);
         return [];
@@ -17,7 +35,7 @@ function getFavorites() {
 }
 
 /**
- * Save favorite slugs to LocalStorage
+ * Save favorite IDs to LocalStorage
  * @param {Array<string>} favs 
  */
 function saveFavorites(favs) {
@@ -29,17 +47,17 @@ function saveFavorites(favs) {
 }
 
 /**
- * Toggle a place in favorites
- * @param {string} slug 
+ * Toggle a place in favorites by ID
+ * @param {string} id 
  * @returns {boolean} - true if added, false if removed
  */
-function toggleFavorite(slug) {
+function toggleFavorite(id) {
     let favs = getFavorites();
-    const index = favs.indexOf(slug);
+    const index = favs.indexOf(id);
     let added = false;
 
     if (index === -1) {
-        favs.push(slug);
+        favs.push(id);
         added = true;
     } else {
         favs.splice(index, 1);
@@ -47,53 +65,103 @@ function toggleFavorite(slug) {
     }
 
     saveFavorites(favs);
+    syncFavoriteIcons();
     return added;
 }
 
 /**
- * Check if a place is favorited
- * @param {string} slug 
+ * Check if a place is favorited by ID
+ * @param {string} id 
  * @returns {boolean}
  */
-function isFavorite(slug) {
-    return getFavorites().includes(slug);
+function isFavorite(id) {
+    return getFavorites().includes(id);
+}
+
+/**
+ * Update heart icon UI states on the page based on stored favorites
+ */
+function syncFavoriteIcons() {
+    const ids = getFavorites();
+    document.querySelectorAll('.fav-btn').forEach(btn => {
+        const id = btn.getAttribute('data-id');
+        const icon = btn.querySelector('i');
+        if (!icon) return; // Skip if no icon element
+
+        if (ids.includes(id)) {
+            btn.classList.add('active');
+            icon.setAttribute('data-lucide', 'heart-off');
+        } else {
+            btn.classList.remove('active');
+            icon.setAttribute('data-lucide', 'heart');
+        }
+    });
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 /**
  * Render favorite places on the favorites page
  */
-function renderFavorites() {
+async function renderFavorites() {
     const container = document.getElementById('favorites-container');
     const noFavs = document.getElementById('no-favorites');
     const meta = document.getElementById('fav-count-meta');
     if (!container) return;
 
-    const slugs = getFavorites();
-    const allData = [
-        ...(typeof restaurants !== 'undefined' ? restaurants : []),
-        ...(typeof cafes !== 'undefined' ? cafes : []),
-        ...(typeof doctors !== 'undefined' ? doctors : []),
-        ...(typeof pharmacies !== 'undefined' ? pharmacies : []),
-        ...(typeof services !== 'undefined' ? services : []),
-        ...(typeof shops !== 'undefined' ? shops : [])
-    ];
-
-    const favPlaces = allData.filter(p => slugs.includes(p.slug));
-
-    if (favPlaces.length === 0) {
+    const ids = getFavorites();
+    
+    if (ids.length === 0) {
         container.style.display = 'none';
         if (noFavs) noFavs.style.display = 'block';
         if (meta) meta.style.display = 'none';
-    } else {
-        container.style.display = 'grid';
-        if (noFavs) noFavs.style.display = 'none';
-        if (meta) {
-            meta.style.display = 'block';
-            meta.textContent = (document.documentElement.lang === 'en' ? 'Showing ' : 'عرض ') + favPlaces.length + (document.documentElement.lang === 'en' ? ' places' : ' مكان');
+        return;
+    }
+
+    // Wait for Supabase
+    if (!window.sb) {
+        setTimeout(renderFavorites, 100);
+        return;
+    }
+
+    try {
+        const { data: favPlaces, error } = await window.sb
+            .from('places')
+            .select('*')
+            .in('id', ids)
+            .eq('is_active', true);
+
+        if (error) throw error;
+
+        if (!favPlaces || favPlaces.length === 0) {
+            container.style.display = 'none';
+            if (noFavs) noFavs.style.display = 'block';
+            if (meta) meta.style.display = 'none';
+        } else {
+            container.style.display = 'grid';
+            if (noFavs) noFavs.style.display = 'none';
+            if (meta) {
+                const isAr = document.documentElement.lang === 'ar';
+                meta.style.display = 'block';
+                meta.textContent = (isAr ? 'عرض ' : 'Showing ') + favPlaces.length + (isAr ? ' مكان مفضل' : ' favorite places');
+            }
+            
+            if (typeof renderPlaces === 'function') {
+                renderPlaces(favPlaces, 'favorites-container');
+            }
         }
-        
-        if (typeof renderPlaces === 'function') {
-            renderPlaces(favPlaces, 'favorites-container');
-        }
+    } catch (e) {
+        console.error("Render Favorites Error", e);
+        container.innerHTML = `<div style="padding:40px; text-align:center; color:#f00;">حدث خطأ أثناء تحميل المفضلة</div>`;
     }
 }
+
+// Global Event Listener for Fav Buttons (Delegation)
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.fav-btn');
+    if (btn) {
+        const id = btn.getAttribute('data-id');
+        if (id) {
+            toggleFavorite(id);
+        }
+    }
+});

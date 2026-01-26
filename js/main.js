@@ -78,6 +78,7 @@ async function renderPlaceDetails(placeId) {
     if (!place) {
         document.querySelector('main').innerHTML = '<div style="text-align: center; padding: 100px 20px;"><i data-lucide="alert-circle" style="width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 16px;"></i><h3>المكان غير موجود</h3><a href="../index.html" class="top-nav-link" style="margin-top: 20px; display: inline-block;">العودة للرئيسية</a></div>';
         if (typeof lucide !== "undefined") lucide.createIcons();
+        if (typeof syncFavoriteIcons === "function") syncFavoriteIcons();
         return;
     }
 
@@ -237,6 +238,7 @@ async function renderPlaceDetails(placeId) {
     }
 
     if (typeof lucide !== "undefined") lucide.createIcons();
+    if (typeof syncFavoriteIcons === "function") syncFavoriteIcons();
 }
 
 /**
@@ -273,6 +275,7 @@ function renderStickyActionBar(place, isAr) {
     document.body.appendChild(bar);
     
     if (typeof lucide !== "undefined") lucide.createIcons();
+    if (typeof syncFavoriteIcons === "function") syncFavoriteIcons();
 }
 
 // Lightbox Logic
@@ -590,6 +593,7 @@ function renderPlaces(places, containerId) {
     }).join('');
 
     if (typeof lucide !== "undefined") lucide.createIcons();
+    if (typeof syncFavoriteIcons === "function") syncFavoriteIcons();
 }
 
 // ... Keep pure UI helpers like Scroll/Modal ... 
