@@ -8,7 +8,74 @@
 .section-head h3 { font-size: 22px; font-weight: 800; color: var(--text-main); }
 
 /* Places Grid */
-.places-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.places-list { 
+    display: grid; 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 20px; 
+}
+
+/* Base Card Symmetry */
+.listing-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.listing-img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg-main);
+}
+
+.listing-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.listing-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 8px;
+}
+
+.listing-content h3 {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-main);
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 1.2em;
+}
+
+.listing-content p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 3em; 
+}
+
+.listing-content .address-tag {
+    margin-top: auto;
+    font-size: 12px;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+}
 
 /* Navigation Helpers */
 .fav-btn { transition: all 0.3s; cursor: pointer; }
@@ -98,20 +165,35 @@
 [data-ad-position="section-middle"] { max-width: 1200px; padding: 0 20px; }
 [data-ad-position="sidebar"] { width: 300px; height: 600px; }
 /* Homepage Enhanced Sections */
-.home-section { padding: 40px 20px 0; }
+.home-section { padding: 24px 20px 0; }
 .home-section .section-head { margin-bottom: 16px; }
 
 /* 1. Offers Carousel */
 .offers-carousel {
     display: flex;
     overflow-x: auto;
-    gap: 16px;
-    padding: 10px 0 30px;
+    gap: 20px;
+    padding: 10px 20px 40px;
     scrollbar-width: none;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    justify-content: center; /* Center when items don't overflow */
 }
 .offers-carousel::-webkit-scrollbar { display: none; }
+
+/* Desktop-specific layout fix for overflow */
+@media (min-width: 1024px) {
+    .offers-carousel {
+        padding: 10px 0 40px;
+        overflow-x: visible; /* Prevents clipping on large screens */
+        flex-wrap: wrap; /* Allows them to stack if they don't fit or show as grid */
+        gap: 24px;
+    }
+}
+
 .offer-card {
-    min-width: 280px;
+    min-width: 300px;
+    scroll-snap-align: center;
     height: 160px;
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     border-radius: 20px;
@@ -123,24 +205,47 @@
     box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
 }
 
+.offer-badge {
+    background: #f59e0b;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    width: fit-content;
+}
+
 /* 2. Suez Info Hub */
 .info-hub {
     display: flex;
     gap: 12px;
+    margin-top: 10px;
 }
 .info-chip {
     flex: 1;
     background: var(--bg-card);
     border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 16px;
+    border-radius: 20px;
+    padding: 16px 20px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
+    transition: 0.3s;
 }
-.info-chip i { color: var(--accent); }
-.info-chip .value { font-weight: 700; color: var(--text-main); }
-.info-chip .label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+.info-chip:hover { transform: translateY(-3px); border-color: var(--primary-soft); }
+.info-icon {
+    width: 42px;
+    height: 42px;
+    background: var(--bg-main);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+}
+.info-chip .info-value { font-size: 16px; font-weight: 800; color: var(--text-main); line-height: 1.2; }
+.info-chip .info-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-weight: 600; }
 
 /* 3. Trending Hub */
 .trending-container {
@@ -500,4 +605,161 @@
     .magazine-gallery .gallery-item, 
     .magazine-gallery .gallery-item:nth-child(3n+1),
     .magazine-gallery .gallery-item:nth-child(4n) { grid-column: span 1; grid-row: auto; aspect-ratio: 1; }
+}
+
+/* ==================== EXPLORE HERO SPOTLIGHT ==================== */
+.explore-hero-card {
+    position: relative;
+    width: 100%;
+    height: 420px;
+    border-radius: 32px;
+    overflow: hidden;
+    cursor: pointer;
+    background: #000;
+    transition: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 40px 100px rgba(0,0,0,0.4);
+    margin-top: 20px;
+}
+
+.explore-bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: 1s ease-out;
+    opacity: 0.8;
+}
+
+.explore-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 60px;
+    color: #fff;
+    z-index: 10;
+}
+
+.explore-badge {
+    background: var(--primary);
+    color: #fff;
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    width: fit-content;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+}
+
+.explore-title {
+    font-size: 42px;
+    font-weight: 900;
+    margin-bottom: 16px;
+    line-height: 1.1;
+    max-width: 80%;
+}
+
+.explore-desc {
+    font-size: 16px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.6;
+    max-width: 600px;
+    margin-bottom: 32px;
+}
+
+.explore-btn {
+    display: inline-flex;
+    padding: 14px 40px;
+    background: #fff;
+    color: #000;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.explore-hero-card:hover .explore-bg { transform: scale(1.05); }
+.explore-hero-card:hover .explore-btn { background: var(--primary); color: #fff; transform: scale(1.05); }
+
+@media (min-width: 1024px) {
+    .hero-container {
+        grid-column: 1 / -1;
+        grid-row: 1;
+    }
+    #ad-home-hero {
+        grid-column: 1 / -1;
+        grid-row: 2;
+    }
+    #offers-section {
+        grid-column: 1 / -1;
+        grid-row: 3;
+    }
+    #info-section {
+        grid-column: 2;
+        grid-row: 5;
+        margin-top: 0;
+    }
+    
+    /* Center Column */
+    .section-wrapper {
+        grid-column: 2;
+        grid-row: 6 / 25; /* Ensure it stays in center and spans down */
+        margin-top: 0;
+    }
+
+    /* Right Sidebar (Column 1) */
+    #trending-section {
+        grid-column: 1;
+        grid-row: 5;
+        margin-top: 0;
+    }
+    .categories-nav-section {
+        grid-column: 1;
+        grid-row: 6 / 15;
+        position: static;
+        padding-top: 20px;
+        border: none;
+    }
+    .categories-nav-section .section-head { display: none; }
+
+    /* Sidebar Aesthetic Refinement */
+    #trending-section .section-head, #quick-actions-section .section-head { margin-bottom: 12px; }
+    #trending-section h3, #quick-actions-section h3 { font-size: 16px; opacity: 0.8; }
+
+    /* Left Sidebar (Column 3) */
+    #quick-actions-section {
+        grid-column: 3;
+        grid-row: 5;
+        margin-top: 0;
+    }
+    #explore-section {
+        grid-column: 3;
+        grid-row: 6 / 15;
+        margin-top: 20px;
+    }
+
+    .explore-hero-card {
+        height: 480px;
+        border-radius: var(--radius-lg);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .explore-overlay { padding: 40px 30px; }
+    .explore-title { font-size: 28px; max-width: 100%; }
+    .explore-desc { font-size: 14px; max-width: 100%; -webkit-line-clamp: 3; line-clamp: 3; }
+    .explore-badge { margin-bottom: 12px; }
+}
+
+@media (max-width: 1023px) {
+    .explore-hero-card { height: 420px; }
+    .explore-overlay { padding: 60px; }
+}
+
+@media (max-width: 768px) {
+    .explore-hero-card { height: 480px; }
+    .explore-overlay { padding: 32px; }
+    .explore-title { font-size: 32px; max-width: 100%; }
+    .explore-desc { font-size: 14px; max-width: 100%; -webkit-line-clamp: 2; line-clamp: 2; }
 }

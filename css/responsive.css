@@ -24,17 +24,12 @@
     }
     
     .section-wrapper {
-        padding: 60px 24px 40px;
+        padding: 0 24px 40px;
     }
     
     .places-list {
         grid-template-columns: repeat(3, 1fr);
         gap: 24px;
-    }
-
-    .listing-img {
-        aspect-ratio: 1 / 1;
-        height: auto;
     }
 }
 

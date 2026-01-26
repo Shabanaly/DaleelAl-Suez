@@ -26,16 +26,19 @@ async function initDynamicPage(isHome, path) {
 
     // 1. Homepage Logic
     if (isHome) {
-        // ... (Render Home Components)
-        renderOffers();
-        renderSuezInfo();
-        renderTrendingHub();
-        renderQuickActions();
+        // Render Home Components (Live & Dynamic)
+        await renderOffers();
+        await renderSuezInfo();
+        await renderTrendingHub();
+        await renderQuickActions();
+        await renderExploreCity();
         renderHomepageReviews();
         
-        // Latest Places (Assuming Dynamic Places Re-enabled or still UI placeholder)
-        // const allPlaces = await window.UserPlacesService.getLatestPlaces(6);
-        // if (allPlaces) renderPlaces(allPlaces, "places-container");
+        // Latest Places (Fetch exactly 7 as requested, newest first)
+        if (window.UserPlacesService) {
+            const allPlaces = await window.UserPlacesService.getLatestPlaces(7);
+            if (allPlaces) renderPlaces(allPlaces, "places-container");
+        }
     }
 
     // 2. Dynamic Category Page Logic (Universal)
@@ -516,41 +519,160 @@ function renderBottomNav(isHome, currentPath) {
     if (typeof lucide !== "undefined") lucide.createIcons();
 }
 
-function renderOffers() {
+async function renderOffers() {
     const container = document.getElementById('offers-container');
-    if (!container) return;
-    container.innerHTML = `<div style="padding:20px; text-align:center;">عروض قريباً</div>`;
+    if (!container || !window.UserPlacesService) return;
+
+    try {
+        const places = await window.UserPlacesService.getOfferPlaces(6);
+        if (!places || places.length === 0) {
+            container.parentElement.style.display = 'none';
+            return;
+        }
+
+        const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : "ar";
+        const isAr = lang === 'ar';
+
+        container.innerHTML = places.map(place => {
+            const name = isAr ? (place.name_ar || place.name_en) : (place.name_en || place.name_ar);
+            const offerText = isAr ? (place.offer_text_ar || 'خصم خاص') : (place.offer_text_en || 'Special Offer');
+            
+            return `
+                <div class="offer-card" onclick="location.href='pages/place.html?id=${place.id}'" style="cursor:pointer;">
+                    <div>
+                        <div class="offer-badge">${isAr ? 'عرض حصري' : 'Exclusive'}</div>
+                        <h4 style="margin: 8px 0; font-size:18px; font-weight:800;">${name}</h4>
+                    </div>
+                    <p style="font-size:14px; opacity:0.9; font-weight:600;">${offerText}</p>
+                </div>
+            `;
+        }).join('');
+        container.parentElement.style.display = 'block';
+    } catch (e) {
+        console.error("Offers Render Error", e);
+        container.parentElement.style.display = 'none';
+    }
 }
 
 async function renderSuezInfo() {
     const container = document.getElementById('info-container');
     if (!container) return;
+
+    const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : "ar";
+    const isAr = lang === 'ar';
+
+    // Initial Skeleton/Loading
     container.innerHTML = `
         <div class="info-chip">
-            <i data-lucide="cloud"></i>
-            <div>
-                <div class="value">--°C</div>
-                <div class="label">الطقس</div>
+            <div class="info-icon"><i data-lucide="cloud"></i></div>
+            <div class="info-body">
+                <div class="info-value" id="suez-temp">--°C</div>
+                <div class="info-label">${isAr ? 'جو السويس' : 'Suez Weather'}</div>
+            </div>
+        </div>
+        <div class="info-chip">
+            <div class="info-icon" style="color: var(--secondary);"><i data-lucide="clock"></i></div>
+            <div class="info-body">
+                <div class="info-value" id="real-time-clock">--:--:--</div>
+                <div class="info-label" id="real-time-date">--/--/----</div>
             </div>
         </div>
     `;
     if (typeof lucide !== "undefined") lucide.createIcons();
+
+    // 1. Fetch Live Weather (Open-Meteo)
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=29.97&longitude=32.53&current_weather=true')
+        .then(res => res.json())
+        .then(data => {
+            if (data.current_weather) {
+                const temp = Math.round(data.current_weather.temperature);
+                const tempEl = document.getElementById('suez-temp');
+                if (tempEl) tempEl.innerText = `${temp}°C`;
+            }
+        }).catch(err => console.warn("Weather fetch failed", err));
+
+    // 2. Start Real-time Clock
+    function updateClock() {
+        const now = new Date();
+        const clockEl = document.getElementById('real-time-clock');
+        const dateEl = document.getElementById('real-time-date');
+        
+        if (clockEl) {
+            clockEl.innerText = now.toLocaleTimeString(isAr ? 'ar-EG' : 'en-US', { 
+                hour: '2-digit', minute: '2-digit', second: '2-digit' 
+            });
+        }
+        if (dateEl) {
+            dateEl.innerText = now.toLocaleDateString(isAr ? 'ar-EG' : 'en-US', {
+                day: 'numeric', month: 'short'
+            });
+        }
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
 }
 
-function renderTrendingHub() {
+async function renderTrendingHub() {
     const container = document.getElementById('trending-container');
-    if (!container) return;
-    container.innerHTML = "";
+    if (!container || !window.UserPlacesService) return;
+
+    try {
+        const places = await window.UserPlacesService.getTrendingPlaces(12);
+        if (!places || places.length === 0) {
+            container.parentElement.style.display = 'none';
+            return;
+        }
+
+        const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : "ar";
+        const isAr = lang === 'ar';
+
+        container.innerHTML = places.map(place => {
+            const name = isAr ? (place.name_ar || place.name_en) : (place.name_en || place.name_ar);
+            return `<a href="pages/place.html?id=${place.id}" class="trending-chip"># ${name}</a>`;
+        }).join('');
+        container.parentElement.style.display = 'block';
+    } catch (e) {
+        console.error("Trending Render Error", e);
+        container.parentElement.style.display = 'none';
+    }
 }
 
-function renderQuickActions() {
+async function renderQuickActions() {
     const container = document.getElementById('quick-actions-container');
-    if (!container) return;
-    // Static Actions (Safe)
-     const actions = [
-        { icon: "phone-call", color: "#ef4444", label: "طوارئ", url: "#" },
-    ];
-    // container.innerHTML = ...
+    if (!container || !window.UserPlacesService) return;
+
+    try {
+        const places = await window.UserPlacesService.getUrgentPlaces(12);
+        if (!places || places.length === 0) {
+            container.parentElement.style.display = 'none';
+            return;
+        }
+
+        const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : "ar";
+        const isAr = lang === 'ar';
+
+        container.innerHTML = places.map((place, idx) => {
+            const name = isAr ? (place.name_ar || place.name_en) : (place.name_en || place.name_ar);
+            const colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+            const color = colors[idx % colors.length];
+
+            return `
+                <a href="pages/place.html?id=${place.id}" class="quick-btn">
+                    <div class="quick-icon" style="background: ${color}">
+                        <i data-lucide="zap"></i>
+                    </div>
+                    <span>${name}</span>
+                </a>
+            `;
+        }).join('');
+        
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        container.parentElement.style.display = 'block';
+    } catch (e) {
+        console.error("Urgent Render Error", e);
+        container.parentElement.style.display = 'none';
+    }
 }
 
 function renderHomepageReviews() {
@@ -592,15 +714,11 @@ function renderPlaces(places, containerId) {
                 </div>
                 <div class="listing-content">
                     <h3>${name}</h3>
-                    <p style="margin-bottom: 12px;">${shortDesc}</p>
-                    ${place.address ? `<div style="font-size: 13px; color: var(--primary); font-weight: 600; display: flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+                    <p>${shortDesc}</p>
+                    ${place.address ? `<div class="address-tag">
                         <i data-lucide="map-pin" style="width: 14px; height: 14px;"></i>
                         <span>${place.address}</span>
                     </div>` : ''}
-                    <div class="view-btn">
-                        <span>${isAr ? 'رؤية التفاصيل' : 'View Details'}</span>
-                        <i data-lucide="${isAr ? 'arrow-left' : 'arrow-right'}"></i>
-                    </div>
                 </div>
             </div>
         `;
@@ -679,3 +797,74 @@ window.closeAccountModal = function() {
     if (backdrop) backdrop.classList.remove('active');
     if (modal) modal.classList.remove('active');
 };
+
+async function renderExploreCity() {
+    const container = document.getElementById('explore-container');
+    if (!container || !window.UserPlacesService) return;
+
+    try {
+        const place = await window.UserPlacesService.getFeaturedPlace();
+        if (!place) {
+            container.parentElement.style.display = 'none';
+            return;
+        }
+
+        const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : "ar";
+        const isAr = lang === 'ar';
+        const name = isAr ? (place.name_ar || place.name_en) : (place.name_en || place.name_ar);
+        const image = place.image_url || (place.images && place.images[0]) || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200';
+
+        container.innerHTML = `
+            <div class="explore-hero-card" onclick="location.href='pages/place.html?id=${place.id}'">
+                <img src="${image}" alt="${name}" class="explore-bg">
+                <div class="explore-overlay">
+                    <div class="explore-badge">${isAr ? 'نرشح لك اليوم' : 'Daily Spotlight'}</div>
+                    <h2 class="explore-title">${name}</h2>
+                    <p class="explore-desc">${isAr ? (place.desc_ar || '').substring(0, 120) : (place.desc_en || '').substring(0, 120)}...</p>
+                    <div class="explore-footer">
+                        <span class="explore-btn">${isAr ? 'اكتشف الآن' : 'Explore Now'}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.parentElement.style.display = 'block';
+    } catch (e) {
+        console.error("Explore City Error", e);
+        container.parentElement.style.display = 'none';
+    }
+}
+
+async function renderAds() {
+    if (!window.AdsService) {
+        // Mock if service not loaded (should be loaded in index/place/etc)
+        window.AdsService = {
+            getActiveAds: async () => {
+                if (!window.sb) return [];
+                const { data } = await window.sb.from('ads_settings').select('*').eq('is_active', true);
+                return data || [];
+            }
+        };
+    }
+
+    try {
+        const ads = await window.AdsService.getActiveAds();
+        ads.forEach(ad => {
+            const container = document.querySelector(`[data-ad-slot="${ad.slot_id}"], [data-ad-position="${ad.slot_id}"]`);
+            if (container && ad.ad_code) {
+                container.innerHTML = ad.ad_code;
+                container.style.display = 'block';
+                
+                // Execute any scripts in the ad code
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+            }
+        });
+    } catch (e) {
+        console.error("Ad Render Error", e);
+    }
+}

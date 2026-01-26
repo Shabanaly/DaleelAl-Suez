@@ -69,6 +69,71 @@ const PlacesService = {
             return null;
         }
         return data;
+    },
+
+    // 5. Get Featured Place for "Explore Your City"
+    getFeaturedPlace: async () => {
+        if (!window.sb) return null;
+        
+        // Try to get specifically featured first
+        const { data: featured } = await window.sb
+            .from('places')
+            .select('*')
+            .eq('is_featured', true)
+            .eq('is_active', true)
+            .limit(1)
+            .maybeSingle();
+            
+        if (featured) return featured;
+        
+        // Fallback to latest prominent if none specifically featured
+        const { data: latest } = await window.sb
+            .from('places')
+            .select('*')
+            .eq('is_active', true)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+            
+        return latest;
+    },
+
+    // 6. Get Trending Places (Chips)
+    getTrendingPlaces: async (limit = 10) => {
+        if (!window.sb) return [];
+        const { data } = await window.sb
+            .from('places')
+            .select('id, name_ar, name_en')
+            .eq('is_trending', true)
+            .eq('is_active', true)
+            .limit(limit);
+        return data || [];
+    },
+
+    // 7. Get Urgent/Quick Services
+    getUrgentPlaces: async (limit = 8) => {
+        if (!window.sb) return [];
+        const { data } = await window.sb
+            .from('places')
+            .select('*')
+            .eq('is_urgent', true)
+            .eq('is_active', true)
+            .order('created_at', { ascending: false })
+            .limit(limit);
+        return data || [];
+    },
+
+    // 8. Get Active Offers
+    getOfferPlaces: async (limit = 6) => {
+        if (!window.sb) return [];
+        const { data } = await window.sb
+            .from('places')
+            .select('*')
+            .eq('has_offer', true)
+            .eq('is_active', true)
+            .order('created_at', { ascending: false })
+            .limit(limit);
+        return data || [];
     }
 };
 

@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إضافة/تعديل مكان - دليل السويس</title>
+    <script src="../services/auth.service.js"></script>
+    <script>AuthService.checkAuth();</script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../../js/config.js"></script>
@@ -121,6 +123,54 @@
                             </div>
                         </div>
 
+                        <!-- Featured Toggle (Old) -->
+                        <div class="form-group" style="background: var(--primary-light); padding:16px; border-radius:12px; border: 1px solid var(--primary-soft); margin-top: 24px; display: none;">
+                            <label class="form-label" style="display:flex; align-items:center; gap:10px; cursor:pointer; color: var(--primary); font-weight:800;">
+                                <input type="checkbox" id="p_featured" style="width:20px; height:20px;">
+                                <span>تميز هذا المكان في قسم "استكشف مدينتك"</span>
+                            </label>
+                        </div>
+
+                        <!-- NEW: Advanced Section Controls Hub -->
+                        <div style="background: var(--bg-body); border: 1px solid var(--border); padding: 24px; border-radius: 20px; margin-top: 24px;">
+                            <h4 style="font-size: 14px; color: var(--primary); font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                                <i data-lucide="layout"></i> توزيع الأقسام في الصفحة الرئيسية
+                            </h4>
+                            
+                            <div class="grid-3" style="margin-bottom: 24px;">
+                                <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" class="form-label">
+                                    <input type="checkbox" id="p_featured_new" style="width:18px; height:18px;">
+                                    <span>استكشف مدينتك (Spotlight)</span>
+                                </label>
+                                <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" class="form-label">
+                                    <input type="checkbox" id="p_trending" style="width:18px; height:18px;">
+                                    <span>الأكثر بحثاً (Trending)</span>
+                                </label>
+                                <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" class="form-label">
+                                    <input type="checkbox" id="p_urgent" style="width:18px; height:18px;">
+                                    <span>خدمات عاجلة (Quick)</span>
+                                </label>
+                            </div>
+
+                            <div style="border-top: 1px dashed var(--border); padding-top: 20px;">
+                                <label style="display:flex; align-items:center; gap:10px; cursor:pointer; margin-bottom: 16px;" class="form-label">
+                                    <input type="checkbox" id="p_has_offer" style="width:18px; height:18px;" onchange="toggleOfferFields()">
+                                    <span style="color: #f59e0b; font-weight: 800;">تفعيل قسم العروض والخصومات 🔥</span>
+                                </label>
+                                
+                                <div id="offer-fields" style="display: none;" class="grid-2">
+                                    <div class="form-group">
+                                        <label class="form-label">وصف العرض (عربي)</label>
+                                        <input id="p_offer_ar" class="form-control" placeholder="مثال: خصم 50% لفترة محدودة">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Offer Description (EN)</label>
+                                        <input id="p_offer_en" class="form-control" placeholder="e.g., 50% OFF Limited Time">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="form-actions" style="border-top:1px solid var(--border); padding-top:24px; margin-top:40px;">
                             <button type="submit" class="btn btn-primary" id="save-btn">
                                 <i data-lucide="save"></i> حفظ البيانات
@@ -195,6 +245,16 @@
                         galleryImages = place.images;
                         renderGallery();
                     }
+
+                    // Section Toggles
+                    document.getElementById('p_featured_new').checked = !!place.is_featured;
+                    document.getElementById('p_trending').checked = !!place.is_trending;
+                    document.getElementById('p_urgent').checked = !!place.is_urgent;
+                    document.getElementById('p_has_offer').checked = !!place.has_offer;
+                    document.getElementById('p_offer_ar').value = place.offer_text_ar || '';
+                    document.getElementById('p_offer_en').value = place.offer_text_en || '';
+                    
+                    toggleOfferFields();
                 }
             } catch (e) {
                 console.error("Load Place Error", e);
@@ -302,6 +362,12 @@
                 desc_en: document.getElementById('p_desc_en').value,
                 image_url: document.getElementById('p_image').value,
                 images: galleryImages, // Save gallery array
+                is_featured: document.getElementById('p_featured_new').checked,
+                is_trending: document.getElementById('p_trending').checked,
+                is_urgent: document.getElementById('p_urgent').checked,
+                has_offer: document.getElementById('p_has_offer').checked,
+                offer_text_ar: document.getElementById('p_offer_ar').value,
+                offer_text_en: document.getElementById('p_offer_en').value,
                 is_active: true
             };
 
@@ -321,6 +387,11 @@
                 lucide.createIcons();
             }
         };
+
+        function toggleOfferFields() {
+            const hasOffer = document.getElementById('p_has_offer').checked;
+            document.getElementById('offer-fields').style.display = hasOffer ? 'grid' : 'none';
+        }
 
         init();
     </script>
