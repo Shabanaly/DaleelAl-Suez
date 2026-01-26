@@ -74,6 +74,9 @@ async function initDynamicPage(isHome, path) {
             await renderPlaceDetails(placeId);
         }
     }
+
+    // 4. Global Ads Rendering
+    renderAds();
 }
 
 async function renderPlaceDetails(placeId) {

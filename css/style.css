@@ -142,18 +142,31 @@
     .section-wrapper { padding: 60px 40px; }
 }
 
-/* Ad Slots Refinement */
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Ad Slots Refined */
 .ad-slot {
     width: 100%;
     margin: 20px auto;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden;
     min-height: 50px;
     background: rgba(0,0,0,0.02);
     border-radius: var(--radius-md);
     transition: 0.3s;
+    overflow: hidden;
+}
+
+/* Shrink ads on mobile */
+@media (max-width: 768px) {
+    .ad-slot ins, .ad-slot iframe {
+        transform: scale(0.9);
+        transform-origin: center;
+    }
 }
 
 .ad-slot:empty {
@@ -161,9 +174,8 @@
     min-height: 0;
 }
 
-[data-ad-position="hero-bottom"] { max-width: 970px; margin-top: -40px; position: relative; z-index: 20; }
-[data-ad-position="section-middle"] { max-width: 1200px; padding: 0 20px; }
-[data-ad-position="sidebar"] { width: 300px; height: 600px; }
+[data-ad-slot="home_hero_bottom"], [data-ad-position="hero-bottom"] { max-width: 970px; margin-top: -40px; position: relative; z-index: 20; }
+[data-ad-slot="details_sidebar"], [data-ad-position="sidebar"] { width: 100%; max-width: 300px; }
 /* Homepage Enhanced Sections */
 .home-section { padding: 24px 20px 0; }
 .home-section .section-head { margin-bottom: 16px; }
