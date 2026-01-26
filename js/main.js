@@ -1,91 +1,66 @@
-// main.js
-
+console.log("DEBUG: main.js top level execution started");
 document.addEventListener("DOMContentLoaded", function() {
+    console.log("DEBUG: DOMContentLoaded fired");
     // تحديد الصفحة الحالية
     var path = window.location.pathname;
     // التحقق من الصفحة الرئيسية (سواء كانت / أو index.html أو المجلد الرئيسي)
     var isHome = path === "/" || path.endsWith("index.html") || path.endsWith("/") || path === "";
-    
+
+    // 0. Initialize Dynamic Backend (Supabase)
+    const { createClient } = supabase;
+    window.sb = createClient(window.GUIDE_CONFIG.URL, window.GUIDE_CONFIG.ANON_KEY);
 
     // 1. Initial Global Render (Universal)
     renderGlobalCategories(isHome, path);
     renderBottomNav(isHome, path);
 
+    initDynamicPage(isHome, path);
+});
+
+async function initDynamicPage(isHome, path) {
     // 2. Page Specific Logic
     // عرض أحدث الأماكن في الصفحة الرئيسية
     if (isHome) {
-        var allPlaces = [];
-        if (typeof restaurants !== "undefined") allPlaces = allPlaces.concat(restaurants.slice(0, 2));
-        if (typeof cafes !== "undefined") allPlaces = allPlaces.concat(cafes.slice(0, 2));
-        if (typeof doctors !== "undefined") allPlaces = allPlaces.concat(doctors.slice(0, 2));
-        if (typeof entertainment !== "undefined") allPlaces = allPlaces.concat(entertainment.slice(0, 2));
-        if (typeof emergency !== "undefined") allPlaces = allPlaces.concat(emergency.slice(0, 2));
-        if (typeof home_living !== "undefined") allPlaces = allPlaces.concat(home_living.slice(0, 2));
-        if (typeof cars !== "undefined") allPlaces = allPlaces.concat(cars.slice(0, 2));
-        if (typeof jobs !== "undefined") allPlaces = allPlaces.concat(jobs.slice(0, 2));
-        if (typeof education !== "undefined") allPlaces = allPlaces.concat(education.slice(0, 2));
-        if (typeof events !== "undefined") allPlaces = allPlaces.concat(events.slice(0, 2));
-        if (typeof tourism !== "undefined") allPlaces = allPlaces.concat(tourism.slice(0, 2));
-        if (typeof government !== "undefined") allPlaces = allPlaces.concat(government.slice(0, 2));
-        if (typeof selection !== "undefined") allPlaces = allPlaces.concat(selection.slice(0, 2));
-        if (typeof shops !== "undefined") allPlaces = allPlaces.concat(shops.slice(0, 2));
+        // Load settings first
+        const { data: setts } = await window.sb.from('site_settings').select('*').eq('key', 'latest_additions_count').single();
+        const limit = setts ? setts.value : 6;
+
+        const { data: allPlaces } = await window.sb.from('places').select('*').order('created_at', { ascending: false }).limit(limit);
         
-        renderPlaces(allPlaces, "places-container");
+        if (allPlaces) {
+            renderPlaces(allPlaces, "places-container");
+            renderExploreCity(allPlaces); // Featured rotation
+        }
+
+        // Execute New Homepage Enhancements
+        renderOffers();
+        renderSuezInfo();
+        renderTrendingHub();
+        renderQuickActions();
+        renderHomepageReviews();
     }
     
-    // عرض المطاعم
-    if (path.indexOf("restaurants.html") !== -1) {
-        if (typeof restaurants !== "undefined") {
-            renderPlaces(restaurants, "places-container");
-        }
-    }
-    
-    // عرض الكافيهات
-    if (path.indexOf("cafes.html") !== -1) {
-        if (typeof cafes !== "undefined") {
-            renderPlaces(cafes, "places-container");
-        }
-    }
-    
-    // عرض الأطباء
-    if (path.indexOf("doctors.html") !== -1) {
-        if (typeof doctors !== "undefined") {
-            renderPlaces(doctors, "places-container");
-        }
-    }
-    
-    // عرض الصيدليات
-    if (path.indexOf("pharmacies.html") !== -1) {
-        if (typeof pharmacies !== "undefined") {
-            renderPlaces(pharmacies, "places-container");
-        }
-    }
-    
-    // عرض الخدمات
-    if (path.indexOf("services.html") !== -1) {
-        if (typeof services !== "undefined") {
-            renderPlaces(services, "places-container");
-        }
-    }
-    
-    // عرض المحلات
-    if (path.indexOf("shops.html") !== -1) {
-        if (typeof shops !== "undefined") {
-            renderPlaces(shops, "places-container");
-        }
+    // Logic for individual category pages
+    const catMatch = path.match(/\/categories\/([^.]+)\.html/);
+    if (catMatch) {
+        const catId = catMatch[1];
+        const { data: catPlaces } = await window.sb.from('places').select('*').eq('sub_cat_id', catId);
+        if (catPlaces) renderPlaces(catPlaces, "places-container");
     }
 
-    // 3. Final i18n Pass (Ensure all dynamic content is translated)
+    // 3. Final i18n Pass
     if (typeof updatePageContent === "function") {
         updatePageContent(getPreferredLanguage());
     }
-});
+}
 
 /**
  * Renders the global categories navigation bar dynamically
  */
 function renderGlobalCategories(isHome, currentPath) {
+    console.log("DEBUG: renderGlobalCategories called", { isHome, currentPath });
     const container = document.getElementById('global-cats');
+    console.log("DEBUG: container found?", container);
     if (!container) return;
 
     // Fix Base Path based on depth
@@ -151,7 +126,7 @@ function renderBottomNav(isHome, currentPath) {
     let toFavs = isHome ? "pages/favorites.html" : "../pages/favorites.html";
 
     if (currentPath.includes("/pages/") || currentPath.includes("/subcategories/")) {
-        toCats = "../categories/restaurants.html";
+        toCats = currentPath.includes("/pages/") ? "categories.html" : "../pages/categories.html";
         toFavs = currentPath.includes("/pages/") ? "favorites.html" : "../pages/favorites.html";
     }
     
@@ -163,6 +138,7 @@ function renderBottomNav(isHome, currentPath) {
 
     if (currentPath.includes("/pages/")) {
         toHome = "../index.html";
+        // toCats is already correct from the first block if simplified, but explicitly:
         toCats = "categories.html";
         toFavs = "favorites.html";
     }
@@ -178,7 +154,7 @@ function renderBottomNav(isHome, currentPath) {
     navItems.forEach(item => {
         let isActive = "";
         if (item.id === "home" && isHome) isActive = "active";
-        if (item.id === "categories" && (currentPath.includes("/categories/") || currentPath.includes("/subcategories/"))) isActive = "active";
+        if (item.id === "categories" && (currentPath.includes("/categories/") || currentPath.includes("/subcategories/") || currentPath.includes("categories.html"))) isActive = "active";
         if (item.id === "favorites" && currentPath.includes("favorites.html")) isActive = "active";
 
         const onClick = item.id === "account" ? 'onclick="openAccountModal(event)"' : "";
@@ -322,3 +298,129 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+
+
+/* --- Homepage Enrichment Renderers --- */
+
+async function renderOffers() {
+    const container = document.getElementById('offers-container');
+    if (!container) return;
+
+    const { data: offers } = await window.sb.from('offers').select('*').eq('is_active', true);
+    if (!offers || !offers.length) {
+        document.getElementById('offers-section').style.display = 'none';
+        return;
+    }
+
+    const lang = getPreferredLanguage();
+
+    container.innerHTML = offers.map(off => `
+        <div class="offer-card" style="background: ${off.bg_color}">
+            <h4 style="font-size: 18px; font-weight: 800;">${lang === 'ar' ? off.title_ar : off.title_en}</h4>
+            <p style="font-size: 14px; opacity: 0.9;">${lang === 'ar' ? off.desc_ar : off.desc_en}</p>
+            <button class="modal-action-btn" style="width: auto; padding: 10px 20px; font-size: 12px; margin-bottom: 0;" data-i18n="offer_details">تفاصيل العرض</button>
+        </div>
+    `).join('');
+}
+
+async function renderSuezInfo() {
+    const container = document.getElementById('info-container');
+    if (!container) return;
+
+    let temp = "--";
+    try {
+        const response = await fetch("https://api.open-meteo.com/v1/forecast?latitude=29.9668&longitude=32.5498&current=temperature_2m");
+        const data = await response.json();
+        if (data && data.current) {
+            temp = Math.round(data.current.temperature_2m);
+        }
+    } catch (err) {
+        console.error("Weather fetch failed:", err);
+    }
+
+    container.innerHTML = `
+        <div class="info-chip">
+            <i data-lucide="cloud-sun"></i>
+            <div>
+                <div class="value">${temp}°C</div>
+                <div class="label" data-i18n="weather_title">الطقس</div>
+            </div>
+        </div>
+        <div class="info-chip">
+            <i data-lucide="anchor"></i>
+            <div>
+                <div class="value" data-i18n="port_status">يعمل</div>
+                <div class="label" data-i18n="port_title">الميناء</div>
+            </div>
+        </div>
+    `;
+    if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
+function renderTrendingHub() {
+    const container = document.getElementById('trending-container');
+    if (!container) return;
+    // Removed demo trends. Fetch from DB later or hide.
+    container.innerHTML = "";
+}
+
+function renderQuickActions() {
+    const container = document.getElementById('quick-actions-container');
+    if (!container) return;
+
+    const actions = [
+        { icon: "phone-call", color: "#ef4444", label_key: "action_emergency", url: "categories/emergency.html" },
+        { icon: "bus", color: "#f59e0b", label_key: "action_transport", url: "#" },
+        { icon: "shield-check", color: "#3b82f6", label_key: "action_police", url: "tel:122" },
+        { icon: "heart-pulse", color: "#10b981", label_key: "action_ambulance", url: "tel:123" }
+    ];
+
+    container.innerHTML = actions.map(a => `
+        <a href="${a.url}" class="quick-btn">
+            <div class="quick-icon" style="background: ${a.color}"><i data-lucide="${a.icon}"></i></div>
+            <span data-i18n="${a.label_key}">-</span>
+        </a>
+    `).join('');
+    if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
+async function renderExploreCity() {
+    const container = document.getElementById('explore-container');
+    if (!container) return;
+
+    const { data: featured } = await window.sb.from('places').select('*').eq('is_featured', true);
+    
+    if (!featured || !featured.length) {
+        document.getElementById('explore-section').style.display = 'none';
+        return;
+    }
+
+    // Pick one random from featured list
+    const p = featured[Math.floor(Math.random() * featured.length)];
+    const lang = getPreferredLanguage();
+
+    container.innerHTML = `
+        <div class="listing-card" style="margin-top: 0;">
+            <div style="padding: 16px; background: var(--primary-soft); color: var(--primary); font-size: 13px; font-weight: 700;" data-i18n="explore_random_title">
+                هل زرت هذا المكان من قبل؟
+            </div>
+            <div class="listing-img">
+                <img src="${p.image_url}" alt="${p.name_ar}">
+                <div class="fav-btn" data-id="${p.id}"><i data-lucide="heart"></i></div>
+            </div>
+            <div class="listing-content">
+                <h3>${lang === 'ar' ? p.name_ar : p.name_en}</h3>
+                <p>${p.address || ''}</p>
+                <a href="place-details.html?id=${p.id}" class="view-btn"><span data-i18n="view_details">رؤية التفاصيل</span> <i data-lucide="${lang === 'ar' ? 'arrow-left' : 'arrow-right'}"></i></a>
+            </div>
+        </div>
+    `;
+    if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
+function renderHomepageReviews() {
+    const container = document.getElementById('reviews-container');
+    if (!container) return;
+    // Removed demo reviews.
+    container.innerHTML = "";
+}

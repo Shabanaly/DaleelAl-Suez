@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="css/responsive.css">
     <script src="js/theme.js"></script>
     <script src="js/i18n.js"></script>
+    <script src="js/config.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
     <!-- Universal Top Navbar (Persistent) -->
@@ -46,6 +48,35 @@
         </div>
         <div class="ad-slot" data-ad-position="hero-bottom" id="ad-home-hero"></div>
 
+        <!-- NEW: Special Offers Carousel -->
+        <section class="home-section" id="offers-section">
+            <div class="section-head"><h3 data-i18n="section_offers">عروض مميزة 🔥</h3></div>
+            <div class="offers-carousel" id="offers-container"></div>
+        </section>
+
+        <!-- NEW: Suez Info Hub -->
+        <section class="home-section" id="info-section">
+            <div class="info-hub" id="info-container"></div>
+        </section>
+
+        <!-- NEW: Trending Hub -->
+        <section class="home-section" id="trending-section">
+            <div class="section-head"><h3 data-i18n="section_trending">الأكثر بحثاً</h3></div>
+            <div class="trending-container" id="trending-container"></div>
+        </section>
+
+        <!-- NEW: Quick Actions Grid -->
+        <section class="home-section" id="quick-actions-section">
+            <div class="section-head"><h3 data-i18n="section_quick">خدمات عاجلة</h3></div>
+            <div class="quick-grid" id="quick-actions-container"></div>
+        </section>
+
+        <!-- NEW: Explore Your City (Randomized) -->
+        <section class="home-section" id="explore-section">
+            <div class="section-head"><h3 data-i18n="section_explore">استكشف مدينتك</h3></div>
+            <div id="explore-container"></div>
+        </section>
+
         <!-- Dedicated Categories Navigation (Always Visible Type) -->
         <section class="categories-nav-section">
             <div class="nav-scroll-wrapper">
@@ -61,6 +92,13 @@
             <div id="places-container" class="places-list">
                 <!-- Javascript Renders Cards Here -->
             </div>
+            
+            <!-- NEW: Recent Reviews -->
+            <div class="reviews-section" style="margin-top: 40px;">
+                <div class="section-head"><h3 data-i18n="section_reviews">آراء مستخدمينا</h3></div>
+                <div id="reviews-container" class="reviews-list"></div>
+            </div>
+
             <div class="ad-slot" data-ad-position="index-bottom" id="ad-home-bottom"></div>
         </section>
     </main>

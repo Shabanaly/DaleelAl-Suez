@@ -5,12 +5,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-i18n="nav_categories">الأقسام - دليل السويس</title>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../js/config.js"></script>
     <link rel="stylesheet" href="../css/reset.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/responsive.css">
     <script src="../js/theme.js"></script>
     <script src="../js/i18n.js"></script>
+    <style>
+        /* Page-Specific Styles for All Categories */
+        .all-categories-page .categories-container {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr) !important;
+            gap: 15px !important;
+            padding: 10px 0 !important;
+        }
+
+        /* Desktop Adjustments */
+        @media (min-width: 1024px) {
+            .all-categories-page .categories-container {
+                grid-template-columns: repeat(5, 1fr) !important;
+                gap: 24px !important;
+            }
+            
+            /* Enforce card look on Desktop too for this page */
+            .all-categories-page .cat-nav-item {
+                flex-direction: column;
+                justify-content: center;
+                text-align: center;
+                height: 120px;
+                background: var(--bg-card);
+                border: 1px solid var(--border);
+            }
+            .all-categories-page .cat-nav-item i {
+                width: 32px;
+                height: 32px;
+                margin-bottom: 8px;
+            }
+        }
+    </style>
 </head>
 <body class="all-categories-page">
     <header class="site-header">
@@ -38,7 +72,7 @@
             </div>
             
             <!-- Global Categories will be rendered here via main.js -->
-            <div class="categories-container" id="global-cats" style="display: grid !important;"></div>
+            <div class="categories-container" id="global-cats"></div>
         </section>
     </main>
 

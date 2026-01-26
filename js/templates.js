@@ -13,18 +13,9 @@ function placeCard(place) {
     var isHome = window.location.pathname === "/" || window.location.pathname.endsWith("index.html") || window.location.pathname === "" || window.location.pathname.endsWith("suez_guide/");
     var basePath = isHome ? "" : "../";
     
-    // Demo images from Unsplash (Premium Collection)
-    if (place.category === "restaurants") {
-        imageUrl = "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&h=450&fit=crop";
-    } else if (place.category === "cafes") {
-        imageUrl = "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&h=450&fit=crop";
-    } else if (place.category === "doctors") {
-        imageUrl = "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=600&h=450&fit=crop";
-    } else if (place.category === "pharmacies") {
-        imageUrl = "https://images.unsplash.com/photo-1576602976047-174e57a47881?w=600&h=450&fit=crop";
-    } else if (place.category === "services") {
-        imageUrl = "https://images.unsplash.com/photo-1530124560676-1ad26e92796e?w=600&h=450&fit=crop";
-    }
+    // Use real image or fallback
+    if (!imageUrl && place.image_url) imageUrl = place.image_url;
+    if (!imageUrl) imageUrl = "https://via.placeholder.com/600x450?text=No+Image";
     
     const isFav = typeof isFavorite === 'function' ? isFavorite(place.slug) : false;
     

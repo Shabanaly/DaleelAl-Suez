@@ -148,6 +148,14 @@
         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     
+    /* Enhanced Sections Mobile Adjustments */
+    .home-section { padding: 30px 16px 0; }
+    .quick-grid { gap: 12px; }
+    .quick-icon { width: 50px; height: 50px; border-radius: 16px; }
+    .info-hub { flex-direction: row; overflow-x: auto; scrollbar-width: none; }
+    .info-hub::-webkit-scrollbar { display: none; }
+    .info-chip { min-width: 140px; }
+
     /* Remove old toggle/scroll elements styles if any remain */
     .view-toggle-btn, .nav-indicator { display: none !important; }
 }

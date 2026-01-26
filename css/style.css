@@ -93,3 +93,104 @@
 [data-ad-position="hero-bottom"] { max-width: 970px; margin-top: -40px; position: relative; z-index: 20; }
 [data-ad-position="section-middle"] { max-width: 1200px; padding: 0 20px; }
 [data-ad-position="sidebar"] { width: 300px; height: 600px; }
+/* Homepage Enhanced Sections */
+.home-section { padding: 40px 20px 0; }
+.home-section .section-head { margin-bottom: 16px; }
+
+/* 1. Offers Carousel */
+.offers-carousel {
+    display: flex;
+    overflow-x: auto;
+    gap: 16px;
+    padding: 10px 0 30px;
+    scrollbar-width: none;
+}
+.offers-carousel::-webkit-scrollbar { display: none; }
+.offer-card {
+    min-width: 280px;
+    height: 160px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    border-radius: 20px;
+    padding: 24px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+}
+
+/* 2. Suez Info Hub */
+.info-hub {
+    display: flex;
+    gap: 12px;
+}
+.info-chip {
+    flex: 1;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.info-chip i { color: var(--accent); }
+.info-chip .value { font-weight: 700; color: var(--text-main); }
+.info-chip .label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+
+/* 3. Trending Hub */
+.trending-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.trending-chip {
+    padding: 8px 16px;
+    background: var(--primary-light);
+    border: 1px solid var(--primary-soft);
+    border-radius: 99px;
+    font-size: 13px;
+    color: var(--primary);
+    text-decoration: none;
+    transition: 0.3s;
+}
+.trending-chip:hover { background: var(--primary); color: #fff; }
+
+/* 4. Quick Actions */
+.quick-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+.quick-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--text-main);
+}
+.quick-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 24px;
+}
+.quick-btn span { font-size: 11px; font-weight: 700; text-align: center; }
+
+/* 5. Reviews */
+.reviews-list { display: flex; flex-direction: column; gap: 16px; }
+.review-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 20px;
+}
+.review-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.review-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary-soft); display: flex; align-items: center; justify-content: center; color: var(--primary); font-weight: 700; }
+.review-user { font-size: 14px; font-weight: 700; }
+.review-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }

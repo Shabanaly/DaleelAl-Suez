@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Daleel Al-Suez</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            content: ["./dashboard.html"],
+            corePlugins: { preflight: true }
+        }
+    </script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="../js/config.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Noto+Sans+Arabic:wght@400;700;900&display=swap');
+        body { font-family: 'Noto Sans Arabic', 'Inter', sans-serif; background: #f8fafc; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.3); }
+    </style>
+</head>
+<body class="min-h-screen pb-20">
+    <nav class="bg-blue-600 text-white p-4 sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-black flex items-center gap-2">
+                <i data-lucide="layout-dashboard"></i> لوحة تحكم دليل السويس
+            </h1>
+            <a href="../index.html" class="bg-blue-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-800 transition">معاينة الموقع</a>
+        </div>
+    </nav>
+
+    <main class="max-w-5xl mx-auto p-4 md:p-8 space-y-8">
+        <!-- Stats Summary -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="glass p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div class="text-slate-500 text-sm font-bold mb-1">الأماكن</div>
+                <div class="text-3xl font-black text-blue-600" id="stat-places">0</div>
+            </div>
+            <div class="glass p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div class="text-slate-500 text-sm font-bold mb-1">العروض</div>
+                <div class="text-3xl font-black text-amber-500" id="stat-offers">0</div>
+            </div>
+        </div>
+
+        <!-- Site Settings -->
+        <div class="glass p-8 rounded-3xl shadow-lg border border-slate-200">
+            <h2 class="text-xl font-black flex items-center gap-3 text-slate-800 mb-6">
+                <div class="w-10 h-10 bg-amber-100 rounded-xl flex items-center justify-center text-amber-600"><i data-lucide="settings-2"></i></div>
+                إعدادات الصفحة الرئيسية
+            </h2>
+            <div class="flex items-end gap-6">
+                <div class="flex-1">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">عدد "أحدث الإضافات" المعروضة</label>
+                    <input type="number" id="latest_count_input" class="w-full p-3 rounded-xl border border-slate-200 outline-none" placeholder="6">
+                </div>
+                <button onclick="updateSettings()" class="bg-amber-500 text-white px-8 py-3 rounded-xl font-bold hover:bg-amber-600 transition">حفظ الإعدادات</button>
+            </div>
+        </div>
+
+        <!-- Add Place Form -->
+        <div class="glass p-8 rounded-3xl shadow-xl space-y-6">
+            <h2 class="text-2xl font-black flex items-center gap-3 text-slate-800">
+                <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600"><i data-lucide="plus"></i></div>
+                إضافة مكان جديد
+            </h2>
+            
+            <form id="place-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Data Fields -->
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">اسم المكان (عربي)</label>
+                        <input type="text" id="name_ar" required class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">Name (English)</label>
+                        <input type="text" id="name_en" required class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">القسم الرئيسي</label>
+                        <select id="main_cat" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="restaurants">مطاعم</option>
+                            <option value="cafes">كافيهات</option>
+                            <option value="doctors">أطباء</option>
+                            <option value="services">خدمات</option>
+                            <option value="shops">محلات</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold text-slate-700 mb-2">القسم الفرعي</label>
+                        <select id="sub_cat_id" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="">اختر القسم الرئيسي أولاً</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">العنوان</label>
+                    <input type="text" id="address" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none">
+                </div>
+
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-bold text-slate-700 mb-2">وصف المكان</label>
+                    <textarea id="desc_ar" rows="3" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="اكتب وصفاً جذاباً للمكان..."></textarea>
+                </div>
+
+                <!-- Image Upload -->
+                <div class="md:col-span-2 border-2 border-dashed border-slate-200 p-8 rounded-3xl text-center hover:border-blue-500 transition cursor-pointer" onclick="document.getElementById('image_upload').click()">
+                    <input type="file" id="image_upload" hidden accept="image/*">
+                    <div id="image-preview" class="max-w-xs mx-auto mb-4 hidden">
+                        <img src="" class="rounded-2xl shadow-lg">
+                    </div>
+                    <div id="upload-status" class="text-slate-400">
+                        <i data-lucide="image" class="mx-auto w-12 h-12 mb-2"></i>
+                        <p class="font-bold">اضغط هنا لرفع صورة المكان</p>
+                        <p class="text-xs">سيتم تخزينها على Cloudinary وتصغيرها تلقائياً</p>
+                    </div>
+                </div>
+
+                <div class="md:col-span-2 flex items-center gap-3 bg-blue-50 p-4 rounded-2xl border border-blue-100">
+                    <input type="checkbox" id="is_featured" class="w-5 h-5 rounded border-blue-300 text-blue-600 focus:ring-blue-500">
+                    <label for="is_featured" class="text-sm font-bold text-blue-800">تمييز هذا المكان في قسم "هل زرت هذا المكان من قبل؟" (Featured)</label>
+                </div>
+
+                <button type="submit" id="submit-btn" class="md:col-span-2 bg-blue-600 text-white font-black py-4 rounded-2xl shadow-lg shadow-blue-200 hover:bg-blue-700 transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="save"></i> حفظ البيانات في Supabase
+                </button>
+            </form>
+        </div>
+
+        <!-- Offers Management -->
+        <div class="glass p-8 rounded-3xl shadow-lg space-y-6">
+            <h2 class="text-xl font-black flex items-center gap-3 text-slate-800">
+                <div class="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center text-indigo-600"><i data-lucide="zap"></i></div>
+                إدارة العروض المميزة
+            </h2>
+            
+            <form id="offer-form" class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-6 rounded-2xl">
+                <input type="text" id="off_title" placeholder="عنوان العرض (مثلاً: خصم 20%)" required class="p-3 rounded-xl border border-slate-200 outline-none">
+                <input type="text" id="off_desc" placeholder="وصف المختصر (مثلاً: كود SUEZ2025)" required class="p-3 rounded-xl border border-slate-200 outline-none">
+                <select id="off_color" class="p-3 rounded-xl border border-slate-200 outline-none">
+                    <option value="var(--primary)">أزرق (أساسي)</option>
+                    <option value="var(--secondary)">سماوي</option>
+                    <option value="var(--accent)">برتقالي</option>
+                    <option value="#ef4444">أحمر</option>
+                    <option value="#10b981">أخضر</option>
+                </select>
+                <button type="submit" class="bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 transition">إضافة العرض الآن</button>
+            </form>
+
+            <div id="offers-list" class="space-y-3">
+                <!-- Offers will load here -->
+            </div>
+        </div>
+
+        <!-- Places List -->
+        <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+            <h2 class="text-xl font-black mb-6 text-slate-800">الأماكن المضافة حالياً</h2>
+            <div id="places-list" class="divide-y divide-slate-100 italic text-slate-400">
+                جاري التحميل...
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const { createClient } = supabase;
+        const supabaseUrl = window.GUIDE_CONFIG.URL;
+        const supabaseKey = window.GUIDE_CONFIG.ANON_KEY;
+        const _supabase = createClient(supabaseUrl, supabaseKey);
+
+        let uploadedImageUrl = "";
+
+        // Handle Image Upload to Cloudinary
+        document.getElementById('image_upload').onchange = async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const status = document.getElementById('upload-status');
+            status.innerHTML = `<div class="animate-spin inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mb-2"></div><p>جاري الرفع لـ Cloudinary...</p>`;
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', window.GUIDE_CONFIG.CLOUDINARY_UPLOAD_PRESET);
+
+            try {
+                const res = await fetch(`https://api.cloudinary.com/v1_1/${window.GUIDE_CONFIG.CLOUDINARY_CLOUD_NAME}/image/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                
+                if (data.secure_url) {
+                    uploadedImageUrl = data.secure_url;
+                    document.getElementById('image-preview').classList.remove('hidden');
+                    document.getElementById('image-preview').querySelector('img').src = uploadedImageUrl;
+                    status.innerHTML = `<p class="text-green-600 font-bold">تم الرفع بنجاح ✅</p>`;
+                } else if (data.error) {
+                    console.error("Cloudinary Detailed Error:", data.error);
+                    status.innerHTML = `<p class="text-red-500 text-xs">خطأ: ${data.error.message}</p>`;
+                }
+            } catch (err) {
+                console.error("Upload process error:", err);
+                status.innerHTML = `<p class="text-red-600 font-bold">فشل الاتصال بخدمة الرفع ❌</p>`;
+            }
+        };
+
+        // Handle Form Submission
+        document.getElementById('place-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerText = "جاري الحفظ...";
+
+            const payload = {
+                name_ar: document.getElementById('name_ar').value,
+                name_en: document.getElementById('name_en').value,
+                main_cat_id: document.getElementById('main_cat').value,
+                sub_cat_id: document.getElementById('sub_cat_id').value,
+                address: document.getElementById('address').value,
+                desc_ar: document.getElementById('desc_ar').value,
+                is_featured: document.getElementById('is_featured').checked
+            };
+
+            // Only update image if a new one was uploaded
+            if (uploadedImageUrl) {
+                payload.image_url = uploadedImageUrl;
+            }
+
+            let error;
+            if (currentEditingId) {
+                // Update existing
+                const res = await _supabase.from('places').update(payload).eq('id', currentEditingId);
+                error = res.error;
+            } else {
+                // Insert new. Ensure image_url is set (might be empty string if not uploaded)
+                if (!payload.image_url) payload.image_url = ""; 
+                const res = await _supabase.from('places').insert([payload]);
+                error = res.error;
+            }
+
+            if (error) {
+                alert("خطأ: " + error.message);
+                console.error(error);
+            } else {
+                alert(currentEditingId ? "تم تعديل المكان بنجاح!" : "تم إضافة المكان بنجاح!");
+                location.reload();
+            }
+            btn.disabled = false;
+        };
+
+        // Edit Place function
+        window.editPlace = async (id) => {
+            const { data, error } = await _supabase.from('places').select('*').eq('id', id).single();
+            if (error || !data) {
+                alert("حدث خطأ أثناء جلب البيانات");
+                return;
+            }
+
+            // Scroll to form
+            document.getElementById('place-form').scrollIntoView({ behavior: 'smooth' });
+
+            // Populate fields
+            currentEditingId = data.id;
+            document.getElementById('name_ar').value = data.name_ar;
+            document.getElementById('name_en').value = data.name_en;
+            
+            // Set categories
+            document.getElementById('main_cat').value = data.main_cat_id || "";
+            updateSubCats(); // Refresh subcats based on main
+            setTimeout(() => {
+                document.getElementById('sub_cat_id').value = data.sub_cat_id;
+            }, 100); // Small delay to allow DOM update
+
+            document.getElementById('address').value = data.address;
+            document.getElementById('desc_ar').value = data.desc_ar;
+            document.getElementById('is_featured').checked = data.is_featured;
+
+            // Show current image
+            if (data.image_url) {
+                document.getElementById('image-preview').classList.remove('hidden');
+                document.getElementById('image-preview').querySelector('img').src = data.image_url;
+                document.getElementById('upload-status').innerHTML = `<p class="text-amber-600 font-bold">⚠️ ملاحظة: الصورة الحالية موجودة. ارفع صورة جديدة فقط لتغييرها.</p>`;
+            }
+
+            // Change button text
+            document.getElementById('submit-btn').innerHTML = `<i data-lucide="edit"></i> تعديل البيانات`;
+            lucide.createIcons();
+        };
+
+        // Load Initial Stats & List
+        async function loadData() {
+            const { data, count } = await _supabase.from('places').select('*', { count: 'exact' });
+            if (data) {
+                document.getElementById('stat-places').innerText = count;
+                document.getElementById('places-list').innerHTML = data.map(p => `
+                    <div class="py-4 flex justify-between items-center group">
+                        <div class="flex items-center gap-4">
+                            <img src="${p.image_url || 'https://via.placeholder.com/150?text=No+Img'}" class="w-12 h-12 rounded-lg object-cover">
+                            <div>
+                                <div class="font-bold text-slate-800">${p.name_ar}</div>
+                                <div class="text-xs text-slate-400 capitalize">${p.sub_cat_id}</div>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                             <button onclick="editPlace('${p.id}')" class="text-blue-400 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition"><i data-lucide="pencil"></i></button>
+                             <button onclick="deletePlace('${p.id}')" class="text-red-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition"><i data-lucide="trash-2"></i></button>
+                        </div>
+                    </div>
+                `).join('') || "لا يوجد أماكن مضافة بعد";
+                if (typeof lucide !== "undefined") lucide.createIcons();
+            }
+        }
+
+        window.deletePlace = async (id) => {
+            if (!confirm("هل أنت متأكد من المسح؟")) return;
+            await _supabase.from('places').delete().eq('id', id);
+            loadData();
+        };
+
+        // Offers Logic
+        document.getElementById('offer-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const payload = {
+                title_ar: document.getElementById('off_title').value,
+                title_en: document.getElementById('off_title').value, // Simpler for now
+                desc_ar: document.getElementById('off_desc').value,
+                bg_color: document.getElementById('off_color').value
+            };
+            const { error } = await _supabase.from('offers').insert([payload]);
+            if (!error) location.reload();
+        };
+
+        async function loadOffers() {
+            const { data } = await _supabase.from('offers').select('*');
+            if (data) {
+                document.getElementById('stat-offers').innerText = data.length;
+                document.getElementById('offers-list').innerHTML = data.map(off => `
+                    <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+                        <div class="flex items-center gap-3">
+                            <div class="w-4 h-4 rounded-full" style="background: ${off.bg_color}"></div>
+                            <div class="font-bold">${off.title_ar}</div>
+                        </div>
+                        <button onclick="deleteOffer('${off.id}')" class="text-red-400 hover:text-red-600"><i data-lucide="x"></i></button>
+                    </div>
+                `).join('');
+                if (typeof lucide !== "undefined") lucide.createIcons();
+            }
+        }
+
+        window.deleteOffer = async (id) => {
+            await _supabase.from('offers').delete().eq('id', id);
+            loadOffers();
+        };
+
+        // Category Mapping
+        const CATEGORY_MAPPING = {
+            restaurants: {
+                label: "مطاعم",
+                subs: [
+                    { id: 'grill', label: 'مشويات' },
+                    { id: 'seafood', label: 'مأكولات بحرية' },
+                    { id: 'pizza', label: 'بيتزا وفطائر' },
+                    { id: 'burger', label: 'برجر' },
+                    { id: 'fried_chicken', label: 'فرايد تشيكن' },
+                    { id: 'shawarma', label: 'شاورما وسوري' },
+                    { id: 'traditional', label: 'أكل شعبي' },
+                    { id: 'homemade', label: 'أكل بيتي' },
+                    { id: 'international', label: 'أكل غربي' },
+                    { id: 'luxury', label: 'اوبن بوفيه/فاخر' },
+                    { id: 'budget', label: 'على قد اليد' },
+                    { id: 'family', label: 'عائلي' },
+                    { id: 'open_24h', label: 'مفتوح 24 ساعة' },
+                    { id: 'delivery_only', label: 'دليفري فقط' }
+                ]
+            },
+            cafes: {
+                label: "كافيهات",
+                subs: [
+                    { id: 'youth', label: 'شبابي' },
+                    { id: 'family', label: 'عائلي' },
+                    { id: 'sea_view', label: 'على البحر' },
+                    { id: 'quiet', label: 'هادئ للمذاكرة' },
+                    { id: 'gaming', label: 'بلاستيشن' },
+                    { id: 'shisha', label: 'يوجد شيشة' },
+                    { id: 'no_shisha', label: 'لا يوجد شيشة' },
+                    { id: 'open_24h', label: 'مفتوح 24 ساعة' }
+                ]
+            },
+            shops: {
+                label: "محلات وتسوق",
+                subs: [
+                    { id: 'men_clothes', label: 'ملابس رجالي' },
+                    { id: 'women_clothes', label: 'ملابس حريمي' },
+                    { id: 'kids_clothes', label: 'ملابس أطفال' },
+                    { id: 'shoes', label: 'أحذية وشنط' },
+                    { id: 'cosmetics', label: 'مستحضرات تجميل' },
+                    { id: 'accessories', label: 'إكسسوارات وهدايا' },
+                    { id: 'jewelry', label: 'ذهب ومجوهرات' },
+                    { id: 'electronics', label: 'إلكترونيات' },
+                    { id: 'mobiles', label: 'موبايلات' },
+                    { id: 'computers', label: 'كمبيوتر ولابتوب' },
+                    { id: 'home_tools', label: 'أدوات منزلية' },
+                    { id: 'supermarket', label: 'سوبر ماركت' },
+                    { id: 'spices', label: 'عطارة' }
+                ]
+            },
+            doctors: {
+                label: "أطباء وعيادات",
+                subs: [
+                    { id: 'internal', label: 'باطنة' },
+                    { id: 'pediatric', label: 'أطفال' },
+                    { id: 'dentist', label: 'أسنان' },
+                    { id: 'dermatology', label: 'جلدية' },
+                    { id: 'obgyn', label: 'نساء وتوليد' },
+                    { id: 'orthopedic', label: 'عظام' },
+                    { id: 'ophthalmology', label: 'عيون' },
+                    { id: 'ent', label: 'أنف وأذن' },
+                    { id: 'cardiology', label: 'قلب وأوعية' },
+                    { id: 'neurology', label: 'مخ وأعصاب' },
+                    { id: 'psychiatry', label: 'نفسية وعصبية' },
+                    { id: 'physiotherapy', label: 'علاج طبيعي' },
+                    { id: 'slimming', label: 'تخسيس وتغذية' },
+                    { id: 'lab_xray', label: 'معامل وأشعة' }
+                ]
+            },
+            pharmacies: {
+                label: "صيدليات",
+                subs: [
+                    { id: 'open_24h', label: 'مفتوحة 24 ساعة' },
+                    { id: 'delivery', label: 'توصيل منازل' },
+                    { id: 'medical_supplies', label: 'مستلزمات طبية' },
+                    { id: 'cosmetics', label: 'مستحضرات تجميل' },
+                    { id: 'imported_meds', label: 'أدوية مستوردة' },
+                    { id: 'insurance', label: 'تعاقدات تأمين' },
+                    { id: 'emergency', label: 'إسعافات أولية' }
+                ]
+            },
+            services: {
+                label: "خدمات وصنايعية",
+                subs: [
+                    { id: 'plumber', label: 'سباك' },
+                    { id: 'electrician', label: 'كهربائي' },
+                    { id: 'carpenter', label: 'نجار' },
+                    { id: 'painter', label: 'نقاش' },
+                    { id: 'ac', label: 'تكييف وتبريد' },
+                    { id: 'appliance_repair', label: 'صيانة أجهزة' },
+                    { id: 'pest_control', label: 'مكافحة حشرات' },
+                    { id: 'imoving', label: 'نقل عفش' },
+                    { id: 'cleaning_co', label: 'شركات نظافة' },
+                    { id: 'car_wash', label: 'غسيل سيارات' },
+                    { id: 'mechanic', label: 'ميكانيكي' },
+                    { id: 'car_electric', label: 'كهربائي سيارات' },
+                    { id: 'oil_change', label: 'تغيير زيت' }
+                ]
+            },
+            cars: {
+                label: "خدمات السيارات",
+                subs: [
+                    { id: 'wash', label: 'مغسلة' },
+                    { id: 'maint', label: 'مركز صيانة' },
+                    { id: 'mech', label: 'ميكانيكا' },
+                    { id: 'elec', label: 'كهرباء' },
+                    { id: 'oil', label: 'زيوت وفلاتر' },
+                    { id: 'tires', label: 'إطارات وبطاريات' },
+                    { id: 'parts', label: 'قطع غيار' },
+                    { id: 'accs', label: 'كماليات' },
+                    { id: 'insur', label: 'تأمين' },
+                    { id: 'school', label: 'تعليم قيادة' }
+                ]
+            },
+             education: {
+                label: "تعليم وكورسات",
+                subs: [
+                    { id: 'centers', label: 'سناتر تعليمية' },
+                    { id: 'lang', label: 'لغات' },
+                    { id: 'code', label: 'برمجة وجرافيك' },
+                    { id: 'design', label: 'تصميم وفنون' },
+                    { id: 'tutor', label: 'مدرسين خصوصي' },
+                    { id: 'lib', label: 'مكتبات' },
+                    { id: 'tools', label: 'أدوات مدرسية' },
+                    { id: 'craft', label: 'ورش فنية' }
+                ]
+            },
+            emergency: {
+                label: "طوارئ",
+                subs: [
+                    { id: 'hospitals', label: 'مستشفيات' },
+                    { id: 'pharm_24h', label: 'صيدليات 24 ساعة' },
+                    { id: 'ambulance', label: 'إسعاف' },
+                    { id: 'doctors', label: 'أطباء طوارئ' },
+                    { id: 'gas', label: 'طوارئ الغاز' },
+                    { id: 'locks', label: 'فتح أقفال' },
+                    { id: 'mainten', label: 'صيانة طارئة' },
+                    { id: 'vinch', label: 'ونش إنقاذ' }
+                ]
+            },
+            events: {
+                label: "مناسبات وأفراح",
+                subs: [
+                    { id: 'halls', label: 'قاعات أفراح' },
+                    { id: 'plan', label: 'Wedding Planners' },
+                    { id: 'photo', label: 'فوتوجرافر' },
+                    { id: 'dj', label: 'DJ و Sound System' },
+                    { id: 'cate', label: 'بوفيه وضيافة' },
+                    { id: 'kosha', label: 'كوشة وديكور' },
+                    { id: 'rent', label: 'تأجير كراسي' },
+                    { id: 'ballo', label: 'بالون وديكور' }
+                ]
+            },
+            government: {
+                label: "خدمات حكومية",
+                subs: [
+                    { id: 'offices', label: 'مكاتب ومصالح' },
+                    { id: 'times', label: 'مواعيد عمل' },
+                    { id: 'papers', label: 'أوراق ومستندات' },
+                    { id: 'steps', label: 'إجراءات وخطوات' },
+                    { id: 'phones', label: 'أرقام هامة' },
+                    { id: 'comp', label: 'شكاوى ومقترحات' }
+                ]
+            },
+            "home-living": {
+                label: "منزل ومعيشة",
+                subs: [
+                    { id: 'furniture', label: 'أثاث وديكور' },
+                    { id: 'cleaning', label: 'أدوات نظافة' },
+                    { id: 'laundry', label: 'دراي كلين' },
+                    { id: 'nursery', label: 'حضانات' },
+                    { id: 'schools', label: 'مدارس' },
+                    { id: 'gym', label: 'جيم ولياقة' },
+                    { id: 'clubs', label: 'نوادي' },
+                    { id: 'slimming', label: 'مراكز تخسيس' },
+                    { id: 'centers', label: 'مراكز مجتمعية' },
+                    { id: 'ngo', label: 'جمعيات خيرية' },
+                    { id: 'utils', label: 'خدمات مرافق' }
+                ]
+            },
+            jobs: {
+                label: "وظائف وأعمال",
+                subs: [
+                    { id: 'ads', label: 'إعلانات وظائف' },
+                    { id: 'free', label: 'عمل حر / Freelance' },
+                    { id: 'online', label: 'عمل من المنزل' },
+                    { id: 'train', label: 'تدريب مهني' },
+                    { id: 'offices', label: 'مكاتب توظيف' },
+                    { id: 'accs', label: 'محاسبين' },
+                    { id: 'lawyers', label: 'محامين' },
+                    { id: 'clear', label: 'تخليص جمركي' },
+                    { id: 'ship', label: 'شحن ونقل' }
+                ]
+            },
+            tourism: {
+                label: "سياحة وسفر",
+                subs: [
+                    { id: 'hotels', label: 'فنادق' },
+                    { id: 'spots', label: 'مزارات سياحية' },
+                    { id: 'day', label: 'داي يوز' },
+                    { id: 'trips', label: 'رحلات داخلية' },
+                    { id: 'prog', label: 'برامج سياحية' },
+                    { id: 'boats', label: 'يخوت ومراكب' },
+                    { id: 'apart', label: 'شقق مصيفية' }
+                ]
+            },
+            entertainment: {
+                label: "ترفيه وخروجات",
+                subs: [
+                    { id: 'cinemas', label: 'سينما' },
+                    { id: 'parks', label: 'حدائق ومنتزهات' },
+                    { id: 'malahi', label: 'ملاهي وألعاب' },
+                    { id: 'gaming', label: 'Gaming Centers' },
+                    { id: 'beaches', label: 'شواطئ وقرى' },
+                    { id: 'photo', label: 'سيشن تصوير' }
+                ]
+            }
+        };
+
+        let currentEditingId = null; // Track if we are editing
+
+        document.addEventListener('DOMContentLoaded', () => {
+             // Populate Main Categories
+             const mainCatSelect = document.getElementById('main_cat');
+             mainCatSelect.innerHTML = '<option value="">اختر القسم...</option>';
+             Object.keys(CATEGORY_MAPPING).forEach(key => {
+                 mainCatSelect.innerHTML += `<option value="${key}">${CATEGORY_MAPPING[key].label}</option>`;
+             });
+
+             // Update Subcategories on change
+             mainCatSelect.addEventListener('change', updateSubCats);
+        });
+
+        function updateSubCats() {
+            const mainCat = document.getElementById('main_cat').value;
+            const subCatSelect = document.getElementById('sub_cat_id');
+            const subCatContainer = document.getElementById('sub_cat_container'); // We need to create this container in HTML
+
+            subCatSelect.innerHTML = '';
+            
+            if (mainCat && CATEGORY_MAPPING[mainCat]) {
+                CATEGORY_MAPPING[mainCat].subs.forEach(sub => {
+                    subCatSelect.innerHTML += `<option value="${sub.id}">${sub.label} (${sub.id})</option>`;
+                });
+            }
+        }
+
+        // Site Settings Logic
+        async function loadSettings() {
+            const { data } = await _supabase.from('site_settings').select('*').eq('key', 'latest_additions_count').single();
+            if (data) {
+                document.getElementById('latest_count_input').value = data.value;
+            }
+        }
+
+        window.updateSettings = async () => {
+            const val = document.getElementById('latest_count_input').value;
+            const { error } = await _supabase.from('site_settings').upsert({ key: 'latest_additions_count', value: parseInt(val) });
+            if (!error) alert("تم تحديث الإعدادات!");
+            else alert("فشل التحديث: " + error.message);
+        };
+
+        loadData();
+        loadSettings();
+        loadOffers();
+        lucide.createIcons();
+    </script>
+</body>
+</html>
