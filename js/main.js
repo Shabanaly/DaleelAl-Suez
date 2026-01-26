@@ -92,17 +92,20 @@ async function renderPlaceDetails(placeId) {
     document.title = `${name} - دليل السويس`;
     document.getElementById('place-description').innerText = desc;
 
-    // Fetch Category Name
+    // Fetch Category Name (Non-blocking)
     if (window.sb && place.main_cat_id) {
-        const { data: cat } = await window.sb.from('categories').select('name_ar, name_en').eq('id', place.main_cat_id).single();
-        if (cat) {
-            const catName = isAr ? cat.name_ar : (cat.name_en || cat.name_ar);
-            document.getElementById('place-category-badge').innerText = catName;
-        }
+        window.sb.from('categories').select('name_ar, name_en').eq('id', place.main_cat_id).single()
+            .then(({ data: cat }) => {
+                if (cat) {
+                    const catName = isAr ? cat.name_ar : (cat.name_en || cat.name_ar);
+                    const badge = document.getElementById('place-category-badge');
+                    if (badge) badge.innerText = catName;
+                }
+            }).catch(err => console.warn("Cat fetch error", err));
     }
 
     // Hero Image
-    const heroImg = place.image_url || (place.images && place.images[0]) || 'https://via.placeholder.com/1200x800?text=No+Image';
+    const heroImg = place.image_url || (place.images && Array.isArray(place.images) && place.images[0]) || 'https://via.placeholder.com/1200x800?text=No+Image';
     const heroEl = document.getElementById('place-hero-img');
     if (heroEl) {
         heroEl.src = heroImg;
@@ -197,17 +200,40 @@ async function renderPlaceDetails(placeId) {
     // Sticky Mobile Action Bar
     renderStickyActionBar(place, isAr);
 
-    // Gallery (Magazine Style)
-    const allImages = [place.image_url, ...(place.images || [])].filter(Boolean);
-    if (allImages.length > 0) {
-        const gallery = document.getElementById('place-gallery');
-        const gallerySection = document.getElementById('gallery-section');
+    // Gallery (Magazine Style - Robust & Deduplicated)
+    const gallerySection = document.getElementById('gallery-section');
+    const gallery = document.getElementById('place-gallery');
+
+    if (gallery && gallerySection) {
+        // Collect all potential images
+        let rawImages = [];
+        if (place.image_url) rawImages.push(place.image_url);
         
-        gallery.innerHTML = allImages.map(img => 
-            `<div class="gallery-item" onclick="openLightbox('${img}')"><img src="${img}" alt="${name}" loading="lazy"></div>`
-        ).join('');
-        
-        gallerySection.style.display = 'block';
+        if (place.images) {
+            if (Array.isArray(place.images)) {
+                rawImages = [...rawImages, ...place.images];
+            } else if (typeof place.images === 'string') {
+                try {
+                    const parsed = JSON.parse(place.images);
+                    if (Array.isArray(parsed)) rawImages = [...rawImages, ...parsed];
+                } catch(e) { rawImages.push(place.images); }
+            }
+        }
+
+        // Deduplicate and filter out empties
+        const uniqueImages = [...new Set(rawImages.filter(Boolean))];
+
+        if (uniqueImages.length > 0) {
+            gallery.innerHTML = uniqueImages.map(img => 
+                `<div class="gallery-item" onclick="openLightbox('${img}')">
+                    <img src="${img}" alt="${name}" loading="lazy">
+                </div>`
+            ).join('');
+            
+            gallerySection.style.display = 'block';
+        } else {
+            gallerySection.style.display = 'none';
+        }
     }
 
     if (typeof lucide !== "undefined") lucide.createIcons();
