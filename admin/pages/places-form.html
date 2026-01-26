@@ -162,6 +162,7 @@
                     document.getElementById('p_sub_cat').value = place.sub_cat_id || '';
                     
                     document.getElementById('p_address').value = place.address || '';
+                    document.getElementById('p_map_url').value = place.map_url || '';
                     document.getElementById('p_desc_ar').value = place.desc_ar || '';
                     document.getElementById('p_desc_en').value = place.desc_en || '';
                     
@@ -275,6 +276,7 @@
                 main_cat_id: document.getElementById('p_main_cat').value,
                 sub_cat_id: document.getElementById('p_sub_cat').value || null,
                 address: document.getElementById('p_address').value,
+                map_url: document.getElementById('p_map_url').value,
                 desc_ar: document.getElementById('p_desc_ar').value,
                 desc_en: document.getElementById('p_desc_en').value,
                 image_url: document.getElementById('p_image').value,
