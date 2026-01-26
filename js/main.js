@@ -113,6 +113,49 @@ async function renderPlaceDetails(placeId) {
     const infoGrid = document.getElementById('place-info-grid');
     let infoHTML = '';
 
+    // Phone
+    if (place.phone) {
+        infoHTML += `
+            <div class="place-info-item interactive" onclick="window.location.href='tel:${place.phone}'">
+                <div class="info-icon"><i data-lucide="phone"></i></div>
+                <div class="info-text">
+                    <label>${isAr ? 'اتصال' : 'Call'}</label>
+                    <span>${place.phone}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    // WhatsApp
+    if (place.whatsapp) {
+        let waNumber = place.whatsapp.replace(/\D/g,'');
+        if (waNumber.startsWith('0')) waNumber = '20' + waNumber.substring(1);
+        else if (!waNumber.startsWith('20')) waNumber = '20' + waNumber;
+
+        infoHTML += `
+            <div class="place-info-item interactive" onclick="window.open('https://wa.me/${waNumber}', '_blank')">
+                <div class="info-icon" style="color: #22c55e;"><i data-lucide="message-circle"></i></div>
+                <div class="info-text">
+                    <label>${isAr ? 'واتساب' : 'WhatsApp'}</label>
+                    <span style="color: #22c55e;">تحدث الآن</span>
+                </div>
+            </div>
+        `;
+    }
+
+    // Working Hours
+    if (place.working_hours) {
+        infoHTML += `
+            <div class="place-info-item">
+                <div class="info-icon"><i data-lucide="clock"></i></div>
+                <div class="info-text">
+                    <label>${isAr ? 'ساعات العمل' : 'Working Hours'}</label>
+                    <span>${place.working_hours}</span>
+                </div>
+            </div>
+        `;
+    }
+
     // Address (Text)
     if (place.address) {
         infoHTML += `
@@ -151,6 +194,9 @@ async function renderPlaceDetails(placeId) {
 
     infoGrid.innerHTML = infoHTML;
 
+    // Sticky Mobile Action Bar
+    renderStickyActionBar(place, isAr);
+
     // Gallery (Magazine Style)
     const allImages = [place.image_url, ...(place.images || [])].filter(Boolean);
     if (allImages.length > 0) {
@@ -164,6 +210,42 @@ async function renderPlaceDetails(placeId) {
         gallerySection.style.display = 'block';
     }
 
+    if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
+/**
+ * Renders a sticky action bar fixed at the bottom for mobile devices
+ */
+function renderStickyActionBar(place, isAr) {
+    if (window.innerWidth > 1024) return; // Desktop doesn't need this
+    
+    // Remove existing if any
+    const existing = document.querySelector('.mobile-action-bar');
+    if (existing) existing.remove();
+
+    const bar = document.createElement('div');
+    bar.className = 'mobile-action-bar';
+    
+    let html = '';
+    
+    if (place.phone) {
+        html += `<a href="tel:${place.phone}" class="action-item call"><i data-lucide="phone"></i> <span>${isAr ? 'اتصال' : 'Call'}</span></a>`;
+    }
+    
+    if (place.whatsapp) {
+        let waNumber = place.whatsapp.replace(/\D/g,'');
+        if (waNumber.startsWith('0')) waNumber = '20' + waNumber.substring(1);
+        else if (!waNumber.startsWith('20')) waNumber = '20' + waNumber;
+
+        html += `<a href="https://wa.me/${waNumber}" class="action-item whatsapp"><i data-lucide="message-circle"></i> <span>واتساب</span></a>`;
+    }
+    
+    const mapQuery = place.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.address || '')}`;
+    html += `<a href="${mapQuery}" target="_blank" class="action-item map"><i data-lucide="navigation"></i> <span>${isAr ? 'خريطة' : 'Map'}</span></a>`;
+
+    bar.innerHTML = html;
+    document.body.appendChild(bar);
+    
     if (typeof lucide !== "undefined") lucide.createIcons();
 }
 

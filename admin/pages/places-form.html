@@ -178,6 +178,9 @@
                     
                     document.getElementById('p_address').value = place.address || '';
                     document.getElementById('p_map_url').value = place.map_url || '';
+                    document.getElementById('p_phone').value = place.phone || '';
+                    document.getElementById('p_whatsapp').value = place.whatsapp || '';
+                    document.getElementById('p_hours').value = place.working_hours || '';
                     document.getElementById('p_desc_ar').value = place.desc_ar || '';
                     document.getElementById('p_desc_en').value = place.desc_en || '';
                     
@@ -292,6 +295,9 @@
                 sub_cat_id: document.getElementById('p_sub_cat').value || null,
                 address: document.getElementById('p_address').value,
                 map_url: document.getElementById('p_map_url').value,
+                phone: document.getElementById('p_phone').value,
+                whatsapp: document.getElementById('p_whatsapp').value,
+                working_hours: document.getElementById('p_hours').value,
                 desc_ar: document.getElementById('p_desc_ar').value,
                 desc_en: document.getElementById('p_desc_en').value,
                 image_url: document.getElementById('p_image').value,
