@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة/تعديل مكان - دليل السويس</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../../js/config.js"></script>
+    <link rel="stylesheet" href="../css/admin.css">
+    
+    <script src="../utils/helpers.js"></script>
+    <script src="../services/supabase.js"></script>
+    <script src="../services/places.service.js"></script>
+    <script src="../services/categories.service.js"></script>
+    <script src="../services/upload.service.js"></script>
+    <script src="../components/sidebar.js"></script>
+    <script src="../components/topbar.js"></script>
+</head>
+<body>
+    <div class="app-layout">
+        <div id="sidebar-container"></div>
+        <main class="main-content">
+            <div id="topbar-container"></div>
+            <div class="page-content">
+                
+                <div style="display:flex; align-items:center; gap:16px; margin-bottom:24px;">
+                    <a href="places.html" class="btn btn-outline btn-icon"><i data-lucide="arrow-right"></i></a>
+                    <h2 class="page-title" id="form-title">إضافة مكان جديد</h2>
+                </div>
+
+                <div class="card" style="max-width: 800px; margin: 0 auto;">
+                    <form id="place-form" style="display:grid; gap:24px;">
+                        <input type="hidden" id="p_id">
+                        
+                        <div class="grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+                            <div><label class="label">الاسم (عربي)</label><input id="p_name_ar" class="input" required></div>
+                            <div><label class="label">Name (English)</label><input id="p_name_en" class="input" required></div>
+                        </div>
+
+                        <div class="grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:24px;">
+                            <div>
+                                <label class="label">القسم الرئيسي</label>
+                                <select id="p_main_cat" class="input" required onchange="updateSubCats()"></select>
+                            </div>
+                            <div>
+                                <label class="label">القسم الفرعي</label>
+                                <select id="p_sub_cat" class="input" required></select>
+                            </div>
+                        </div>
+
+                        <div><label class="label">العنوان</label><input id="p_address" class="input"></div>
+                        
+                        <div><label class="label">الوصف</label><textarea id="p_desc" class="input" style="height:100px; padding:12px;"></textarea></div>
+
+                        <!-- Upload -->
+                        <div>
+                            <label class="label">صورة المكان</label>
+                            <div style="border: 2px dashed var(--border); padding: 32px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.2s;" 
+                                 onclick="document.getElementById('p_file').click()"
+                                 id="upload-area">
+                                <input type="file" id="p_file" hidden accept="image/*" onchange="handleFileUpload(this)">
+                                <i data-lucide="image-plus" style="width:32px; height:32px; color:#cbd5e1; margin-bottom:8px;"></i>
+                                <div id="upload-msg" style="color:var(--text-body); font-size:13px;">اضغط لرفع صورة</div>
+                                <input type="hidden" id="p_image">
+                            </div>
+                            <img id="preview-img" src="" style="width:100%; height:250px; object-fit:cover; border-radius:8px; margin-top:16px; display:none;">
+                        </div>
+
+                        <div style="display:flex; justify-content:flex-end; gap:12px; border-top:1px solid var(--border); padding-top:24px;">
+                            <a href="places.html" class="btn btn-outline">إلغاء</a>
+                            <button type="submit" class="btn btn-primary" id="save-btn" style="width:150px;">حفظ البيانات</button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('sidebar-container').innerHTML = Sidebar.render('places');
+        document.getElementById('topbar-container').innerHTML = Topbar.render('الأماكن');
+        lucide.createIcons();
+
+        // Logic
+        const params = new URLSearchParams(window.location.search);
+        const editId = params.get('id');
+
+        async function init() {
+            // Populate Cats
+            const cats = CategoriesService.getAll();
+            const catSelect = document.getElementById('p_main_cat');
+            cats.forEach(c => {
+                catSelect.innerHTML += `<option value="${c.id}">${c.label}</option>`;
+            });
+
+            if (editId) {
+                document.getElementById('form-title').innerText = 'تعديل بيانات مكان';
+                await loadPlaceData(editId);
+            }
+        }
+
+        async function loadPlaceData(id) {
+            // Fetch single place logic (should be in service, but standard supabase select here is fine for now or add to service)
+            const { data, error } = await _supabase.from('places').select('*').eq('id', id).single();
+            if (data) {
+                document.getElementById('p_id').value = data.id;
+                document.getElementById('p_name_ar').value = data.name_ar;
+                document.getElementById('p_name_en').value = data.name_en;
+                document.getElementById('p_main_cat').value = data.main_cat_id;
+                updateSubCats();
+                // small delay for subcat population
+                setTimeout(() => document.getElementById('p_sub_cat').value = data.sub_cat_id, 100);
+                document.getElementById('p_address').value = data.address;
+                document.getElementById('p_desc').value = data.desc_ar || '';
+                
+                if (data.image_url) {
+                    document.getElementById('p_image').value = data.image_url;
+                    document.getElementById('preview-img').src = data.image_url;
+                    document.getElementById('preview-img').style.display = 'block';
+                }
+            }
+        }
+
+        function updateSubCats() {
+            const mainId = document.getElementById('p_main_cat').value;
+            const subs = CategoriesService.getSubs(mainId);
+            const subSelect = document.getElementById('p_sub_cat');
+            subSelect.innerHTML = subs.map(s => `<option value="${s.id}">${s.label}</option>`).join('');
+        }
+
+        window.handleFileUpload = async (input) => {
+            const file = input.files[0];
+            if(!file) return;
+            
+            const btn = document.getElementById('save-btn');
+            const msg = document.getElementById('upload-msg');
+            btn.disabled = true;
+            btn.innerText = "جاري الرفع...";
+            msg.innerText = "جاري الرفع...";
+
+            try {
+                const url = await UploadService.uploadImage(file);
+                document.getElementById('p_image').value = url;
+                document.getElementById('preview-img').src = url;
+                document.getElementById('preview-img').style.display = 'block';
+                msg.innerText = "تم الرفع بنجاح";
+            } catch(e) {
+                alert(e.message);
+                msg.innerText = "فشل الرفع";
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "حفظ البيانات";
+            }
+        };
+
+        document.getElementById('place-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const payload = {
+                name_ar: document.getElementById('p_name_ar').value,
+                name_en: document.getElementById('p_name_en').value,
+                main_cat_id: document.getElementById('p_main_cat').value,
+                sub_cat_id: document.getElementById('p_sub_cat').value,
+                address: document.getElementById('p_address').value,
+                desc_ar: document.getElementById('p_desc').value,
+                image_url: document.getElementById('p_image').value
+            };
+
+            const btn = document.getElementById('save-btn');
+            btn.disabled = true;
+            btn.innerText = "جاري الحفظ...";
+
+            try {
+                if (editId) {
+                    await PlacesService.update(editId, payload);
+                    alert("تم التعديل بنجاح");
+                } else {
+                    await PlacesService.create(payload);
+                    alert("تم الإضافة بنجاح");
+                }
+                window.location.href = 'places.html';
+            } catch (err) {
+                console.error(err);
+                alert("حدث خطأ");
+                btn.disabled = false;
+                btn.innerText = "حفظ البيانات";
+            }
+        };
+
+        init();
+    </script>
+</body>
+</html>
