@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الأماكن - دليل السويس</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../../js/config.js"></script>
+    <link rel="stylesheet" href="../css/admin.css">
+    
+    <script src="../utils/helpers.js"></script>
+    <script src="../services/supabase.js"></script>
+    <script src="../services/places.service.js"></script>
+    <script src="../services/categories.service.js"></script>
+    <script src="../services/upload.service.js"></script>
+    <script src="../components/sidebar.js"></script>
+    <script src="../components/topbar.js"></script>
+</head>
+<body>
+    <div class="app-layout">
+        <div id="sidebar-container"></div>
+        <main class="main-content">
+            <div id="topbar-container"></div>
+            <div class="page-content">
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                    <h2 class="page-title">إدارة الأماكن</h2>
+                    <button class="btn btn-primary" onclick="openModal()"><i data-lucide="plus"></i> إضافة مكان</button>
+                </div>
+
+                <div class="card">
+                    <div style="display:flex; gap:16px; margin-bottom:24px;">
+                        <input type="text" class="input" id="search-input" placeholder="بحث...">
+                        <select class="input" id="cat-filter" style="width:200px;">
+                            <option value="">كل الأقسام</option>
+                        </select>
+                    </div>
+
+                    <table class="table" id="places-table">
+                        <thead>
+                            <tr>
+                                <th>الاسم</th>
+                                <th>القسم</th>
+                                <th>الفرعي</th>
+                                <th>الحالة</th>
+                                <th>التاريخ</th>
+                                <th>خيارات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td colspan="6" style="text-align:center">جاري التحميل...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div id="place-modal" class="modal-overlay">
+        <div class="modal-box">
+            <div style="display:flex; justify-content:space-between; margin-bottom:24px;">
+                <h3 style="margin:0">بيانات المكان</h3>
+                <button onclick="closeModal()" class="btn btn-outline btn-icon" style="border:none;"><i data-lucide="x"></i></button>
+            </div>
+            
+            <form id="place-form" style="display:grid; gap:16px;">
+                <input type="hidden" id="p_id">
+                
+                <div class="grid-2">
+                    <div><label class="label">الاسم (عربي)</label><input id="p_name_ar" class="input" required></div>
+                    <div><label class="label">Name (En)</label><input id="p_name_en" class="input" required></div>
+                </div>
+
+                <div class="grid-2">
+                    <div>
+                        <label class="label">القسم</label>
+                        <select id="p_main_cat" class="input" required onchange="updateSubCats()"></select>
+                    </div>
+                    <div>
+                        <label class="label">الفرعي</label>
+                        <select id="p_sub_cat" class="input" required></select>
+                    </div>
+                </div>
+
+                <div><label class="label">العنوان</label><input id="p_address" class="input"></div>
+
+                <!-- Custom Graphic Upload Area -->
+                <div>
+                   <label class="label">الصورة</label>
+                   <div style="border: 2px dashed var(--border); padding: 32px; border-radius: 12px; text-align: center; cursor: pointer; background: #fafafa; transition: 0.2s;" onclick="document.getElementById('p_file').click()" onmouseover="this.style.background='#f0f9ff'; this.style.borderColor='var(--primary)'" onmouseout="this.style.background='#fafafa'; this.style.borderColor='var(--border)'">
+                       <input type="file" id="p_file" hidden accept="image/*" onchange="handleFileUpload(this)">
+                       <i data-lucide="image-plus" style="width: 32px; height: 32px; color: var(--text-heading); margin-bottom: 8px;"></i>
+                       <div id="upload-msg" style="color: var(--text-body); font-size: 13px;">اضغط هنا لرفع صورة أو اسحب الملف</div>
+                       <input type="text" id="p_image" placeholder="أو ضع رابط مباشر..." style="width:100%; margin-top:16px; font-size:12px; display:none;">
+                   </div>
+                   <img id="preview-img" src="" style="width: 100%; height: 200px; object-fit: cover; border-radius: 8px; margin-top: 16px; display: none;">
+               </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:16px;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal()">إلغاء</button>
+                    <button type="submit" class="btn btn-primary" id="save-btn">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('sidebar-container').innerHTML = Sidebar.render('places');
+        document.getElementById('topbar-container').innerHTML = Topbar.render('الأماكن');
+        
+        let allPlaces = [];
+
+        // Load Initial Data
+        async function init() {
+            const cats = CategoriesService.getAll();
+            const catSelect = document.getElementById('cat-filter');
+            const formCatSelect = document.getElementById('p_main_cat');
+            
+            cats.forEach(c => {
+                const opt = `<option value="${c.id}">${c.label}</option>`;
+                catSelect.innerHTML += opt;
+                formCatSelect.innerHTML += opt;
+            });
+
+            loadPlaces();
+            lucide.createIcons();
+        }
+
+        async function loadPlaces() {
+            const filter = {
+                search: document.getElementById('search-input').value,
+                category: document.getElementById('cat-filter').value
+            };
+            
+            document.querySelector('#places-table tbody').innerHTML = '<tr><td colspan="6" style="text-align:center">جاري التحميل...</td></tr>';
+            allPlaces = await PlacesService.getAll(filter);
+            renderTable(allPlaces);
+        }
+
+        function renderTable(list) {
+            const tbody = document.querySelector('#places-table tbody');
+            if (!list.length) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">لا توجد نتائج</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = list.map(p => `
+                <tr>
+                    <td style="font-weight:600">${p.name_ar}</td>
+                    <td>${p.main_cat_id || '-'}</td>
+                    <td>${p.sub_cat_id || '-'}</td>
+                    <td><span class="badge active">منشور</span></td>
+                    <td>${Utils.formatDate(p.created_at)}</td>
+                    <td>
+                        <button class="btn btn-outline btn-icon" onclick="editPlace('${p.id}')"><i data-lucide="edit-3"></i></button>
+                        <button class="btn btn-danger btn-icon" onclick="deletePlace('${p.id}')"><i data-lucide="trash-2"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // Search Handlers
+        document.getElementById('search-input').addEventListener('input', () => loadPlaces());
+        document.getElementById('cat-filter').addEventListener('change', loadPlaces);
+
+        // Modal Logic
+        const modal = document.getElementById('place-modal');
+        function openModal() {
+            document.getElementById('place-form').reset();
+            document.getElementById('p_id').value = '';
+            document.getElementById('preview-img').style.display = 'none';
+            document.getElementById('upload-msg').innerHTML = "اضغط هنا لرفع صورة أو اسحب الملف";
+            modal.style.display = 'flex';
+        }
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        function updateSubCats() {
+            const mainId = document.getElementById('p_main_cat').value;
+            const subs = CategoriesService.getSubs(mainId);
+            const subSelect = document.getElementById('p_sub_cat');
+            subSelect.innerHTML = subs.map(s => `<option value="${s.id}">${s.label}</option>`).join('');
+        }
+
+        window.handleFileUpload = async (input) => {
+            const file = input.files[0];
+            if(!file) return;
+
+            const msg = document.getElementById('upload-msg');
+            const preview = document.getElementById('preview-img');
+            const urlInput = document.getElementById('p_image');
+            const btn = document.getElementById('save-btn');
+
+            msg.innerHTML = "جاري الرفع... ⏳";
+            btn.disabled = true;
+
+            try {
+                const url = await UploadService.uploadImage(file);
+                urlInput.value = url;
+                preview.src = url;
+                preview.style.display = 'block';
+                msg.innerHTML = "تم الرفع بنجاح ✅";
+            } catch(e) {
+                msg.innerHTML = "فشل الرفع ❌";
+                Utils.showToast(e.message, 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
+        window.editPlace = async (id) => {
+            const p = allPlaces.find(x => x.id === id);
+            if (!p) return;
+            
+            openModal();
+            document.getElementById('p_id').value = p.id;
+            document.getElementById('p_name_ar').value = p.name_ar;
+            document.getElementById('p_name_en').value = p.name_en;
+            document.getElementById('p_main_cat').value = p.main_cat_id;
+            updateSubCats(); 
+            document.getElementById('p_sub_cat').value = p.sub_cat_id;
+            document.getElementById('p_address').value = p.address;
+            if(p.image_url) {
+                document.getElementById('preview-img').src = p.image_url;
+                document.getElementById('preview-img').style.display = 'block';
+                document.getElementById('p_image').value = p.image_url;
+            }
+        };
+
+        window.deletePlace = async (id) => {
+            if(!confirm('حذف؟')) return;
+            await PlacesService.delete(id);
+            loadPlaces();
+        };
+
+        document.getElementById('place-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('p_id').value;
+            const payload = {
+                name_ar: document.getElementById('p_name_ar').value,
+                name_en: document.getElementById('p_name_en').value,
+                main_cat_id: document.getElementById('p_main_cat').value,
+                sub_cat_id: document.getElementById('p_sub_cat').value,
+                address: document.getElementById('p_address').value,
+                image_url: document.getElementById('p_image').value
+            };
+
+            if (id) {
+                await PlacesService.update(id, payload);
+            } else {
+                await PlacesService.create(payload);
+            }
+            
+            closeModal();
+            loadPlaces();
+        };
+
+        init();
+    </script>
+</body>
+</html>

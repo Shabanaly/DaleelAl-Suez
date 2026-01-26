@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الأقسام - دليل السويس</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="../../js/config.js"></script>
+    <link rel="stylesheet" href="../css/admin.css">
+    
+    <script src="../services/categories.service.js"></script>
+    <script src="../components/sidebar.js"></script>
+    <script src="../components/topbar.js"></script>
+</head>
+<body>
+    <div class="app-layout">
+        <div id="sidebar-container"></div>
+        <main class="main-content">
+            <div id="topbar-container"></div>
+            <div class="page-content">
+                <h2 class="page-title" style="margin-bottom:24px">أقسام الدليل</h2>
+                
+                <div id="categories-container" class="grid-3">
+                    <!-- Categories -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('sidebar-container').innerHTML = Sidebar.render('categories');
+        document.getElementById('topbar-container').innerHTML = Topbar.render('الأقسام');
+        
+        const container = document.getElementById('categories-container');
+        const cats = CategoriesService.getAll();
+
+        if (!cats.length) {
+            container.innerHTML = `<div class="card" style="grid-column:1/-1">لا توجد أقسام</div>`;
+        } else {
+            container.innerHTML = cats.map(cat => {
+                const subs = CategoriesService.getSubs(cat.id);
+                return `
+                    <div class="card" style="height:100%">
+                        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                            <div style="width:40px; height:40px; background:var(--bg-body); border-radius:8px; display:flex; align-items:center; justify-content:center;">
+                                <i data-lucide="${cat.icon || 'folder'}"></i>
+                            </div>
+                            <h3>${cat.label}</h3>
+                        </div>
+                        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                            ${subs.length ? subs.map(s => `<span class="badge">${s.label}</span>`).join('') : '<span class="badge" style="opacity:0.5">-</span>'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        lucide.createIcons();
+    </script>
+</body>
+</html>
