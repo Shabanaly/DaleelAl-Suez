@@ -199,61 +199,46 @@ async function renderPlaceDetails(placeId) {
     // Restore Sticky Mobile Action Bar
     renderStickyActionBar(place, isAr);
 
-    // Map Iframe Section (Robust Embed logic)
-    const mapSection = document.getElementById('map-section');
-    const mapContainer = document.getElementById('map-iframe-container');
-    
-    if (mapSection && mapContainer) {
-        let mapFound = false;
-        if (place.map_url) {
-            // Convert Share Link to Embed link if possible
-            let embedUrl = place.map_url;
-            if (place.map_url.includes('goo.gl/maps') || place.map_url.includes('google.com/maps')) {
-                 if (!place.map_url.includes('embed')) {
-                     // Universal fallback search embed
-                     const query = encodeURIComponent(place.address || place.name_ar || place.name_en);
-                     embedUrl = `https://www.google.com/maps?q=${query}&output=embed`;
-                 }
-            }
-            mapContainer.innerHTML = `<iframe src="${embedUrl}" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>`;
-            mapFound = true;
-        } else if (place.address) {
-            const query = encodeURIComponent(place.address);
-            mapContainer.innerHTML = `<iframe src="https://www.google.com/maps?q=${query}&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>`;
-            mapFound = true;
-        }
-
-        mapSection.style.display = mapFound ? 'block' : 'none';
-    }
-
-
-    // Gallery (Magazine Style - Robust & Deduplicated)
+    // Gallery (Magazine Style - Robust & Resilient)
     const gallerySection = document.getElementById('gallery-section');
     const gallery = document.getElementById('place-gallery');
 
     if (gallery && gallerySection) {
-        // Collect all potential images
         let rawImages = [];
+        
+        // 1. Add Main Image
         if (place.image_url) rawImages.push(place.image_url);
         
+        // 2. Add Additional Images (Resilient Parsing)
         if (place.images) {
             if (Array.isArray(place.images)) {
                 rawImages = [...rawImages, ...place.images];
             } else if (typeof place.images === 'string') {
-                try {
-                    const parsed = JSON.parse(place.images);
-                    if (Array.isArray(parsed)) rawImages = [...rawImages, ...parsed];
-                } catch(e) { rawImages.push(place.images); }
+                 // Check if it's stringified JSON
+                if (place.images.trim().startsWith('[') || place.images.trim().startsWith('{')) {
+                    try {
+                        const parsed = JSON.parse(place.images);
+                        if (Array.isArray(parsed)) rawImages = [...rawImages, ...parsed];
+                        else if (typeof parsed === 'string') rawImages.push(parsed);
+                    } catch(e) { 
+                        // Fallback if not valid JSON
+                        rawImages.push(place.images); 
+                    }
+                } else {
+                    // Plain single string
+                    rawImages.push(place.images);
+                }
             }
         }
 
-        // Deduplicate and filter out empties
-        const uniqueImages = [...new Set(rawImages.filter(Boolean))];
+        // Filter valid, unique URLs
+        const uniqueLinks = [...new Set(rawImages.filter(link => typeof link === 'string' && link.length > 5))];
+        console.log("DEBUG: Final Gallery Links:", uniqueLinks);
 
-        if (uniqueImages.length > 0) {
-            gallery.innerHTML = uniqueImages.map(img => 
+        if (uniqueLinks.length > 0) {
+            gallery.innerHTML = uniqueLinks.map(img => 
                 `<div class="gallery-item" onclick="openLightbox('${img}')">
-                    <img src="${img}" alt="${name}" loading="lazy">
+                    <img src="${img}" alt="${name}" loading="lazy" onerror="this.parentElement.style.display='none'">
                 </div>`
             ).join('');
             
@@ -271,8 +256,6 @@ async function renderPlaceDetails(placeId) {
  * Renders a sticky action bar fixed at the bottom for mobile devices
  */
 function renderStickyActionBar(place, isAr) {
-    if (window.innerWidth > 1024) return; // Desktop doesn't need this
-    
     // Remove existing if any
     const existing = document.querySelector('.mobile-action-bar');
     if (existing) existing.remove();
@@ -882,8 +865,6 @@ async function renderAds() {
  * Renders a sticky action bar fixed at the bottom for mobile devices
  */
 function renderStickyActionBar(place, isAr) {
-    if (window.innerWidth > 1024) return; // Desktop doesn't need this
-    
     // Remove existing if any
     const existing = document.querySelector('.mobile-action-bar');
     if (existing) existing.remove();
