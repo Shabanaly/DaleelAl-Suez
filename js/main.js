@@ -76,48 +76,54 @@ async function initDynamicPage(isHome, path) {
 async function renderPlaceDetails(placeId) {
     const place = await window.UserPlacesService.getById(placeId);
     if (!place) {
-        document.querySelector('.place-details-card').innerHTML = '<p style="text-align: center; padding: 40px;">المكان غير موجود</p>';
+        document.querySelector('main').innerHTML = '<div style="text-align: center; padding: 100px 20px;"><i data-lucide="alert-circle" style="width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 16px;"></i><h3>المكان غير موجود</h3><a href="../index.html" class="top-nav-link" style="margin-top: 20px; display: inline-block;">العودة للرئيسية</a></div>';
+        if (typeof lucide !== "undefined") lucide.createIcons();
         return;
     }
 
     const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : "ar";
     const isAr = lang === 'ar';
 
-    // Update content
+    // Update Head/Title
     const name = isAr ? (place.name_ar || place.name_en) : (place.name_en || place.name_ar);
-    const desc = isAr ? (place.desc_ar || place.desc_en) : (place.desc_en || place.desc_ar);
+    const desc = isAr ? (place.desc_ar || place.desc_en || '') : (place.desc_en || place.desc_ar || '');
     
     document.getElementById('place-name').innerText = name;
     document.title = `${name} - دليل السويس`;
-    document.getElementById('place-description').innerText = desc || '';
+    document.getElementById('place-description').innerText = desc;
 
     // Hero Image
-    const heroImg = place.featured_image || (place.images && place.images[0]) || '';
-    if (heroImg) {
-        document.getElementById('place-hero-img').src = heroImg;
-        document.getElementById('place-hero-img').alt = name;
-    }
+    const heroImg = place.image_url || (place.images && place.images[0]) || 'https://via.placeholder.com/1200x800?text=No+Image';
+    document.getElementById('place-hero-img').src = heroImg;
+    document.getElementById('place-hero-img').alt = name;
 
     // Info Grid
     const infoGrid = document.getElementById('place-info-grid');
     let infoHTML = '';
 
+    // Address
     if (place.address) {
         infoHTML += `
             <div class="place-info-item">
-                <i data-lucide="map-pin"></i>
-                <span>${place.address}</span>
+                <div class="info-icon"><i data-lucide="map-pin"></i></div>
+                <div class="info-text">
+                    <label>${isAr ? 'العنوان' : 'Address'}</label>
+                    <span>${place.address}</span>
+                </div>
             </div>
         `;
     }
 
-    if (place.map_url) {
+    // Map Link (Direction)
+    if (place.map_url || place.address) {
+        const query = place.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.address)}`;
         infoHTML += `
-            <div class="place-info-item">
-                <i data-lucide="navigation"></i>
-                <a href="${place.map_url}" target="_blank" style="color: var(--primary);">
-                    ${isAr ? 'فتح في الخريطة' : 'Open in Maps'}
-                </a>
+            <div class="place-info-item interactive" onclick="window.open('${query}', '_blank')">
+                <div class="info-icon" style="background: var(--primary-soft); color: var(--primary);"><i data-lucide="navigation"></i></div>
+                <div class="info-text">
+                    <label>${isAr ? 'الاتجاهات' : 'Directions'}</label>
+                    <span style="color: var(--primary); font-weight: 700;">${isAr ? 'فتح في الخريطة' : 'Open in Maps'}</span>
+                </div>
             </div>
         `;
     }
@@ -125,15 +131,13 @@ async function renderPlaceDetails(placeId) {
     infoGrid.innerHTML = infoHTML;
 
     // Gallery
-    if (place.images && place.images.length > 0) {
+    const allImages = [place.image_url, ...(place.images || [])].filter(Boolean);
+    if (allImages.length > 0) {
         const gallery = document.getElementById('place-gallery');
         const gallerySection = document.getElementById('gallery-section');
         
-        // Include main image and gallery images
-        const allImages = [place.image_url, ...(place.images || [])].filter(Boolean);
-        
         gallery.innerHTML = allImages.map(img => 
-            `<img src="${img}" alt="${name}" onclick="window.open('${img}', '_blank')">`
+            `<div class="gallery-item"><img src="${img}" alt="${name}" onclick="window.open('${img}', '_blank')"></div>`
         ).join('');
         
         gallerySection.style.display = 'block';

@@ -51,6 +51,11 @@
     </style>
 </head>
 <body id="place-details-page">
+    <!-- Floating Back Button (Mobile First) -->
+    <a href="javascript:history.back()" class="back-btn-floating">
+        <i data-lucide="arrow-right"></i>
+    </a>
+
     <header class="site-header">
         <a href="../index.html" class="logo">
             <i data-lucide="compass"></i>
@@ -60,8 +65,6 @@
             <a href="../index.html" class="top-nav-link" data-i18n="nav_home">الرئيسية</a>
             <a href="categories.html" class="top-nav-link" data-i18n="nav_categories">الأقسام</a>
             <a href="favorites.html" class="top-nav-link" data-i18n="nav_favorites">المفضلة</a>
-            <a href="#" class="top-nav-link" data-i18n="nav_account">حسابي</a>
-            <a href="contact.html" class="top-nav-link" data-i18n="nav_contact">تواصل معنا</a>
             <button class="top-nav-link" onclick="toggleLanguage()" id="lang-toggle">English</button>
             <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-toggle">
                 <i data-lucide="sun" class="theme-toggle-icon"></i>
@@ -69,25 +72,48 @@
         </nav>
     </header>
 
-    <main>
-        <!-- Hero Image -->
-        <div class="place-hero">
-            <img id="place-hero-img" src="" alt="">
-        </div>
+    <main class="details-main">
+        <!-- Hero Section with Mask -->
+        <section class="place-hero-container">
+            <div class="hero-overlay"></div>
+            <img id="place-hero-img" src="" alt="" class="hero-blur-bg">
+            <div class="hero-content-wrapper">
+                <div class="hero-image-box">
+                    <img id="place-hero-img-main" src="" alt="" class="main-hero-img">
+                </div>
+            </div>
+        </section>
 
-        <!-- Details Card -->
-        <div class="place-details-card">
-            <h1 id="place-name">...</h1>
-            <p id="place-description" style="color: var(--text-secondary); line-height: 1.8; margin: 16px 0;"></p>
+        <!-- Place Content Card -->
+        <div class="details-content-card">
+            <div class="content-header">
+                <h1 id="place-name" class="premium-title">...</h1>
+                <div class="badge-row">
+                    <span class="badge highlight"><i data-lucide="star"></i> مميز</span>
+                    <span class="badge success"><i data-lucide="check-circle"></i> تم التحقق</span>
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="description-section">
+                <p id="place-description"></p>
+            </div>
 
             <!-- Info Grid -->
-            <div class="place-info-grid" id="place-info-grid"></div>
-
-            <!-- Image Gallery -->
-            <div id="gallery-section" style="display: none;">
-                <h3 style="margin: 24px 0 16px;">الصور</h3>
-                <div class="place-gallery" id="place-gallery"></div>
+            <div class="info-grid-container">
+                <h3 class="section-title"><i data-lucide="info"></i> معلومات الاتصال</h3>
+                <div class="place-info-grid" id="place-info-grid">
+                    <!-- Populated by JS -->
+                </div>
             </div>
+
+            <!-- Gallery Section -->
+            <section id="gallery-section" class="details-gallery-section" style="display: none;">
+                <h3 class="section-title"><i data-lucide="images"></i> معرض الصور</h3>
+                <div class="premium-gallery" id="place-gallery">
+                    <!-- Populated by JS -->
+                </div>
+            </section>
         </div>
     </main>
 
@@ -96,15 +122,6 @@
             <div class="footer-brand">
                 <h4 data-i18n="app_name">دليل السويس</h4>
                 <p data-i18n="footer_desc">المنصة الأكبر والأكثر موثوقية لاكتشاف مدينة السويس.</p>
-            </div>
-            <div class="footer-links">
-                <h5 data-i18n="footer_quick_links">روابط سريعة</h5>
-                <ul>
-                    <li><a href="about.html" data-i18n="footer_about">عن الموقع</a></li>
-                    <li><a href="terms.html" data-i18n="footer_terms">الشروط</a></li>
-                    <li><a href="privacy.html" data-i18n="footer_privacy">الخصوصية</a></li>
-                    <li><a href="contact.html" data-i18n="nav_contact">تواصل معنا</a></li>
-                </ul>
             </div>
         </div>
         <div class="footer-bottom"><p data-i18n="footer_copyright">© 2025 دليل السويس.</p></div>
@@ -117,5 +134,22 @@
     <script src="../js/services/places.service.js"></script>
     <script src="../js/services/categories.service.js"></script>
     <script src="../js/main.js"></script>
+    
+    <script>
+        // Sync the main hero image with the blur background
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
+                    const heroMain = document.getElementById('place-hero-img');
+                    const heroMainImg = document.getElementById('place-hero-img-main');
+                    if (heroMainImg && heroMain) {
+                        heroMainImg.src = heroMain.src;
+                    }
+                }
+            });
+        });
+        const target = document.getElementById('place-hero-img');
+        if(target) observer.observe(target, { attributes: true });
+    </script>
 </body>
 </html>

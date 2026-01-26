@@ -414,11 +414,21 @@ button, a, .top-nav-link, .cat-nav-item, .nav-item-mobile {
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     overflow: hidden;
-    transition: 0.3s;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    cursor: pointer;
+    position: relative;
 }
 
-.listing-card:hover { transform: translateY(-8px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+.listing-card:hover { 
+    transform: translateY(-8px) scale(1.02); 
+    box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    border-color: var(--primary);
+}
+
+.listing-card:active {
+    transform: translateY(-4px) scale(0.98);
+}
 
 /* RESPONSIVE CONTROL */
 @media (max-width: 1023px) { .top-nav { display: none; } }
