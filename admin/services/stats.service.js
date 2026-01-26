@@ -6,8 +6,8 @@ const StatsService = {
         // 1. Total Places
         const { count: placesCount } = await sb.from('places').select('*', { count: 'exact', head: true });
 
-        // 2. Active Offers
-        const { count: offersCount } = await sb.from('offers').select('*', { count: 'exact', head: true }).eq('is_active', true);
+        // 2. Active Offers (places with has_offer = true)
+        const { count: offersCount } = await sb.from('places').select('*', { count: 'exact', head: true }).eq('has_offer', true).eq('is_active', true);
 
         // 3. Main Categories Count
         const { count: categoriesCount } = await sb.from('categories').select('*', { count: 'exact', head: true });

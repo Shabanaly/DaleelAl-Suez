@@ -6,7 +6,7 @@ const Sidebar = {
         const items = [
             { id: 'home', icon: 'layout-dashboard', label: 'الرئيسية', url: isInPages ? '../index.html' : 'index.html' },
             { id: 'places', icon: 'map-pin', label: 'الأماكن', url: isInPages ? 'places.html' : 'pages/places.html' },
-            { id: 'categories', icon: 'layers', label: 'الأقسام', url: isInPages ? 'categories.html' : 'pages/categories.html' },
+            { id: 'categories', icon: 'layers', label: 'الأقسام', url: isInPages ? 'categories-list.html' : 'pages/categories-list.html' },
             { id: 'ads', icon: 'megaphone', label: 'الإعلانات', url: isInPages ? 'ads.html' : 'pages/ads.html' }
         ];
 

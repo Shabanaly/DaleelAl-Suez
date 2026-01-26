@@ -212,9 +212,13 @@
                     </td>
                     <td><span class="badge">${place.main_cat_id || '-'}</span></td>
                     <td>
-                        <span class="badge" style="background: ${place.is_active ? 'var(--success)' : 'var(--danger)'}; color: white;">
+                        <button class="btn ${place.is_active ? 'btn-success' : 'btn-danger'}" 
+                                onclick="toggleActive('${place.id}', ${place.is_active})" 
+                                style="padding: 6px 12px; font-size: 12px; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; transition: all 0.3s;"
+                                title="اضغط لتبديل الحالة">
+                            <i data-lucide="${place.is_active ? 'check-circle' : 'x-circle'}" style="width: 14px; height: 14px; margin-left: 4px;"></i>
                             ${place.is_active ? 'نشط' : 'غير نشط'}
-                        </span>
+                        </button>
                     </td>
                     <td>
                         <div style="display: flex; gap: 8px;">
@@ -254,6 +258,28 @@
 
         function editPlace(id) {
             window.location.href = `places-form.html?id=${id}`;
+        }
+
+        async function toggleActive(id, currentStatus) {
+            try {
+                const newStatus = !currentStatus;
+                await PlacesService.update(id, { is_active: newStatus });
+                
+                // Update local data immediately for better UX
+                const place = allPlaces.find(p => p.id === id);
+                if (place) {
+                    place.is_active = newStatus;
+                }
+                
+                // Re-render to show updated status
+                filterPlaces();
+                
+                // Refresh icons after re-render
+                setTimeout(() => lucide.createIcons(), 100);
+            } catch (error) {
+                console.error(error);
+                alert('❌ حدث خطأ في تغيير الحالة: ' + error.message);
+            }
         }
 
         async function deletePlace(id) {
