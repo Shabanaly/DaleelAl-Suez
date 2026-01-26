@@ -159,7 +159,7 @@ async function renderPlaceDetails(placeId) {
     const infoGrid = document.getElementById('place-info-grid');
     let infoHTML = '';
 
-    // 3. Grid Logic (Address, Hours, Category)
+    // 3. Grid Logic (Address, Hours, Phone, WhatsApp, Map)
     if (place.working_hours) {
         infoHTML += `
             <div class="place-info-item">
@@ -184,6 +184,47 @@ async function renderPlaceDetails(placeId) {
         `;
     }
 
+    if (place.phone) {
+        infoHTML += `
+            <div class="place-info-item">
+                <div class="info-icon"><i data-lucide="phone"></i></div>
+                <div class="info-text">
+                    <label>${isAr ? 'الهاتف' : 'Phone'}</label>
+                    <span><a href="tel:${place.phone}" style="color: var(--primary); text-decoration: none;">${place.phone}</a></span>
+                </div>
+            </div>
+        `;
+    }
+
+    if (place.whatsapp) {
+        let waNumber = place.whatsapp.replace(/\D/g,'');
+        if (waNumber.startsWith('0')) waNumber = '20' + waNumber.substring(1);
+        else if (!waNumber.startsWith('20')) waNumber = '20' + waNumber;
+        
+        infoHTML += `
+            <div class="place-info-item">
+                <div class="info-icon"><i data-lucide="message-circle"></i></div>
+                <div class="info-text">
+                    <label>${isAr ? 'واتساب' : 'WhatsApp'}</label>
+                    <span><a href="https://wa.me/${waNumber}" target="_blank" style="color: #25d366; text-decoration: none;">${place.whatsapp}</a></span>
+                </div>
+            </div>
+        `;
+    }
+
+    if (place.map_url || place.address) {
+        const mapQuery = place.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.address || '')}`;
+        infoHTML += `
+            <div class="place-info-item">
+                <div class="info-icon"><i data-lucide="navigation"></i></div>
+                <div class="info-text">
+                    <label>${isAr ? 'الموقع' : 'Location'}</label>
+                    <span><a href="${mapQuery}" target="_blank" style="color: var(--primary); text-decoration: none;">${isAr ? 'عرض على الخريطة' : 'View on Map'}</a></span>
+                </div>
+            </div>
+        `;
+    }
+
     infoGrid.innerHTML = infoHTML;
 
     // Sidebar Favorite Button
@@ -198,6 +239,29 @@ async function renderPlaceDetails(placeId) {
 
     // Restore Sticky Mobile Action Bar
     renderStickyActionBar(place, isAr);
+
+    // Map Iframe Section
+    const mapSection = document.getElementById('map-section');
+    const mapContainer = document.getElementById('map-iframe-container');
+    
+    if (mapSection && mapContainer) {
+        let embedUrl = place.map_url || place.urlMap || "";
+        
+        // If no direct link but address exists, use universal search embed
+        if (!embedUrl && place.address) {
+            const query = encodeURIComponent(place.address);
+            embedUrl = `https://www.google.com/maps?q=${query}&output=embed`;
+        }
+
+        if (embedUrl) {
+            mapSection.style.display = 'block';
+            // Note: Direct share links (goo.gl) usually block iframing. 
+            // We use it directly as requested, but recommend /embed links for production.
+            mapContainer.innerHTML = `<iframe src="${embedUrl}" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>`;
+        } else {
+            mapSection.style.display = 'none';
+        }
+    }
 
     // Gallery (Magazine Style - Robust & Resilient)
     const gallerySection = document.getElementById('gallery-section');
