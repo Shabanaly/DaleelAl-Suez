@@ -101,7 +101,7 @@ async function renderPlaceDetails(placeId) {
     const infoGrid = document.getElementById('place-info-grid');
     let infoHTML = '';
 
-    // Address
+    // Address (Text)
     if (place.address) {
         infoHTML += `
             <div class="place-info-item">
@@ -126,6 +126,16 @@ async function renderPlaceDetails(placeId) {
                 </div>
             </div>
         `;
+
+        // Map Iframe Section
+        const mapSection = document.getElementById('map-section');
+        const mapContainer = document.getElementById('map-iframe-container');
+        
+        if (mapSection && mapContainer && place.map_url && place.map_url.includes('google.com/maps')) {
+            mapSection.style.display = 'block';
+            // Use the provided URL. Note: For a real interactive map, ideally it's an /embed/ URL
+            mapContainer.innerHTML = `<iframe src="${place.map_url}" width="100%" height="100%" style="border:0; border-radius:16px;" allowfullscreen="" loading="lazy"></iframe>`;
+        }
     }
 
     infoGrid.innerHTML = infoHTML;
@@ -427,8 +437,11 @@ function renderPlaces(places, containerId) {
                 </div>
                 <div class="listing-content">
                     <h3>${name}</h3>
-                    <p>${shortDesc}</p>
-                    ${place.address ? `<p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;"><i data-lucide="map-pin" style="width: 14px; height: 14px; display: inline;"></i> ${place.address}</p>` : ''}
+                    <p style="margin-bottom: 12px;">${shortDesc}</p>
+                    ${place.address ? `<div style="font-size: 13px; color: var(--primary); font-weight: 600; display: flex; align-items: center; gap: 6px; margin-bottom: 12px;">
+                        <i data-lucide="map-pin" style="width: 14px; height: 14px;"></i>
+                        <span>${place.address}</span>
+                    </div>` : ''}
                     <div class="view-btn">
                         <span>${isAr ? 'رؤية التفاصيل' : 'View Details'}</span>
                         <i data-lucide="${isAr ? 'arrow-left' : 'arrow-right'}"></i>
