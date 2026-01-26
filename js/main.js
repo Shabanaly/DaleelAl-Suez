@@ -92,12 +92,24 @@ async function renderPlaceDetails(placeId) {
     document.title = `${name} - دليل السويس`;
     document.getElementById('place-description').innerText = desc;
 
+    // Fetch Category Name
+    if (window.sb && place.main_cat_id) {
+        const { data: cat } = await window.sb.from('categories').select('name_ar, name_en').eq('id', place.main_cat_id).single();
+        if (cat) {
+            const catName = isAr ? cat.name_ar : (cat.name_en || cat.name_ar);
+            document.getElementById('place-category-badge').innerText = catName;
+        }
+    }
+
     // Hero Image
     const heroImg = place.image_url || (place.images && place.images[0]) || 'https://via.placeholder.com/1200x800?text=No+Image';
-    document.getElementById('place-hero-img').src = heroImg;
-    document.getElementById('place-hero-img').alt = name;
+    const heroEl = document.getElementById('place-hero-img');
+    if (heroEl) {
+        heroEl.src = heroImg;
+        heroEl.alt = name;
+    }
 
-    // Info Grid
+    // Sidebar Info Grid
     const infoGrid = document.getElementById('place-info-grid');
     let infoHTML = '';
 
@@ -131,23 +143,22 @@ async function renderPlaceDetails(placeId) {
         const mapSection = document.getElementById('map-section');
         const mapContainer = document.getElementById('map-iframe-container');
         
-        if (mapSection && mapContainer && place.map_url && place.map_url.includes('google.com/maps')) {
+        if (mapSection && mapContainer && place.map_url && (place.map_url.includes('google.com/maps') || place.map_url.includes('goo.gl/maps'))) {
             mapSection.style.display = 'block';
-            // Use the provided URL. Note: For a real interactive map, ideally it's an /embed/ URL
-            mapContainer.innerHTML = `<iframe src="${place.map_url}" width="100%" height="100%" style="border:0; border-radius:16px;" allowfullscreen="" loading="lazy"></iframe>`;
+            mapContainer.innerHTML = `<iframe src="${place.map_url}" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>`;
         }
     }
 
     infoGrid.innerHTML = infoHTML;
 
-    // Gallery
+    // Gallery (Magazine Style)
     const allImages = [place.image_url, ...(place.images || [])].filter(Boolean);
     if (allImages.length > 0) {
         const gallery = document.getElementById('place-gallery');
         const gallerySection = document.getElementById('gallery-section');
         
         gallery.innerHTML = allImages.map(img => 
-            `<div class="gallery-item"><img src="${img}" alt="${name}" onclick="window.open('${img}', '_blank')"></div>`
+            `<div class="gallery-item" onclick="openLightbox('${img}')"><img src="${img}" alt="${name}" loading="lazy"></div>`
         ).join('');
         
         gallerySection.style.display = 'block';
@@ -155,6 +166,25 @@ async function renderPlaceDetails(placeId) {
 
     if (typeof lucide !== "undefined") lucide.createIcons();
 }
+
+// Lightbox Logic
+window.openLightbox = function(src) {
+    const overlay = document.getElementById('lightbox-overlay');
+    const img = document.getElementById('lightbox-img');
+    if (overlay && img) {
+        img.src = src;
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+};
+
+window.closeLightbox = function() {
+    const overlay = document.getElementById('lightbox-overlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+};
 
 async function setupCategoryPageHeader(catId) {
     const titleEl = document.getElementById('cat-page-title');

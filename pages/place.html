@@ -13,49 +13,14 @@
     <link rel="stylesheet" href="../css/responsive.css">
     <script src="../js/theme.js"></script>
     <script src="../js/i18n.js"></script>
-    <style>
-        .place-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 12px;
-            margin: 24px 0;
-        }
-        .place-gallery img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .place-gallery img:hover {
-            transform: scale(1.05);
-        }
-        .place-info-grid {
-            display: grid;
-            gap: 16px;
-            margin: 24px 0;
-        }
-        .place-info-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 16px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-        }
-        .place-info-item i {
-            color: var(--primary);
-        }
-    </style>
 </head>
 <body id="place-details-page">
-    <!-- Floating Back Button (Mobile First) -->
-    <a href="javascript:history.back()" class="back-btn-floating">
-        <i data-lucide="arrow-right"></i>
-    </a>
+    <!-- Overlay for Lightbox (Optional/Native) -->
+    <div id="lightbox-overlay" class="lightbox-overlay" onclick="closeLightbox()">
+        <img id="lightbox-img" src="" alt="">
+    </div>
 
+    <!-- Universal header -->
     <header class="site-header">
         <a href="../index.html" class="logo">
             <i data-lucide="compass"></i>
@@ -72,57 +37,74 @@
         </nav>
     </header>
 
-    <main class="details-main">
-        <!-- Hero Section with Mask -->
-        <section class="place-hero-container">
-            <div class="hero-overlay"></div>
-            <img id="place-hero-img" src="" alt="" class="hero-blur-bg">
-            <div class="hero-content-wrapper">
-                <div class="hero-image-box">
-                    <img id="place-hero-img-main" src="" alt="" class="main-hero-img">
+    <!-- Magazine Layout Container -->
+    <main class="magazine-layout">
+        
+        <!-- Left Sidebar (Sticky on Desktop, Top on Mobile) -->
+        <aside class="details-sidebar">
+            <div class="sidebar-sticky-content">
+                <a href="javascript:history.back()" class="back-link-modern">
+                    <i data-lucide="chevron-right"></i> <span data-i18n="nav_back">العودة</span>
+                </a>
+
+                <div class="place-meta-header">
+                    <div class="badge-row">
+                        <span class="badge highlight"><i data-lucide="star"></i> مميز</span>
+                    </div>
+                    <h1 id="place-name" class="place-main-title">...</h1>
+                    <div id="place-category-badge" class="category-badge">...</div>
+                </div>
+
+                <div class="sidebar-info-grid" id="place-info-grid">
+                    <!-- JS Populates this -->
+                </div>
+
+                <div class="sidebar-actions">
+                    <button class="btn-primary-modern share-btn" onclick="sharePlace()">
+                        <i data-lucide="share-2"></i> <span>مشاركة المكان</span>
+                    </button>
+                    <div id="favorite-btn-container">
+                        <!-- JS if needed or static -->
+                    </div>
                 </div>
             </div>
+        </aside>
+
+        <!-- Right Content Area (Scrollable) -->
+        <section class="details-content-area">
+            
+            <!-- Dramatic Hero Image -->
+            <div class="details-hero-box">
+                <img id="place-hero-img" src="" alt="" class="details-hero-img">
+                <div class="hero-scroll-indicator">
+                    <i data-lucide="mouse-pointer-2"></i>
+                </div>
+            </div>
+
+            <!-- Full Content Card -->
+            <div class="details-article">
+                <div class="article-section">
+                    <h2 class="section-heading"><i data-lucide="align-right"></i> عن المكان</h2>
+                    <p id="place-description" class="article-text"></p>
+                </div>
+
+                <div id="map-section" class="article-section" style="display: none;">
+                    <h2 class="section-heading"><i data-lucide="map"></i> الموقع على الخريطة</h2>
+                    <div id="map-iframe-container" class="map-box-modern">
+                        <!-- Iframe by JS -->
+                    </div>
+                </div>
+
+                <div id="gallery-section" class="article-section" style="display: none;">
+                    <h2 class="section-heading"><i data-lucide="images"></i> معرض الصور</h2>
+                    <div class="magazine-gallery" id="place-gallery">
+                        <!-- Gallery Grid by JS -->
+                    </div>
+                </div>
+            </div>
+
         </section>
 
-        <!-- Place Content Card -->
-        <div class="details-content-card">
-            <div class="content-header">
-                <h1 id="place-name" class="premium-title">...</h1>
-                <div class="badge-row">
-                    <span class="badge highlight"><i data-lucide="star"></i> مميز</span>
-                    <span class="badge success"><i data-lucide="check-circle"></i> تم التحقق</span>
-                </div>
-            </div>
-
-            <!-- Description -->
-            <div class="description-section">
-                <p id="place-description"></p>
-            </div>
-
-            <!-- Info Grid -->
-            <div class="info-grid-container">
-                <h3 class="section-title"><i data-lucide="info"></i> معلومات الاتصال</h3>
-                <div class="place-info-grid" id="place-info-grid">
-                    <!-- Populated by JS -->
-                </div>
-            </div>
-
-            <!-- Map Section -->
-            <section id="map-section" class="details-map-section" style="display: none;">
-                <h3 class="section-title"><i data-lucide="map"></i> الموقع على الخريطة</h3>
-                <div id="map-iframe-container" class="premium-map-container">
-                    <!-- Iframe by JS -->
-                </div>
-            </section>
-
-            <!-- Gallery Section -->
-            <section id="gallery-section" class="details-gallery-section" style="display: none;">
-                <h3 class="section-title"><i data-lucide="images"></i> معرض الصور</h3>
-                <div class="premium-gallery" id="place-gallery">
-                    <!-- Populated by JS -->
-                </div>
-            </section>
-        </div>
     </main>
 
     <footer class="site-footer">
@@ -142,22 +124,18 @@
     <script src="../js/services/places.service.js"></script>
     <script src="../js/services/categories.service.js"></script>
     <script src="../js/main.js"></script>
-    
     <script>
-        // Sync the main hero image with the blur background
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
-                    const heroMain = document.getElementById('place-hero-img');
-                    const heroMainImg = document.getElementById('place-hero-img-main');
-                    if (heroMainImg && heroMain) {
-                        heroMainImg.src = heroMain.src;
-                    }
-                }
-            });
-        });
-        const target = document.getElementById('place-hero-img');
-        if(target) observer.observe(target, { attributes: true });
+        function sharePlace() {
+            if (navigator.share) {
+                navigator.share({
+                    title: document.getElementById('place-name').innerText,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert('تم نسخ الرابط!');
+            }
+        }
     </script>
 </body>
 </html>
