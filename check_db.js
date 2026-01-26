@@ -7,23 +7,17 @@ const ANON_KEY = "sb_publishable_XC-WUiZW4nu0jtXAKz7dYQ_DdIzLnZi";
 const supabase = createClient(URL, ANON_KEY);
 
 async function check() {
-    console.log("Checking 'categories' table...");
-    const { data, error } = await supabase.from('categories').select('*');
+    console.log("Checking 'categories' table with ANON KEY...");
     
-    if (error) {
-        console.error("Error:", error.message);
-    } else {
-        console.log("Success! Found", data.length, "categories.");
-        console.log(data.slice(0, 3)); // Show first 3
-    }
+    // 1. categories
+    const { data: cats, error: err1 } = await supabase.from('categories').select('*');
+    if (err1) console.error("Categories Error:", err1.message);
+    else console.log("Categories Found:", cats ? cats.length : 0);
 
-    console.log("Checking 'subcategories' table (if separate)...");
-     const { data: subData, error: subError } = await supabase.from('subcategories').select('*');
-     if (subError) {
-         console.log("Subcategories check failed/not found:", subError.message);
-     } else {
-         console.log("Found", subData.length, "subcategories.");
-     }
+    // 2. subcategories
+    const { data: subs, error: err2 } = await supabase.from('subcategories').select('*').limit(5);
+    if (err2) console.error("SubCategories Error:", err2.message);
+    else console.log("SubCategories Found:", subs ? subs.length : 0);
 }
 
 check();

@@ -71,10 +71,8 @@ async function initDynamicPage(isHome, path) {
 /**
  * Renders the global categories navigation bar dynamically
  */
-function renderGlobalCategories(isHome, currentPath) {
-    console.log("DEBUG: renderGlobalCategories called", { isHome, currentPath });
+async function renderGlobalCategories(isHome, currentPath) {
     const container = document.getElementById('global-cats');
-    console.log("DEBUG: container found?", container);
     if (!container) return;
 
     // Fix Base Path based on depth
@@ -85,32 +83,38 @@ function renderGlobalCategories(isHome, currentPath) {
 
     const activePage = currentPath.split('/').pop() || "index.html";
 
-    const cats = [
-        { id: "restaurants", icon: "utensils", ar: "مطاعم" },
-        { id: "cafes", icon: "coffee", ar: "كافيهات" },
-        { id: "doctors", icon: "stethoscope", ar: "أطباء" },
-        { id: "entertainment", icon: "clapperboard", ar: "خروج" },
-        { id: "emergency", icon: "alert-circle", ar: "طوارئ" },
-        { id: "home-living", icon: "home", ar: "بيت" },
-        { id: "cars", icon: "car", ar: "سيارات" },
-        { id: "jobs", icon: "briefcase", ar: "شغل" },
-        { id: "education", icon: "graduation-cap", ar: "تعليم" },
-        { id: "events", icon: "cake", ar: "حفلات" },
-        { id: "tourism", icon: "palmtree", ar: "سياحة" },
-        { id: "government", icon: "landmark", ar: "حكومة" },
-        { id: "selection", icon: "brain", ar: "أختار إيه؟" },
-        { id: "pharmacies", icon: "pill", ar: "صيدليات" },
-        { id: "shops", icon: "shopping-bag", ar: "محلات" },
-        { id: "services", icon: "wrench", ar: "خدمات" }
-    ];
+    // Fetch from DB
+    let cats = [];
+    if (window.UserCategoriesService) {
+        cats = await window.UserCategoriesService.getAll();
+    } else {
+        console.warn("UserCategoriesService missing");
+    }
+
+    // Fallback or empty state could be handled here
+    if (!cats.length) {
+        container.innerHTML = `<div style="padding:20px; color:#aaa;">جاري تحميل الأقسام...</div>`;
+        return;
+    }
 
     let html = "";
     cats.forEach(cat => {
-        const catUrl = basePath + cat.id + ".html";
-        const isActive = activePage === (cat.id + ".html") ? "active" : "";
+        // DB uses 'name_ar', 'name_en', 'icon'. 
+        // We map to match existing structure if needed, or just use direct.
+        const catId = cat.id;
+        const icon = cat.icon || "folder";
+        const label = cat.name_ar || cat.label || catId; // Fallback
+        
+        const catUrl = basePath + catId + ".html";
+        const isActive = activePage === (catId + ".html") ? "active" : "";
+        
+        // i18n key construction: 'cat_' + id (replacing dashes with underscores if any)
+        const i18nKey = `cat_${catId.replace(/-/g, '_')}`;
+
         html += `
             <a href="${catUrl}" class="cat-nav-item ${isActive}">
-                <i data-lucide="${cat.icon}"></i> <span data-i18n="cat_${cat.id.replace(/-/g, '_')}">${cat.ar}</span>
+                <i data-lucide="${icon}"></i> 
+                <span data-i18n="${i18nKey}">${label}</span>
             </a>`;
     });
 
