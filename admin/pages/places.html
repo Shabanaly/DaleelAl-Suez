@@ -3,19 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الأماكن - دليل السويس</title>
+    <title>إدارة الأماكن - دليل السويس</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../../js/config.js"></script>
     <link rel="stylesheet" href="../css/admin.css">
     
-    <script src="../utils/helpers.js"></script>
     <script src="../services/supabase.js"></script>
     <script src="../services/places.service.js"></script>
     <script src="../services/categories.service.js"></script>
-    <script src="../services/upload.service.js"></script>
     <script src="../components/sidebar.js"></script>
     <script src="../components/topbar.js"></script>
+    <script src="../utils/drawer.js"></script>
+    
+    <style>
+        .places-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding: 24px;
+            background: linear-gradient(135deg, var(--primary) 0%, #0ea5e9 100%);
+            border-radius: 16px;
+            color: white;
+        }
+        
+        .places-header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .filter-chip {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 2px solid var(--border);
+            background: var(--bg-body);
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        
+        .filter-chip:hover {
+            border-color: var(--primary);
+            background: var(--primary-soft);
+        }
+        
+        .filter-chip.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        #category-chips::-webkit-scrollbar {
+            height: 6px;
+        }
+        
+        #category-chips::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .table {
+                font-size: 12px;
+            }
+            
+            .table th,
+            .table td {
+                padding: 8px 4px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="app-layout">
@@ -23,115 +93,181 @@
         <main class="main-content">
             <div id="topbar-container"></div>
             <div class="page-content">
-                
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
-                    <h2 class="page-title">إدارة الأماكن</h2>
-                    <a href="places-form.html" class="btn btn-primary"><i data-lucide="plus"></i> إضافة مكان</a>
+                <div class="places-header">
+                    <h1>
+                        <i data-lucide="map-pin"></i>
+                        إدارة الأماكن
+                    </h1>
+                    <a href="places-form.html" class="btn btn-header-action">
+                        <i data-lucide="plus-circle"></i>
+                        <span>إضافة مكان جديد</span>
+                    </a>
+                </div>
+
+                <div class="card" style="margin-bottom: 24px;">
+                    <div style="margin-bottom: 16px;">
+                        <input type="search" id="search-input" placeholder="🔍 بحث بالاسم أو العنوان..." class="form-control" oninput="filterPlaces()">
+                    </div>
+                    
+                    <div style="margin-bottom: 8px; font-weight: 600; font-size: 13px; color: var(--text-muted);">تصفية حسب القسم:</div>
+                    <div id="category-chips" style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px;">
+                        <button class="filter-chip active" data-category="" onclick="selectCategory('')">
+                            الكل
+                        </button>
+                    </div>
                 </div>
 
                 <div class="card">
-                    <div style="display:flex; gap:16px; margin-bottom:24px;">
-                        <input type="text" class="input" id="search-input" placeholder="بحث...">
-                        <select class="input" id="cat-filter" style="width:200px;">
-                            <option value="">كل الأقسام</option>
-                        </select>
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>الاسم</th>
+                                    <th>القسم</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="places-table-body">
+                                <tr><td colspan="4" style="text-align: center; padding: 40px;">جاري التحميل...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
-
-                    <table class="table" id="places-table">
-                        <thead>
-                            <tr>
-                                <th>الاسم</th>
-                                <th>القسم</th>
-                                <th>الفرعي</th>
-                                <th>الحالة</th>
-                                <th>التاريخ</th>
-                                <th>خيارات</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td colspan="6" style="text-align:center">جاري التحميل...</td></tr>
-                        </tbody>
-                    </table>
                 </div>
-
             </div>
         </main>
     </div>
 
-    <!-- Modal Removed. Uses places-form.html now. -->
-
     <script>
         document.getElementById('sidebar-container').innerHTML = Sidebar.render('places');
         document.getElementById('topbar-container').innerHTML = Topbar.render('الأماكن');
-        
+
         let allPlaces = [];
-
-        function init() {
-            const cats = CategoriesService.getAll();
-            const catSelect = document.getElementById('cat-filter');
-            
-            cats.forEach(c => {
-                catSelect.innerHTML += `<option value="${c.id}">${c.label}</option>`;
-            });
-
-            loadPlaces();
+        let selectedCategory = '';
+        
+        async function init() {
             lucide.createIcons();
+
+            // Load categories for filter chips
+            const chipsContainer = document.getElementById('category-chips');
+            try {
+                const cats = await CategoriesService.getAll();
+                cats.forEach(c => {
+                    const chip = document.createElement('button');
+                    chip.className = 'filter-chip';
+                    chip.setAttribute('data-category', c.id);
+                    chip.onclick = () => selectCategory(c.id);
+                    chip.textContent = c.label;
+                    chipsContainer.appendChild(chip);
+                });
+            } catch (e) {
+                console.error("Filter Load Error", e);
+            }
+            
+            await loadPlaces();
+        }
+
+        function selectCategory(categoryId) {
+            selectedCategory = categoryId;
+            
+            // Update active state
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.remove('active');
+                if (chip.getAttribute('data-category') === categoryId) {
+                    chip.classList.add('active');
+                }
+            });
+            
+            filterPlaces();
         }
 
         async function loadPlaces() {
-            const filter = {
-                search: document.getElementById('search-input').value,
-                category: document.getElementById('cat-filter').value
-            };
-            
-            document.querySelector('#places-table tbody').innerHTML = '<tr><td colspan="6" style="text-align:center">جاري التحميل...</td></tr>';
-            
-            // Strict Separation Logic
-            if (filter.category) {
-                allPlaces = await PlacesService.getPlacesByMainCategory(filter.category);
-            } else if (filter.search) {
-                // If search, use the generic getAll which handles search
-                allPlaces = await PlacesService.getAll(filter);
-            } else {
-                // Default to Latest
-                allPlaces = await PlacesService.getLatestPlaces();
-            }
+            const tbody = document.getElementById('places-table-body');
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px;">جاري التحميل...</td></tr>';
 
-            renderTable(allPlaces);
+            try {
+                allPlaces = await PlacesService.getAll();
+                renderPlaces(allPlaces);
+            } catch (error) {
+                console.error(error);
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px; color: var(--danger);">حدث خطأ في التحميل</td></tr>';
+            }
         }
 
-        function renderTable(list) {
-            const tbody = document.querySelector('#places-table tbody');
-            if (!list.length) {
-                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center">لا توجد نتائج</td></tr>';
+        function renderPlaces(places) {
+            const tbody = document.getElementById('places-table-body');
+            
+            if (!places.length) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px;">لا توجد أماكن</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = list.map(p => `
+            tbody.innerHTML = places.map(place => `
                 <tr>
-                    <td style="font-weight:600">${p.name_ar}</td>
-                    <td>${p.main_cat_id || '-'}</td>
-                    <td>${p.sub_cat_id || '-'}</td>
-                    <td><span class="badge active">منشور</span></td>
-                    <td>${Utils.formatDate(p.created_at)}</td>
                     <td>
-                        <a href="places-form.html?id=${p.id}" class="btn btn-outline btn-icon"><i data-lucide="edit-3"></i></a>
-                        <button class="btn btn-danger btn-icon" onclick="deletePlace('${p.id}')"><i data-lucide="trash-2"></i></button>
+                        <strong>${place.name_ar}</strong>
+                        ${place.name_en ? `<br><small style="color: var(--text-muted);">${place.name_en}</small>` : ''}
+                    </td>
+                    <td><span class="badge">${place.main_cat_id || '-'}</span></td>
+                    <td>
+                        <span class="badge" style="background: ${place.is_active ? 'var(--success)' : 'var(--danger)'}; color: white;">
+                            ${place.is_active ? 'نشط' : 'غير نشط'}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-outline btn-icon" onclick="editPlace('${place.id}')" title="تعديل">
+                                <i data-lucide="edit-2" style="width: 18px; height: 18px;"></i>
+                            </button>
+                            <button class="btn btn-danger btn-icon" onclick="deletePlace('${place.id}')" title="حذف">
+                                <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
+
             lucide.createIcons();
         }
 
-        // Search Handlers
-        document.getElementById('search-input').addEventListener('input', () => loadPlaces());
-        document.getElementById('cat-filter').addEventListener('change', loadPlaces);
+        function filterPlaces() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
 
-        window.deletePlace = async (id) => {
-            if(!confirm('حذف؟')) return;
-            await PlacesService.delete(id);
-            loadPlaces();
-        };
+            let filtered = allPlaces;
+
+            if (selectedCategory) {
+                filtered = filtered.filter(p => p.main_cat_id === selectedCategory);
+            }
+
+            if (searchTerm) {
+                filtered = filtered.filter(p => 
+                    (p.name_ar && p.name_ar.toLowerCase().includes(searchTerm)) ||
+                    (p.name_en && p.name_en.toLowerCase().includes(searchTerm)) ||
+                    (p.address && p.address.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            renderPlaces(filtered);
+        }
+
+        function editPlace(id) {
+            window.location.href = `places-form.html?id=${id}`;
+        }
+
+        async function deletePlace(id) {
+            if (!confirm('⚠️ هل أنت متأكد من حذف هذا المكان؟')) {
+                return;
+            }
+
+            try {
+                await PlacesService.delete(id);
+                alert('✅ تم الحذف بنجاح!');
+                await loadPlaces();
+            } catch (error) {
+                console.error(error);
+                alert('❌ حدث خطأ: ' + error.message);
+            }
+        }
 
         init();
     </script>

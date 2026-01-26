@@ -17,55 +17,200 @@ document.addEventListener("DOMContentLoaded", function() {
     initDynamicPage(isHome, path);
 });
 
-// Load Service if not present (Dynamically or assumed loaded)
-// Since we can't easily modify head from here, assuming we will add it to HTML or just use window.UserPlacesService if loaded.
-// Actually, let's just stick to the requested structure inside initDynamicPage for now or assume I will add the script tag.
-
 async function initDynamicPage(isHome, path) {
-    if (!window.UserPlacesService) {
-        console.warn("UserPlacesService not loaded, waiting...");
-        // Fallback or retry could go here, but I will ensure script is loaded in HTML
-    }
+    // UI ONLY - Content areas are still placeholders until PlacesService is restored
+    // console.log("Values initialized from DB for Categories");
 
-    // 2. Page Specific Logic
+    const params = new URLSearchParams(window.location.search);
+    const subCatId = params.get('sub');
+
+    // 1. Homepage Logic
     if (isHome) {
-        // Use New Service: Latest
-        const allPlaces = await window.UserPlacesService.getLatestPlaces(6);
-        
-        if (allPlaces) {
-            renderPlaces(allPlaces, "places-container");
-            renderExploreCity(allPlaces); 
-        }
-
-        // Execute New Homepage Enhancements
+        // ... (Render Home Components)
         renderOffers();
         renderSuezInfo();
         renderTrendingHub();
         renderQuickActions();
         renderHomepageReviews();
+        
+        // Latest Places (Assuming Dynamic Places Re-enabled or still UI placeholder)
+        // const allPlaces = await window.UserPlacesService.getLatestPlaces(6);
+        // if (allPlaces) renderPlaces(allPlaces, "places-container");
     }
+
+    // 2. Dynamic Category Page Logic (Universal)
+    // Check if we are on the generic template
+    if (path.includes("category.html")) {
+        const catId = params.get('id');
+        const subId = params.get('sub');
+
+        if (catId) {
+            // A. Set Metadata (Title)
+            await setupCategoryPageHeader(catId);
+
+            // B. Render Sub-Nav (pass current subId for active state)
+            await renderSubCategories(catId, subId);
+
+            // C. Render Places
+            if (window.UserPlacesService) {
+                let places = [];
+                if (subId) {
+                    places = await window.UserPlacesService.getPlacesBySubCategory(subId);
+                } else {
+                    places = await window.UserPlacesService.getPlacesByMainCategory(catId);
+                }
+                renderPlaces(places, 'places-container');
+            }
+        }
+    }
+
+    // 3. Place Details Page Logic
+    if (path.includes("place.html")) {
+        const placeId = params.get('id');
+        if (placeId && window.UserPlacesService) {
+            await renderPlaceDetails(placeId);
+        }
+    }
+}
+
+async function renderPlaceDetails(placeId) {
+    const place = await window.UserPlacesService.getById(placeId);
+    if (!place) {
+        document.querySelector('.place-details-card').innerHTML = '<p style="text-align: center; padding: 40px;">المكان غير موجود</p>';
+        return;
+    }
+
+    const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : "ar";
+    const isAr = lang === 'ar';
+
+    // Update content
+    const name = isAr ? (place.name_ar || place.name_en) : (place.name_en || place.name_ar);
+    const desc = isAr ? (place.desc_ar || place.desc_en) : (place.desc_en || place.desc_ar);
     
-    // Logic for individual category pages
-    // Pattern: /categories/xyz.html -> Main Category
-    const mainCatMatch = path.match(/\/categories\/([^.]+)\.html/);
-    if (mainCatMatch) {
-        const catId = mainCatMatch[1]; // e.g. "restaurants"
-        const catPlaces = await window.UserPlacesService.getPlacesByMainCategory(catId);
-        renderPlaces(catPlaces, "places-container");
+    document.getElementById('place-name').innerText = name;
+    document.title = `${name} - دليل السويس`;
+    document.getElementById('place-description').innerText = desc || '';
+
+    // Hero Image
+    const heroImg = place.featured_image || (place.images && place.images[0]) || '';
+    if (heroImg) {
+        document.getElementById('place-hero-img').src = heroImg;
+        document.getElementById('place-hero-img').alt = name;
     }
 
-    // Pattern: /subcategories/xyz.html -> Sub Category (if exists)
-    const subCatMatch = path.match(/\/subcategories\/([^.]+)\.html/);
-    if (subCatMatch) {
-         const subId = subCatMatch[1];
-         const subPlaces = await window.UserPlacesService.getPlacesBySubCategory(subId);
-         renderPlaces(subPlaces, "places-container");
+    // Info Grid
+    const infoGrid = document.getElementById('place-info-grid');
+    let infoHTML = '';
+
+    if (place.address) {
+        infoHTML += `
+            <div class="place-info-item">
+                <i data-lucide="map-pin"></i>
+                <span>${place.address}</span>
+            </div>
+        `;
     }
 
-    // 3. Final i18n Pass
-    if (typeof updatePageContent === "function") {
-        updatePageContent(getPreferredLanguage());
+    if (place.map_url) {
+        infoHTML += `
+            <div class="place-info-item">
+                <i data-lucide="navigation"></i>
+                <a href="${place.map_url}" target="_blank" style="color: var(--primary);">
+                    ${isAr ? 'فتح في الخريطة' : 'Open in Maps'}
+                </a>
+            </div>
+        `;
     }
+
+    infoGrid.innerHTML = infoHTML;
+
+    // Gallery
+    if (place.images && place.images.length > 0) {
+        const gallery = document.getElementById('place-gallery');
+        const gallerySection = document.getElementById('gallery-section');
+        
+        // Include main image and gallery images
+        const allImages = [place.image_url, ...(place.images || [])].filter(Boolean);
+        
+        gallery.innerHTML = allImages.map(img => 
+            `<img src="${img}" alt="${name}" onclick="window.open('${img}', '_blank')">`
+        ).join('');
+        
+        gallerySection.style.display = 'block';
+    }
+
+    if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
+async function setupCategoryPageHeader(catId) {
+    const titleEl = document.getElementById('cat-page-title');
+    if (!titleEl) return;
+
+    // Default Loading State
+    // titleEl.innerText = catId;
+
+    if (!window.sb) return;
+
+    // Fetch Name from DB
+    const { data, error } = await window.sb
+        .from('categories')
+        .select('name_ar, name_en')
+        .eq('id', catId)
+        .single();
+
+    if (data) {
+        const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : "ar";
+        const label = lang === 'ar' ? (data.name_ar || catId) : (data.name_en || data.name_ar || catId);
+        titleEl.innerText = label;
+        document.title = `${label} - دليل السويس`;
+    }
+}
+
+async function renderSubCategories(mainCatId, activeSubId) {
+    console.log("DEBUG: renderSubCategories called for", mainCatId);
+    const container = document.querySelector('.sub-nav');
+    if (!container) {
+        console.warn("DEBUG: .sub-nav container NOT found");
+        return; 
+    }
+
+    // Fetch Subs from DB
+    let subs = [];
+    if (window.sb) {
+        const { data, error } = await window.sb.from('subcategories').select('*').eq('main_cat_id', mainCatId);
+        if (error) console.error("DEBUG: Sub fetch error", error);
+        subs = data || [];
+    } else {
+        console.error("DEBUG: window.sb not initialized");
+    }
+
+    console.log("DEBUG: Subs found:", subs.length);
+
+    if (!subs.length) {
+        container.style.display = 'none';
+        return;
+    }
+
+    const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : "ar";
+    const isAr = lang === 'ar';
+
+    // "All" Link
+    const allLabel = isAr ? "الكل" : "All";
+    const allActive = !activeSubId ? 'active' : '';
+    // Link to same page (category.html) with just ID, no sub
+    const baseUrl = `category.html?id=${mainCatId}`;
+    
+    let html = `<a href="${baseUrl}" class="${allActive}">${allLabel}</a>`;
+
+    subs.forEach(sub => {
+        const isActive = activeSubId === sub.id ? 'active' : '';
+        const label = isAr ? (sub.name_ar || sub.id) : (sub.name_en || sub.name_ar || sub.id);
+        
+        // Link to same page with &sub=ID
+        html += `<a href="${baseUrl}&sub=${sub.id}" class="${isActive}">${label}</a>`;
+    });
+
+    container.innerHTML = html;
 }
 
 /**
@@ -87,35 +232,59 @@ async function renderGlobalCategories(isHome, currentPath) {
     let cats = [];
     if (window.UserCategoriesService) {
         cats = await window.UserCategoriesService.getAll();
-    } else {
-        console.warn("UserCategoriesService missing");
     }
 
-    // Fallback or empty state could be handled here
     if (!cats.length) {
         container.innerHTML = `<div style="padding:20px; color:#aaa;">جاري تحميل الأقسام...</div>`;
         return;
     }
 
+    // Determine Language
+    const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : (document.documentElement.lang || "ar");
+    const isAr = lang === 'ar';
+
+    // Different Layout for "All Categories" Page
+    const isAllCatsPage = currentPath.endsWith("/categories.html");
+
     let html = "";
     cats.forEach(cat => {
-        // DB uses 'name_ar', 'name_en', 'icon'. 
-        // We map to match existing structure if needed, or just use direct.
         const catId = cat.id;
         const icon = cat.icon || "folder";
-        const label = cat.name_ar || cat.label || catId; // Fallback
         
-        const catUrl = basePath + catId + ".html";
-        const isActive = activePage === (catId + ".html") ? "active" : "";
+        // Bilingual Label
+        const label = isAr ? (cat.name_ar || catId) : (cat.name_en || cat.name_ar || catId);
         
-        // i18n key construction: 'cat_' + id (replacing dashes with underscores if any)
-        const i18nKey = `cat_${catId.replace(/-/g, '_')}`;
-
-        html += `
-            <a href="${catUrl}" class="cat-nav-item ${isActive}">
-                <i data-lucide="${icon}"></i> 
-                <span data-i18n="${i18nKey}">${label}</span>
-            </a>`;
+        // Dynamic Link Construction
+        // We now point EVERYTHING to the single dynamic page
+        // Adjust relative path based on current location
+        let linkPrefix = "pages/";
+        if (currentPath.includes("/pages/") || currentPath.includes("/categories/") || currentPath.includes("/subcategories/")) {
+            linkPrefix = ""; // Already in pages/ or deep, so ./category.html works if in pages, but...
+            // "pages/category.html" is in "pages/".
+            // If we are in "index.html" (root) -> "pages/category.html"
+            // If we are in "pages/about.html" -> "category.html"
+        }
+        
+        if (currentPath.includes("/pages/")) linkPrefix = "";
+        
+        const catUrl = `${linkPrefix}category.html?id=${catId}`;
+        const isActive = (activePage === "category.html" && currentPath.includes(`id=${catId}`)) ? "active" : "";
+        
+        if (isAllCatsPage) {
+            // GRID Layout (Card style)
+            html += `
+                <a href="${catUrl}" class="cat-nav-item card-style">
+                    <i data-lucide="${icon}"></i> 
+                    <span>${label}</span>
+                </a>`;
+        } else {
+            // HORIZONTAL SCROLL Layout (Chip style)
+            html += `
+                <a href="${catUrl}" class="cat-nav-item ${isActive}">
+                    <i data-lucide="${icon}"></i> 
+                    <span>${label}</span>
+                </a>`;
+        }
     });
 
     container.innerHTML = html;
@@ -140,26 +309,15 @@ function renderBottomNav(isHome, currentPath) {
 
     // Determine path prefix based on directory depth
     let toHome = isHome ? "index.html" : "../index.html";
-    let toCats = isHome ? "pages/categories.html" : "categories.html";
+    let toCats = isHome ? "pages/categories.html" : "../pages/categories.html";
     let toFavs = isHome ? "pages/favorites.html" : "../pages/favorites.html";
 
-    if (currentPath.includes("/pages/") || currentPath.includes("/subcategories/")) {
-        toCats = currentPath.includes("/pages/") ? "categories.html" : "../pages/categories.html";
-        toFavs = currentPath.includes("/pages/") ? "favorites.html" : "../pages/favorites.html";
-    }
-    
-    if (currentPath.includes("/categories/")) {
-        toHome = "../index.html";
-        toCats = "../pages/categories.html";
-        toFavs = "../pages/favorites.html";
-    }
-
-    if (currentPath.includes("/pages/")) {
-        toHome = "../index.html";
-        // toCats is already correct from the first block if simplified, but explicitly:
-        toCats = "categories.html";
-        toFavs = "favorites.html";
-    }
+    // Simple Patch for depth level
+     if (currentPath.includes("/categories/") || currentPath.includes("/subcategories/") || currentPath.includes("/pages/")) {
+         toHome = "../index.html";
+         toCats = "../pages/categories.html";
+         toFavs = "../pages/favorites.html";
+     }
 
     const navItems = [
         { id: "home", icon: "home", ar: "الرئيسية", url: toHome },
@@ -171,15 +329,17 @@ function renderBottomNav(isHome, currentPath) {
     let html = "";
     navItems.forEach(item => {
         let isActive = "";
+        
+        // Debug Active Logic
         if (item.id === "home" && isHome) isActive = "active";
         if (item.id === "categories" && (currentPath.includes("/categories/") || currentPath.includes("/subcategories/") || currentPath.includes("categories.html"))) isActive = "active";
         if (item.id === "favorites" && currentPath.includes("favorites.html")) isActive = "active";
 
-        const onClick = item.id === "account" ? 'onclick="openAccountModal(event)"' : "";
+        const onClick = item.id === "account" ? 'onclick="window.openAccountModal(event)"' : "";
         
         html += `
             <a href="${item.url}" class="nav-item-mobile ${isActive}" ${onClick}>
-                <i data-lucide="${item.icon}"></i> <span data-i18n="nav_${item.id}">${item.ar}</span>
+                <i data-lucide="${item.icon}"></i> <span>${item.ar}</span>
             </a>`;
     });
 
@@ -187,58 +347,100 @@ function renderBottomNav(isHome, currentPath) {
     if (typeof lucide !== "undefined") lucide.createIcons();
 }
 
-/**
- * Handle scrolling logic for the categories bar
- */
-function initCategoryScroll() {
-    const container = document.getElementById('global-cats');
+function renderOffers() {
+    const container = document.getElementById('offers-container');
     if (!container) return;
-
-    const wrapper = container.parentElement;
-    if (!wrapper || !wrapper.classList.contains('nav-scroll-wrapper')) return;
-
-    // Check if indicators exist, otherwise create them
-    if (!wrapper.querySelector('.nav-indicator')) {
-        wrapper.insertAdjacentHTML('afterbegin', `
-            <div class="nav-indicator nav-indicator-right" onclick="scrollCats('right')"><i data-lucide="chevron-right"></i></div>
-            <div class="nav-indicator nav-indicator-left" onclick="scrollCats('left')"><i data-lucide="chevron-left"></i></div>
-        `);
-        if (typeof lucide !== "undefined") lucide.createIcons();
-    }
-
-    const updateArrows = () => {
-        const leftArrow = wrapper.querySelector('.nav-indicator-left');
-        const rightArrow = wrapper.querySelector('.nav-indicator-right');
-        if (!leftArrow || !rightArrow) return;
-
-        const isRtl = document.documentElement.dir === 'rtl';
-        const scrollLeft = container.scrollLeft;
-        const maxScroll = container.scrollWidth - container.clientWidth;
-
-        // Simplified visibility logic
-        if (isRtl) {
-            leftArrow.classList.toggle('visible', scrollLeft > -maxScroll + 10);
-            rightArrow.classList.toggle('visible', scrollLeft < -10);
-        } else {
-            leftArrow.classList.toggle('visible', scrollLeft > 10);
-            rightArrow.classList.toggle('visible', scrollLeft < maxScroll - 10);
-        }
-    };
-
-    container.addEventListener('scroll', updateArrows);
-    window.addEventListener('resize', updateArrows);
-    setTimeout(updateArrows, 100);
+    container.innerHTML = `<div style="padding:20px; text-align:center;">عروض قريباً</div>`;
 }
 
-window.scrollCats = function(dir) {
-    const container = document.getElementById('global-cats');
+async function renderSuezInfo() {
+    const container = document.getElementById('info-container');
     if (!container) return;
-    const amount = dir === 'left' ? -200 : 200;
-    const isRtl = document.documentElement.dir === 'rtl';
-    container.scrollBy({ left: isRtl ? -amount : amount, behavior: 'smooth' });
-};
+    container.innerHTML = `
+        <div class="info-chip">
+            <i data-lucide="cloud"></i>
+            <div>
+                <div class="value">--°C</div>
+                <div class="label">الطقس</div>
+            </div>
+        </div>
+    `;
+    if (typeof lucide !== "undefined") lucide.createIcons();
+}
 
-/* --- Mobile Account Modal Logic (Static / No Management) --- */
+function renderTrendingHub() {
+    const container = document.getElementById('trending-container');
+    if (!container) return;
+    container.innerHTML = "";
+}
+
+function renderQuickActions() {
+    const container = document.getElementById('quick-actions-container');
+    if (!container) return;
+    // Static Actions (Safe)
+     const actions = [
+        { icon: "phone-call", color: "#ef4444", label: "طوارئ", url: "#" },
+    ];
+    // container.innerHTML = ...
+}
+
+function renderHomepageReviews() {
+     const container = document.getElementById('reviews-container');
+    if (!container) return;
+    container.innerHTML = "";
+}
+
+function renderPlaces(places, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    if (!places || places.length === 0) {
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">لا توجد أماكن حالياً</div>`;
+        return;
+    }
+
+    const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : "ar";
+    const isAr = lang === 'ar';
+    const path = window.location.pathname;
+    const isHome = path === "/" || path.endsWith("index.html") || path.endsWith("/") || path === "";
+    const placeLink = isHome ? "pages/place.html" : "place.html";
+
+    container.innerHTML = places.map(place => {
+        const name = isAr ? (place.name_ar || place.name_en) : (place.name_en || place.name_ar);
+        const desc = isAr ? (place.desc_ar || place.desc_en || '') : (place.desc_en || place.desc_ar || '');
+        const image = place.image_url || (place.images && place.images[0]) || 'https://via.placeholder.com/400x300?text=No+Image';
+        
+        // Truncate description
+        const shortDesc = desc.length > 100 ? desc.substring(0, 100) + '...' : desc;
+
+        return `
+            <div class="listing-card" onclick="location.href='${placeLink}?id=${place.id}'" style="cursor: pointer;">
+                <div class="listing-img">
+                    <img src="${image}" alt="${name}" loading="lazy">
+                    <div class="fav-btn" data-id="${place.id}" onclick="event.stopPropagation()">
+                        <i data-lucide="heart"></i>
+                    </div>
+                </div>
+                <div class="listing-content">
+                    <h3>${name}</h3>
+                    <p>${shortDesc}</p>
+                    ${place.address ? `<p style="font-size: 12px; color: var(--text-muted); margin-top: 8px;"><i data-lucide="map-pin" style="width: 14px; height: 14px; display: inline;"></i> ${place.address}</p>` : ''}
+                    <div class="view-btn">
+                        <span>${isAr ? 'رؤية التفاصيل' : 'View Details'}</span>
+                        <i data-lucide="${isAr ? 'arrow-left' : 'arrow-right'}"></i>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
+// ... Keep pure UI helpers like Scroll/Modal ... 
+function initCategoryScroll() {} 
+window.scrollCats = function(dir) {};
+/* --- Mobile Account Modal Logic --- */
 function createAccountModal() {
     if (document.querySelector('.account-modal')) return;
 
@@ -287,7 +489,7 @@ function createAccountModal() {
     if (typeof lucide !== "undefined") lucide.createIcons();
 }
 
-function openAccountModal(e) {
+window.openAccountModal = function(e) {
     if(e) e.preventDefault();
     createAccountModal();
     
@@ -296,149 +498,11 @@ function openAccountModal(e) {
         document.querySelector('.modal-backdrop').classList.add('active');
         document.querySelector('.account-modal').classList.add('active');
     });
-}
+};
 
-function closeAccountModal() {
+window.closeAccountModal = function() {
     const backdrop = document.querySelector('.modal-backdrop');
     const modal = document.querySelector('.account-modal');
     if (backdrop) backdrop.classList.remove('active');
     if (modal) modal.classList.remove('active');
-}
-
-// Attach click handler to account nav items (both top and bottom)
-document.addEventListener('DOMContentLoaded', function() {
-    // Find all links that contain the account translation span
-    const accountSpans = document.querySelectorAll('[data-i18n="nav_account"]');
-    accountSpans.forEach(span => {
-        const accountLink = span.closest('a, button');
-        if (accountLink) {
-            accountLink.addEventListener('click', openAccountModal);
-        }
-    });
-});
-
-
-/* --- Homepage Enrichment Renderers --- */
-
-async function renderOffers() {
-    const container = document.getElementById('offers-container');
-    if (!container) return;
-
-    const { data: offers } = await window.sb.from('offers').select('*').eq('is_active', true);
-    if (!offers || !offers.length) {
-        document.getElementById('offers-section').style.display = 'none';
-        return;
-    }
-
-    const lang = getPreferredLanguage();
-
-    container.innerHTML = offers.map(off => `
-        <div class="offer-card" style="background: ${off.bg_color}">
-            <h4 style="font-size: 18px; font-weight: 800;">${lang === 'ar' ? off.title_ar : off.title_en}</h4>
-            <p style="font-size: 14px; opacity: 0.9;">${lang === 'ar' ? off.desc_ar : off.desc_en}</p>
-            <button class="modal-action-btn" style="width: auto; padding: 10px 20px; font-size: 12px; margin-bottom: 0;" data-i18n="offer_details">تفاصيل العرض</button>
-        </div>
-    `).join('');
-}
-
-async function renderSuezInfo() {
-    const container = document.getElementById('info-container');
-    if (!container) return;
-
-    let temp = "--";
-    try {
-        const response = await fetch("https://api.open-meteo.com/v1/forecast?latitude=29.9668&longitude=32.5498&current=temperature_2m");
-        const data = await response.json();
-        if (data && data.current) {
-            temp = Math.round(data.current.temperature_2m);
-        }
-    } catch (err) {
-        console.error("Weather fetch failed:", err);
-    }
-
-    container.innerHTML = `
-        <div class="info-chip">
-            <i data-lucide="cloud-sun"></i>
-            <div>
-                <div class="value">${temp}°C</div>
-                <div class="label" data-i18n="weather_title">الطقس</div>
-            </div>
-        </div>
-        <div class="info-chip">
-            <i data-lucide="anchor"></i>
-            <div>
-                <div class="value" data-i18n="port_status">يعمل</div>
-                <div class="label" data-i18n="port_title">الميناء</div>
-            </div>
-        </div>
-    `;
-    if (typeof lucide !== "undefined") lucide.createIcons();
-}
-
-function renderTrendingHub() {
-    const container = document.getElementById('trending-container');
-    if (!container) return;
-    // Removed demo trends. Fetch from DB later or hide.
-    container.innerHTML = "";
-}
-
-function renderQuickActions() {
-    const container = document.getElementById('quick-actions-container');
-    if (!container) return;
-
-    const actions = [
-        { icon: "phone-call", color: "#ef4444", label_key: "action_emergency", url: "categories/emergency.html" },
-        { icon: "bus", color: "#f59e0b", label_key: "action_transport", url: "#" },
-        { icon: "shield-check", color: "#3b82f6", label_key: "action_police", url: "tel:122" },
-        { icon: "heart-pulse", color: "#10b981", label_key: "action_ambulance", url: "tel:123" }
-    ];
-
-    container.innerHTML = actions.map(a => `
-        <a href="${a.url}" class="quick-btn">
-            <div class="quick-icon" style="background: ${a.color}"><i data-lucide="${a.icon}"></i></div>
-            <span data-i18n="${a.label_key}">-</span>
-        </a>
-    `).join('');
-    if (typeof lucide !== "undefined") lucide.createIcons();
-}
-
-async function renderExploreCity() {
-    const container = document.getElementById('explore-container');
-    if (!container) return;
-
-    const { data: featured } = await window.sb.from('places').select('*').eq('is_featured', true);
-    
-    if (!featured || !featured.length) {
-        document.getElementById('explore-section').style.display = 'none';
-        return;
-    }
-
-    // Pick one random from featured list
-    const p = featured[Math.floor(Math.random() * featured.length)];
-    const lang = getPreferredLanguage();
-
-    container.innerHTML = `
-        <div class="listing-card" style="margin-top: 0;">
-            <div style="padding: 16px; background: var(--primary-soft); color: var(--primary); font-size: 13px; font-weight: 700;" data-i18n="explore_random_title">
-                هل زرت هذا المكان من قبل؟
-            </div>
-            <div class="listing-img">
-                <img src="${p.image_url}" alt="${p.name_ar}">
-                <div class="fav-btn" data-id="${p.id}"><i data-lucide="heart"></i></div>
-            </div>
-            <div class="listing-content">
-                <h3>${lang === 'ar' ? p.name_ar : p.name_en}</h3>
-                <p>${p.address || ''}</p>
-                <a href="place-details.html?id=${p.id}" class="view-btn"><span data-i18n="view_details">رؤية التفاصيل</span> <i data-lucide="${lang === 'ar' ? 'arrow-left' : 'arrow-right'}"></i></a>
-            </div>
-        </div>
-    `;
-    if (typeof lucide !== "undefined") lucide.createIcons();
-}
-
-function renderHomepageReviews() {
-    const container = document.getElementById('reviews-container');
-    if (!container) return;
-    // Removed demo reviews.
-    container.innerHTML = "";
-}
+};

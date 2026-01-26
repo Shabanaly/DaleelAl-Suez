@@ -9,10 +9,9 @@ const StatsService = {
         // 2. Active Offers
         const { count: offersCount } = await sb.from('offers').select('*', { count: 'exact', head: true }).eq('is_active', true);
 
-        // 3. Main Categories Count (Static from config or derived)
-        // For now, let's assume we count unique main_cat_ids from places as a proxy if we don't have a categories table
-        // Or better, just hardcode the known static categories count from our logic
-        const mainCategoriesCount = 13; // We know we have ~13 categories
+        // 3. Main Categories Count
+        const { count: categoriesCount } = await sb.from('categories').select('*', { count: 'exact', head: true });
+        const mainCategoriesCount = categoriesCount || 0;
 
         // 4. Added Today
         const today = new Date().toISOString().split('T')[0];

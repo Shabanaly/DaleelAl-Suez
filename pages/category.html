@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-i18n="nav_categories">الأقسام - دليل السويس</title>
+    <title>دليل السويس</title> <!-- JS will update this -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../js/config.js"></script>
@@ -13,40 +13,8 @@
     <link rel="stylesheet" href="../css/responsive.css">
     <script src="../js/theme.js"></script>
     <script src="../js/i18n.js"></script>
-    <style>
-        /* Page-Specific Styles for All Categories */
-        .all-categories-page .categories-container {
-            display: grid !important;
-            grid-template-columns: repeat(3, 1fr) !important;
-            gap: 15px !important;
-            padding: 10px 0 !important;
-        }
-
-        /* Desktop Adjustments */
-        @media (min-width: 1024px) {
-            .all-categories-page .categories-container {
-                grid-template-columns: repeat(5, 1fr) !important;
-                gap: 24px !important;
-            }
-            
-            /* Enforce card look on Desktop too for this page */
-            .all-categories-page .cat-nav-item {
-                flex-direction: column;
-                justify-content: center;
-                text-align: center;
-                height: 120px;
-                background: var(--bg-card);
-                border: 1px solid var(--border);
-            }
-            .all-categories-page .cat-nav-item i {
-                width: 32px;
-                height: 32px;
-                margin-bottom: 8px;
-            }
-        }
-    </style>
 </head>
-<body class="all-categories-page">
+<body id="dynamic-cat-page">
     <header class="site-header">
         <a href="../index.html" class="logo">
             <i data-lucide="compass"></i>
@@ -66,13 +34,29 @@
     </header>
 
     <main>
-        <section class="section-wrapper" style="padding-top: 20px;">
+        <section class="categories-nav-section">
+            <div class="nav-scroll-wrapper">
+                <div class="categories-container" id="global-cats"></div>
+            </div>
+        </section>
+
+        <section class="section-wrapper">
             <div class="section-head">
-                <h1 data-i18n="nav_categories">الأقسام الرئيسية</h1>
+                <!-- JS will populate this header -->
+                <h1 id="cat-page-title">...</h1>
             </div>
             
-            <!-- Global Categories will be rendered here via main.js -->
-            <div class="categories-container" id="global-cats"></div>
+            <div class="ad-slot" data-ad-position="category-top"></div>
+            
+            <!-- Dynamic Subcategories -->
+            <div class="sub-nav-wrapper">
+                <div class="sub-nav"></div>
+            </div>
+
+            <!-- Places List -->
+            <div id="places-container" class="places-list"></div>
+
+            <div class="ad-slot" data-ad-position="category-bottom"></div>
         </section>
     </main>
 
@@ -97,6 +81,7 @@
 
     <nav class="bottom-nav" id="bottom-nav-container"></nav>
 
+    <script>lucide.createIcons();</script>
     <script src="../js/favorites.js"></script>
     <script src="../js/services/places.service.js"></script>
     <script src="../js/services/categories.service.js"></script>
