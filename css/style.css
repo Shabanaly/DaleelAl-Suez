@@ -318,14 +318,32 @@ html, body {
 /* ==================== ULTIMATE MAGAZINE DETAILS PAGE ==================== */
 #place-details-page { overflow-x: hidden; background: var(--bg-main); }
 
+.top-page-actions {
+    padding: 32px 60px 0;
+    background: var(--bg-main);
+    display: flex;
+    justify-content: center;
+}
+
+@media (max-width: 1024px) {
+    .top-page-actions { padding: 20px 24px 0; }
+}
+
 .magazine-layout {
     display: grid;
     grid-template-columns: 380px 1fr;
+    grid-template-areas: 
+        "sidebar hero"
+        "sidebar content";
     min-height: calc(100vh - 70px);
     position: relative;
     background: var(--bg-main);
     z-index: 1;
 }
+
+.details-hero-box { grid-area: hero; }
+.details-sidebar { grid-area: sidebar; }
+.details-content-area { grid-area: content; }
 
 /* 1. Sticky Sidebar */
 .details-sidebar {
@@ -346,14 +364,35 @@ html, body {
 .back-link-modern {
     display: flex;
     align-items: center;
-    gap: 8px;
-    color: var(--text-muted);
+    gap: 10px;
+    color: var(--text-main);
     text-decoration: none;
-    font-weight: 700;
+    font-weight: 800;
     font-size: 14px;
+    transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    padding: 12px 24px;
+    border-radius: 100px;
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow-sm);
+}
+
+.back-link-modern i {
+    width: 18px;
+    height: 18px;
     transition: 0.3s;
 }
-.back-link-modern:hover { color: var(--primary); transform: translateX(-5px); }
+
+.back-link-modern:hover { 
+    transform: translateY(-2px); 
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    box-shadow: 0 8px 24px var(--primary-soft);
+}
+
+.back-link-modern:hover i { transform: translateX(4px); }
 
 .place-main-title {
     font-size: 48px;
@@ -603,20 +642,133 @@ html, body {
 
 /* Responsive Mobile Overrides */
 @media (max-width: 1024px) {
-    .magazine-layout { grid-template-columns: 1fr; margin-bottom: 80px; }
+    .magazine-layout { 
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 80px; 
+    }
+    
+    .details-hero-box { 
+        order: -2; /* Force to top */
+        height: 300px; 
+        border-radius: 0 0 32px 32px; 
+        margin: 0;
+    }
+
     .details-sidebar { 
-        padding: 40px 24px; 
+        order: -1; /* Right after hero */
+        padding: 32px 24px; 
         border-right: none; 
         border-bottom: 1px solid var(--border);
     }
+
+    .details-content-area {
+        order: 0;
+        padding: 32px 24px;
+    }
+
     .sidebar-sticky-content { position: static; }
-    .place-main-title { font-size: 36px; }
-    .details-content-area { padding: 40px 24px; }
-    .details-hero-box { height: 300px; border-radius: 24px; }
+    .place-main-title { font-size: 32px; }
+    
     .magazine-gallery { grid-template-columns: repeat(2, 1fr); grid-auto-rows: auto; }
-    .magazine-gallery .gallery-item, 
-    .magazine-gallery .gallery-item:nth-child(3n+1),
-    .magazine-gallery .gallery-item:nth-child(4n) { grid-column: span 1; grid-row: auto; aspect-ratio: 1; }
+}
+
+/* Mobile Action Bar (Sticky UI) */
+.mobile-action-bar {
+    position: fixed;
+    bottom: 92px;
+    left: 20px;
+    right: 20px;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 12px;
+    display: none; /* JS will show this only on mobile */
+    justify-content: space-between;
+    gap: 12px;
+    z-index: 2800;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 1024px) {
+    .mobile-action-bar { display: flex; }
+}
+
+.action-item {
+    flex: 1;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 800;
+    font-size: 14px;
+    color: #fff;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.action-item:active { transform: scale(0.95); }
+.action-item.call { background: #22c55e; }
+.action-item.whatsapp { background: #25d366; }
+.action-item.map { background: var(--primary); }
+
+@keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* Mobile Action Bar (Sticky UI) */
+.mobile-action-bar {
+    position: fixed;
+    bottom: 92px;
+    left: 20px;
+    right: 20px;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 12px;
+    display: none; /* JS will show this only on mobile */
+    justify-content: space-between;
+    gap: 12px;
+    z-index: 2800;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 1024px) {
+    .mobile-action-bar { display: flex; }
+}
+
+.action-item {
+    flex: 1;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-weight: 800;
+    font-size: 14px;
+    color: #fff;
+    text-decoration: none;
+    transition: 0.3s;
+}
+
+.action-item:active { transform: scale(0.95); }
+.action-item.call { background: #22c55e; }
+.action-item.whatsapp { background: #25d366; }
+.action-item.map { background: var(--primary); }
+
+@keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 /* ==================== EXPLORE HERO SPOTLIGHT ==================== */

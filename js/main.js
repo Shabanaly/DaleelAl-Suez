@@ -41,83 +41,78 @@ window.addEventListener('load', () => {
 console.log("DEBUG: main.js execution started");
 document.addEventListener('DOMContentLoaded', () => {
     injectPreloader(); // Show preloader immediately
-    console.log("DEBUG: DOMContentLoaded fired");
-    // تحديد الصفحة الحالية
-    var path = window.location.pathname;
-    // التحقق من الصفحة الرئيسية (سواء كانت / أو index.html أو المجلد الرئيسي)
-    const isHome = document.getElementById('home-page') !== null;
+    
+    // تحديد الصفحة الحالية بناءً على الـ ID الخاص بـ body
+    const bodyId = document.body.id;
+    const path = window.location.pathname;
+    const isHome = bodyId === 'home-page';
 
     // 0. Initialize Dynamic Backend (Supabase)
-    const { createClient } = supabase;
-    window.sb = createClient(window.GUIDE_CONFIG.URL, window.GUIDE_CONFIG.ANON_KEY);
+    if (window.supabase && window.GUIDE_CONFIG) {
+        window.sb = window.supabase.createClient(window.GUIDE_CONFIG.URL, window.GUIDE_CONFIG.ANON_KEY);
+    }
 
     // 1. Initial Global Render (Universal)
     renderGlobalCategories(isHome, path);
     renderBottomNav(isHome, path);
 
-    initDynamicPage(isHome, path);
+    // 2. Route Page Specific Logic
+    if (isHome) {
+        initHomepage();
+    } else if (bodyId === 'categories-page') {
+        // Categories list logic is already handled by renderGlobalCategories
+    } else if (bodyId === 'dynamic-cat-page') {
+        initCategoryPage(path);
+    } else if (bodyId === 'place-details-page') {
+        initPlaceDetailsPage();
+    }
+
+    // 3. Global Ads Rendering
+    renderAds();
 });
 
-async function initDynamicPage(isHome, path) {
-    // UI ONLY - Content areas are still placeholders until PlacesService is restored
-    // console.log("Values initialized from DB for Categories");
+async function initHomepage() {
+    console.log("DEBUG: Initializing Homepage Widgets");
+    await renderOffers();
+    await renderSuezInfo();
+    await renderTrendingHub();
+    await renderQuickActions();
+    await renderExploreCity();
+    renderHomepageReviews();
+    
+    if (window.UserPlacesService) {
+        const allPlaces = await window.UserPlacesService.getLatestPlaces(7);
+        if (allPlaces) renderPlaces(allPlaces, "places-container");
+    }
+}
 
+async function initCategoryPage(path) {
     const params = new URLSearchParams(window.location.search);
-    const subCatId = params.get('sub');
+    const catId = params.get('id');
+    const subId = params.get('sub');
 
-    // 1. Homepage Logic
-    if (isHome) {
-        // Render Home Components (Live & Dynamic)
-        await renderOffers();
-        await renderSuezInfo();
-        await renderTrendingHub();
-        await renderQuickActions();
-        await renderExploreCity();
-        renderHomepageReviews();
-        
-        // Latest Places (Fetch exactly 7 as requested, newest first)
+    if (catId) {
+        if (typeof setupCategoryPageHeader === "function") await setupCategoryPageHeader(catId);
+        if (typeof renderSubCategories === "function") await renderSubCategories(catId, subId);
+
         if (window.UserPlacesService) {
-            const allPlaces = await window.UserPlacesService.getLatestPlaces(7);
-            if (allPlaces) renderPlaces(allPlaces, "places-container");
-        }
-    }
-
-    // 2. Dynamic Category Page Logic (Universal)
-    // Check if we are on the generic template
-    if (path.includes("category.html")) {
-        const catId = params.get('id');
-        const subId = params.get('sub');
-
-        if (catId) {
-            // A. Set Metadata (Title)
-            await setupCategoryPageHeader(catId);
-
-            // B. Render Sub-Nav (pass current subId for active state)
-            await renderSubCategories(catId, subId);
-
-            // C. Render Places
-            if (window.UserPlacesService) {
-                let places = [];
-                if (subId) {
-                    places = await window.UserPlacesService.getPlacesBySubCategory(subId);
-                } else {
-                    places = await window.UserPlacesService.getPlacesByMainCategory(catId);
-                }
-                renderPlaces(places, 'places-container');
+            let places = [];
+            if (subId) {
+                places = await window.UserPlacesService.getPlacesBySubCategory(subId);
+            } else {
+                places = await window.UserPlacesService.getPlacesByMainCategory(catId);
             }
+            renderPlaces(places, 'places-container');
         }
     }
+}
 
-    // 3. Place Details Page Logic
-    if (path.includes("place.html")) {
-        const placeId = params.get('id');
-        if (placeId && window.UserPlacesService) {
-            await renderPlaceDetails(placeId);
-        }
+async function initPlaceDetailsPage() {
+    const params = new URLSearchParams(window.location.search);
+    const placeId = params.get('id');
+    if (placeId && window.UserPlacesService) {
+        await renderPlaceDetails(placeId);
     }
-
-    // 4. Global Ads Rendering
-    renderAds();
 }
 
 async function renderPlaceDetails(placeId) {
@@ -164,37 +159,7 @@ async function renderPlaceDetails(placeId) {
     const infoGrid = document.getElementById('place-info-grid');
     let infoHTML = '';
 
-    // Phone
-    if (place.phone) {
-        infoHTML += `
-            <div class="place-info-item interactive" onclick="window.location.href='tel:${place.phone}'">
-                <div class="info-icon"><i data-lucide="phone"></i></div>
-                <div class="info-text">
-                    <label>${isAr ? 'اتصال' : 'Call'}</label>
-                    <span>${place.phone}</span>
-                </div>
-            </div>
-        `;
-    }
-
-    // WhatsApp
-    if (place.whatsapp) {
-        let waNumber = place.whatsapp.replace(/\D/g,'');
-        if (waNumber.startsWith('0')) waNumber = '20' + waNumber.substring(1);
-        else if (!waNumber.startsWith('20')) waNumber = '20' + waNumber;
-
-        infoHTML += `
-            <div class="place-info-item interactive" onclick="window.open('https://wa.me/${waNumber}', '_blank')">
-                <div class="info-icon" style="color: #22c55e;"><i data-lucide="message-circle"></i></div>
-                <div class="info-text">
-                    <label>${isAr ? 'واتساب' : 'WhatsApp'}</label>
-                    <span style="color: #22c55e;">تحدث الآن</span>
-                </div>
-            </div>
-        `;
-    }
-
-    // Working Hours
+    // 3. Grid Logic (Address, Hours, Category)
     if (place.working_hours) {
         infoHTML += `
             <div class="place-info-item">
@@ -207,7 +172,6 @@ async function renderPlaceDetails(placeId) {
         `;
     }
 
-    // Address (Text)
     if (place.address) {
         infoHTML += `
             <div class="place-info-item">
@@ -220,47 +184,48 @@ async function renderPlaceDetails(placeId) {
         `;
     }
 
-    // Map Link (Direction)
-    if (place.map_url || place.address) {
-        const query = place.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.address)}`;
-        infoHTML += `
-            <div class="place-info-item interactive" onclick="window.open('${query}', '_blank')">
-                <div class="info-icon" style="background: var(--primary-soft); color: var(--primary);"><i data-lucide="navigation"></i></div>
-                <div class="info-text">
-                    <label>${isAr ? 'الاتجاهات' : 'Directions'}</label>
-                    <span style="color: var(--primary); font-weight: 700;">${isAr ? 'فتح في الخريطة' : 'Open in Maps'}</span>
-                </div>
-            </div>
-        `;
-
-        // Map Iframe Section
-        const mapSection = document.getElementById('map-section');
-        const mapContainer = document.getElementById('map-iframe-container');
-        
-        if (mapSection && mapContainer && place.map_url && (place.map_url.includes('google.com/maps') || place.map_url.includes('goo.gl/maps'))) {
-            mapSection.style.display = 'block';
-            mapContainer.innerHTML = `<iframe src="${place.map_url}" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>`;
-        }
-    }
-
     infoGrid.innerHTML = infoHTML;
 
     // Sidebar Favorite Button
     const favBtnContainer = document.getElementById('favorite-btn-container');
     if (favBtnContainer) {
-        const isFav = typeof isFavorite === 'function' && isFavorite(place.id);
         favBtnContainer.innerHTML = `
-            <button class="btn-primary-modern fav-btn ${isFav ? 'active' : ''}" data-id="${place.id}" 
-                    onclick="event.stopPropagation(); toggleFavorite('${place.id}')"
-                    style="background: ${isFav ? 'var(--error-soft)' : 'var(--bg-main)'}; color: ${isFav ? 'var(--error)' : 'var(--text-main)'}; border: 1px solid var(--border); margin-top: 12px;">
-                <i data-lucide="${isFav ? 'heart-off' : 'heart'}"></i>
-                <span>${isAr ? (isFav ? 'إزالة من المفضلة' : 'إضافة للمفضلة') : (isFav ? 'Remove Favorite' : 'Add to Favorites')}</span>
+            <button class="btn-outline-modern fav-btn-large ${typeof isFavorite === 'function' && isFavorite(place.id) ? 'active' : ''}" onclick="toggleFavorite('${place.id}'); this.classList.toggle('active')">
+                <i data-lucide="heart"></i> <span>${isAr ? 'حفظ في المفضلة' : 'Save to Favorites'}</span>
             </button>
         `;
     }
 
-    // Sticky Mobile Action Bar
+    // Restore Sticky Mobile Action Bar
     renderStickyActionBar(place, isAr);
+
+    // Map Iframe Section (Robust Embed logic)
+    const mapSection = document.getElementById('map-section');
+    const mapContainer = document.getElementById('map-iframe-container');
+    
+    if (mapSection && mapContainer) {
+        let mapFound = false;
+        if (place.map_url) {
+            // Convert Share Link to Embed link if possible
+            let embedUrl = place.map_url;
+            if (place.map_url.includes('goo.gl/maps') || place.map_url.includes('google.com/maps')) {
+                 if (!place.map_url.includes('embed')) {
+                     // Universal fallback search embed
+                     const query = encodeURIComponent(place.address || place.name_ar || place.name_en);
+                     embedUrl = `https://www.google.com/maps?q=${query}&output=embed`;
+                 }
+            }
+            mapContainer.innerHTML = `<iframe src="${embedUrl}" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>`;
+            mapFound = true;
+        } else if (place.address) {
+            const query = encodeURIComponent(place.address);
+            mapContainer.innerHTML = `<iframe src="https://www.google.com/maps?q=${query}&output=embed" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>`;
+            mapFound = true;
+        }
+
+        mapSection.style.display = mapFound ? 'block' : 'none';
+    }
+
 
     // Gallery (Magazine Style - Robust & Deduplicated)
     const gallerySection = document.getElementById('gallery-section');
@@ -911,4 +876,41 @@ async function renderAds() {
     } catch (e) {
         console.error("Ad Render Error", e);
     }
+}
+
+/**
+ * Renders a sticky action bar fixed at the bottom for mobile devices
+ */
+function renderStickyActionBar(place, isAr) {
+    if (window.innerWidth > 1024) return; // Desktop doesn't need this
+    
+    // Remove existing if any
+    const existing = document.querySelector('.mobile-action-bar');
+    if (existing) existing.remove();
+
+    const bar = document.createElement('div');
+    bar.className = 'mobile-action-bar';
+    
+    let html = '';
+    
+    if (place.phone) {
+        html += `<a href="tel:${place.phone}" class="action-item call"><i data-lucide="phone"></i> <span>${isAr ? 'اتصال' : 'Call'}</span></a>`;
+    }
+    
+    if (place.whatsapp) {
+        let waNumber = place.whatsapp.replace(/\D/g,'');
+        if (waNumber.startsWith('0')) waNumber = '20' + waNumber.substring(1);
+        else if (!waNumber.startsWith('20')) waNumber = '20' + waNumber;
+
+        html += `<a href="https://wa.me/${waNumber}" class="action-item whatsapp"><i data-lucide="message-circle"></i> <span>واتساب</span></a>`;
+    }
+    
+    const mapQuery = place.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.address || '')}`;
+    html += `<a href="${mapQuery}" target="_blank" class="action-item map"><i data-lucide="navigation"></i> <span>${isAr ? 'خريطة' : 'Map'}</span></a>`;
+
+    bar.innerHTML = html;
+    document.body.appendChild(bar);
+    
+    if (typeof lucide !== "undefined") lucide.createIcons();
+    if (typeof syncFavoriteIcons === "function") syncFavoriteIcons();
 }

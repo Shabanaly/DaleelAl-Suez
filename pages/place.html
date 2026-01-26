@@ -37,16 +37,27 @@
         </nav>
     </header>
 
+    <!-- Global Back Action (Top of Page) -->
+    <div class="top-page-actions">
+        <a href="javascript:history.back()" class="back-link-modern">
+            <i data-lucide="chevron-right"></i> <span data-i18n="nav_back">العودة</span>
+        </a>
+    </div>
+
     <!-- Magazine Layout Container -->
     <main class="magazine-layout">
         
-        <!-- Left Sidebar (Sticky on Desktop, Top on Mobile) -->
+        <!-- 1. Hero Image (Pinned at top on mobile) -->
+        <div class="details-hero-box">
+            <img id="place-hero-img" src="" alt="" class="details-hero-img">
+            <div class="hero-scroll-indicator">
+                <i data-lucide="mouse-pointer-2"></i>
+            </div>
+        </div>
+
+        <!-- 2. Sidebar (Moved under hero on mobile) -->
         <aside class="details-sidebar">
             <div class="sidebar-sticky-content">
-                <a href="javascript:history.back()" class="back-link-modern">
-                    <i data-lucide="chevron-right"></i> <span data-i18n="nav_back">العودة</span>
-                </a>
-
                 <div class="place-meta-header">
                     <div class="badge-row">
                         <span class="badge highlight"><i data-lucide="star"></i> مميز</span>
@@ -73,17 +84,9 @@
             </div>
         </aside>
 
-        <!-- Right Content Area (Scrollable) -->
+        <!-- 3. Right Content Area (Scrollable) -->
         <section class="details-content-area">
             
-            <!-- Dramatic Hero Image -->
-            <div class="details-hero-box">
-                <img id="place-hero-img" src="" alt="" class="details-hero-img">
-                <div class="hero-scroll-indicator">
-                    <i data-lucide="mouse-pointer-2"></i>
-                </div>
-            </div>
-
             <!-- Full Content Card -->
             <div class="details-article">
                 <div class="article-section">
@@ -97,6 +100,9 @@
                         <!-- Iframe by JS -->
                     </div>
                 </div>
+
+                <!-- AD Slot: Middleware -->
+                <div class="ad-slot" data-ad-slot="details_middle" style="margin:24px 0; display:none;"></div>
 
                 <div id="gallery-section" class="article-section" style="display: none;">
                     <h2 class="section-heading"><i data-lucide="images"></i> معرض الصور</h2>
