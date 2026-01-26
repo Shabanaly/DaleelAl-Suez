@@ -66,14 +66,12 @@
         
         let allPlaces = [];
 
-        // Load Initial Data
-        async function init() {
+        function init() {
             const cats = CategoriesService.getAll();
             const catSelect = document.getElementById('cat-filter');
             
             cats.forEach(c => {
-                const opt = `<option value="${c.id}">${c.label}</option>`;
-                catSelect.innerHTML += opt;
+                catSelect.innerHTML += `<option value="${c.id}">${c.label}</option>`;
             });
 
             loadPlaces();
@@ -87,7 +85,18 @@
             };
             
             document.querySelector('#places-table tbody').innerHTML = '<tr><td colspan="6" style="text-align:center">جاري التحميل...</td></tr>';
-            allPlaces = await PlacesService.getAll(filter);
+            
+            // Strict Separation Logic
+            if (filter.category) {
+                allPlaces = await PlacesService.getPlacesByMainCategory(filter.category);
+            } else if (filter.search) {
+                // If search, use the generic getAll which handles search
+                allPlaces = await PlacesService.getAll(filter);
+            } else {
+                // Default to Latest
+                allPlaces = await PlacesService.getLatestPlaces();
+            }
+
             renderTable(allPlaces);
         }
 

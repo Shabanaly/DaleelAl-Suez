@@ -17,19 +17,24 @@ document.addEventListener("DOMContentLoaded", function() {
     initDynamicPage(isHome, path);
 });
 
-async function initDynamicPage(isHome, path) {
-    // 2. Page Specific Logic
-    // عرض أحدث الأماكن في الصفحة الرئيسية
-    if (isHome) {
-        // Load settings first
-        const { data: setts } = await window.sb.from('site_settings').select('*').eq('key', 'latest_additions_count').single();
-        const limit = setts ? setts.value : 6;
+// Load Service if not present (Dynamically or assumed loaded)
+// Since we can't easily modify head from here, assuming we will add it to HTML or just use window.UserPlacesService if loaded.
+// Actually, let's just stick to the requested structure inside initDynamicPage for now or assume I will add the script tag.
 
-        const { data: allPlaces } = await window.sb.from('places').select('*').order('created_at', { ascending: false }).limit(limit);
+async function initDynamicPage(isHome, path) {
+    if (!window.UserPlacesService) {
+        console.warn("UserPlacesService not loaded, waiting...");
+        // Fallback or retry could go here, but I will ensure script is loaded in HTML
+    }
+
+    // 2. Page Specific Logic
+    if (isHome) {
+        // Use New Service: Latest
+        const allPlaces = await window.UserPlacesService.getLatestPlaces(6);
         
         if (allPlaces) {
             renderPlaces(allPlaces, "places-container");
-            renderExploreCity(allPlaces); // Featured rotation
+            renderExploreCity(allPlaces); 
         }
 
         // Execute New Homepage Enhancements
@@ -41,11 +46,20 @@ async function initDynamicPage(isHome, path) {
     }
     
     // Logic for individual category pages
-    const catMatch = path.match(/\/categories\/([^.]+)\.html/);
-    if (catMatch) {
-        const catId = catMatch[1];
-        const { data: catPlaces } = await window.sb.from('places').select('*').eq('sub_cat_id', catId);
-        if (catPlaces) renderPlaces(catPlaces, "places-container");
+    // Pattern: /categories/xyz.html -> Main Category
+    const mainCatMatch = path.match(/\/categories\/([^.]+)\.html/);
+    if (mainCatMatch) {
+        const catId = mainCatMatch[1]; // e.g. "restaurants"
+        const catPlaces = await window.UserPlacesService.getPlacesByMainCategory(catId);
+        renderPlaces(catPlaces, "places-container");
+    }
+
+    // Pattern: /subcategories/xyz.html -> Sub Category (if exists)
+    const subCatMatch = path.match(/\/subcategories\/([^.]+)\.html/);
+    if (subCatMatch) {
+         const subId = subCatMatch[1];
+         const subPlaces = await window.UserPlacesService.getPlacesBySubCategory(subId);
+         renderPlaces(subPlaces, "places-container");
     }
 
     // 3. Final i18n Pass

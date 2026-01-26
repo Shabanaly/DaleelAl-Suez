@@ -102,7 +102,7 @@
         }
 
         async function loadPlaceData(id) {
-            // Fetch single place logic (should be in service, but standard supabase select here is fine for now or add to service)
+            // Fetch single place logic
             const { data, error } = await _supabase.from('places').select('*').eq('id', id).single();
             if (data) {
                 document.getElementById('p_id').value = data.id;
