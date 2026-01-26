@@ -1,209 +1,244 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>تسجيل الدخول - لوحة تحكم دليل السويس</title>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/admin.css" />
     <script src="services/auth.service.js"></script>
     <style>
-        body {
-            background: #0f172a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            font-family: 'Inter', 'Segoe UI', sans-serif;
-            overflow: hidden;
-        }
+      body {
+        background: #0f172a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+        font-family: "Inter", "Segoe UI", sans-serif;
+        overflow: hidden;
+      }
 
-        .login-card {
-            background: #1e293b;
-            padding: 48px;
-            border-radius: 32px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 40px 100px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.05);
-            text-align: center;
-        }
+      .login-card {
+        background: #1e293b;
+        padding: 48px;
+        border-radius: 32px;
+        width: 100%;
+        max-width: 420px;
+        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        text-align: center;
+      }
 
-        .logo-box {
-            width: 80px;
-            height: 80px;
-            background: var(--primary);
-            color: #fff;
-            border-radius: 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 32px;
-            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.4);
-        }
+      .logo-box {
+        width: 80px;
+        height: 80px;
+        background: var(--primary);
+        color: #fff;
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 32px;
+        box-shadow: 0 20px 40px rgba(59, 130, 246, 0.4);
+      }
 
-        .login-title {
-            color: #fff;
-            font-size: 24px;
-            font-weight: 800;
-            margin-bottom: 8px;
-        }
+      .login-title {
+        color: #fff;
+        font-size: 24px;
+        font-weight: 800;
+        margin-bottom: 8px;
+      }
 
-        .login-subtitle {
-            color: #94a3b8;
-            font-size: 14px;
-            margin-bottom: 40px;
-        }
+      .login-subtitle {
+        color: #94a3b8;
+        font-size: 14px;
+        margin-bottom: 40px;
+      }
 
-        .form-group {
-            text-align: right;
-            margin-bottom: 24px;
-        }
+      .form-group {
+        text-align: right;
+        margin-bottom: 24px;
+      }
 
-        .form-label {
-            display: block;
-            color: #94a3b8;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            padding-right: 4px;
-        }
+      .form-label {
+        display: block;
+        color: #94a3b8;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        padding-right: 4px;
+      }
 
-        .form-input-container {
-            position: relative;
-        }
+      .form-input-container {
+        position: relative;
+      }
 
-        .form-input-container i {
-            position: absolute;
-            right: 16px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #64748b;
-            width: 18px;
-            height: 18px;
-        }
+      .form-input-container i {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #64748b;
+        width: 18px;
+        height: 18px;
+      }
 
-        .form-control {
-            width: 100%;
-            background: rgba(15, 23, 42, 0.6);
-            border: 1.5px solid rgba(255,255,255,0.1);
-            border-radius: 16px;
-            padding: 14px 48px 14px 16px;
-            color: #fff;
-            font-size: 15px;
-            transition: all 0.3s;
-            outline: none;
-        }
+      .form-control {
+        width: 100%;
+        background: rgba(15, 23, 42, 0.6);
+        border: 1.5px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 14px 48px 14px 16px;
+        color: #fff;
+        font-size: 15px;
+        transition: all 0.3s;
+        outline: none;
+      }
 
-        .form-control:focus {
-            border-color: var(--primary);
-            background: rgba(15, 23, 42, 0.8);
-            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-        }
+      .form-control:focus {
+        border-color: var(--primary);
+        background: rgba(15, 23, 42, 0.8);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+      }
 
-        .login-btn {
-            width: 100%;
-            background: var(--primary);
-            color: #fff;
-            border: none;
-            padding: 16px;
-            border-radius: 16px;
-            font-weight: 800;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 16px;
-        }
+      .login-btn {
+        width: 100%;
+        background: var(--primary);
+        color: #fff;
+        border: none;
+        padding: 16px;
+        border-radius: 16px;
+        font-weight: 800;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 16px;
+      }
 
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
-            filter: brightness(1.1);
-        }
+      .login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        filter: brightness(1.1);
+      }
 
-        .error-msg {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            padding: 12px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 24px;
-            display: none;
-            border: 1px solid rgba(239, 68, 68, 0.2);
-        }
+      .error-msg {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        padding: 12px;
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 24px;
+        display: none;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+      }
 
-        .spin { animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      .spin {
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
     </style>
-</head>
-<body>
-
+  </head>
+  <body>
     <div class="login-card">
-        <div class="logo-box">
-            <i data-lucide="shield-check" style="width: 40px; height: 40px;"></i>
+      <div class="logo-box">
+        <i data-lucide="shield-check" style="width: 40px; height: 40px"></i>
+      </div>
+
+      <h2 class="login-title">لوحة التحكم</h2>
+      <p class="login-subtitle">ادخل بيانات الاعتماد للوصول إلى الدليل</p>
+
+      <div id="error-box" class="error-msg">
+        البريد الإلكتروني أو كلمة المرور غير صحيحة
+      </div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label">البريد الإلكتروني</label>
+          <div class="form-input-container">
+            <i data-lucide="mail"></i>
+            <input
+              type="email"
+              id="email"
+              class="form-control"
+              placeholder="admin@suezguide.com"
+              required
+            />
+          </div>
         </div>
-        
-        <h2 class="login-title">لوحة التحكم</h2>
-        <p class="login-subtitle">ادخل بيانات الاعتماد للوصول إلى الدليل</p>
 
-        <div id="error-box" class="error-msg">البريد الإلكتروني أو كلمة المرور غير صحيحة</div>
+        <div class="form-group">
+          <label class="form-label">كلمة المرور</label>
+          <div class="form-input-container">
+            <i data-lucide="lock"></i>
+            <input
+              type="password"
+              id="password"
+              class="form-control"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+        </div>
 
-        <form id="login-form">
-            <div class="form-group">
-                <label class="form-label">البريد الإلكتروني</label>
-                <div class="form-input-container">
-                    <i data-lucide="mail"></i>
-                    <input type="email" id="email" class="form-control" placeholder="admin@suezguide.com" required>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">كلمة المرور</label>
-                <div class="form-input-container">
-                    <i data-lucide="lock"></i>
-                    <input type="password" id="password" class="form-control" placeholder="••••••••" required>
-                </div>
-            </div>
-
-            <button type="submit" class="login-btn" id="login-btn">
-                <span>تسجيل الدخول</span>
-            </button>
-        </form>
+        <button type="submit" class="login-btn" id="login-btn">
+          <span>تسجيل الدخول</span>
+        </button>
+      </form>
     </div>
 
     <script>
+      lucide.createIcons();
+
+      // 🌟 Check if already logged in
+      const isLoggedIn = sessionStorage.getItem("admin_logged_in") === "true";
+      const cachedUser = AuthService.getUserData();
+
+      if (isLoggedIn && cachedUser) {
+        console.log("✅ مستخدم مسجل مسبقاً:", cachedUser.email);
+        window.location.href = "index.html";
+      }
+
+      // 🌟 عرض معلومات المستخدم المسجل السابق (optional UI enhancement)
+      if (cachedUser) {
+        const lastLoginTime = new Date(cachedUser.lastActivity).toLocaleString(
+          "ar-EG",
+        );
+        console.log(`📊 آخر نشاط: ${lastLoginTime}`);
+      }
+
+      document.getElementById("login-form").onsubmit = function (e) {
+        e.preventDefault();
+        const btn = document.getElementById("login-btn");
+        const errorBox = document.getElementById("error-box");
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader" class="spin"></i>';
         lucide.createIcons();
 
-        // Check if already logged in
-        if (sessionStorage.getItem('admin_logged_in') === 'true') {
-            window.location.href = 'index.html';
-        }
-
-        document.getElementById('login-form').onsubmit = function(e) {
-            e.preventDefault();
-            const btn = document.getElementById('login-btn');
-            const errorBox = document.getElementById('error-box');
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            btn.disabled = true;
-            btn.innerHTML = '<i data-lucide="loader" class="spin"></i>';
-            lucide.createIcons();
-
-            setTimeout(() => {
-                const success = AuthService.login(email, password);
-                if (success) {
-                    window.location.href = 'index.html';
-                } else {
-                    btn.disabled = false;
-                    btn.innerText = 'تسجيل الدخول';
-                    errorBox.style.display = 'block';
-                }
-            }, 800);
-        };
+        setTimeout(() => {
+          const success = AuthService.login(email, password);
+          if (success) {
+            console.log("✅ تم تسجيل الدخول بنجاح");
+            window.location.href = "index.html";
+          } else {
+            btn.disabled = false;
+            btn.innerText = "تسجيل الدخول";
+            errorBox.style.display = "block";
+          }
+        }, 800);
+      };
     </script>
-</body>
+  </body>
 </html>
