@@ -11,6 +11,10 @@
 .places-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 
 /* Navigation Helpers */
+.fav-btn { transition: all 0.3s; cursor: pointer; }
+.fav-btn.active i { color: #f43f5e !important; fill: #f43f5e; }
+.fav-btn:active { transform: scale(0.85); }
+
 .sub-nav-wrapper { 
     margin-bottom: 24px; 
     position: relative;

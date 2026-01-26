@@ -198,6 +198,20 @@ async function renderPlaceDetails(placeId) {
 
     infoGrid.innerHTML = infoHTML;
 
+    // Sidebar Favorite Button
+    const favBtnContainer = document.getElementById('favorite-btn-container');
+    if (favBtnContainer) {
+        const isFav = typeof isFavorite === 'function' && isFavorite(place.id);
+        favBtnContainer.innerHTML = `
+            <button class="btn-primary-modern fav-btn ${isFav ? 'active' : ''}" data-id="${place.id}" 
+                    onclick="event.stopPropagation(); toggleFavorite('${place.id}')"
+                    style="background: ${isFav ? 'var(--error-soft)' : 'var(--bg-main)'}; color: ${isFav ? 'var(--error)' : 'var(--text-main)'}; border: 1px solid var(--border); margin-top: 12px;">
+                <i data-lucide="${isFav ? 'heart-off' : 'heart'}"></i>
+                <span>${isAr ? (isFav ? 'إزالة من المفضلة' : 'إضافة للمفضلة') : (isFav ? 'Remove Favorite' : 'Add to Favorites')}</span>
+            </button>
+        `;
+    }
+
     // Sticky Mobile Action Bar
     renderStickyActionBar(place, isAr);
 
@@ -572,7 +586,7 @@ function renderPlaces(places, containerId) {
             <div class="listing-card" onclick="location.href='${placeLink}?id=${place.id}'" style="cursor: pointer;">
                 <div class="listing-img">
                     <img src="${image}" alt="${name}" loading="lazy">
-                    <div class="fav-btn" data-id="${place.id}" onclick="event.stopPropagation()">
+                    <div class="fav-btn" data-id="${place.id}" onclick="event.stopPropagation(); toggleFavorite('${place.id}')">
                         <i data-lucide="heart"></i>
                     </div>
                 </div>
