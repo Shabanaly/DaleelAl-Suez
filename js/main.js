@@ -147,7 +147,7 @@ function renderBottomNav(isHome, currentPath) {
 
     // Determine path prefix based on directory depth
     let toHome = isHome ? "index.html" : "../index.html";
-    let toCats = isHome ? "categories/restaurants.html" : "restaurants.html";
+    let toCats = isHome ? "pages/categories.html" : "categories.html";
     let toFavs = isHome ? "pages/favorites.html" : "../pages/favorites.html";
 
     if (currentPath.includes("/pages/") || currentPath.includes("/subcategories/")) {
@@ -157,8 +157,14 @@ function renderBottomNav(isHome, currentPath) {
     
     if (currentPath.includes("/categories/")) {
         toHome = "../index.html";
-        toCats = currentPath.split('/').pop(); // already there
+        toCats = "../pages/categories.html";
         toFavs = "../pages/favorites.html";
+    }
+
+    if (currentPath.includes("/pages/")) {
+        toHome = "../index.html";
+        toCats = "categories.html";
+        toFavs = "favorites.html";
     }
 
     const navItems = [

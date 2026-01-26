@@ -73,18 +73,27 @@
 
 /* --- Mobile: Cards & Bubbles Grid (Default) --- */
 @media (max-width: 768px) {
-    .categories-nav-section .nav-scroll-wrapper {
-        padding: 0 16px; /* Reset padding, just side padding */
-        overflow: visible;
+    /* Hide Main Categories only on Index and Department pages on Mobile */
+    /* They should remain visible on the dedicated categories.html page */
+    .hero-container + .categories-nav-section,
+    .categories-nav-section:has(+ .section-wrapper:not(.all-categories-page)) {
+        display: none !important;
     }
 
-    /* Main Categories: Balanced 3-Column Grid */
+    /* Support reordering on section wrapper */
+    .section-wrapper {
+        display: flex;
+        flex-direction: column;
+        padding: 40px 24px 60px;
+    }
+
+    /* Main Categories: Prominent 3-Column Cards */
     .categories-container {
         display: grid !important;
         grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-        padding: 10px 0;
-        overflow-x: visible;
+        gap: 10px;
+        padding: 16px;
+        overflow: hidden;
     }
 
     .cat-nav-item {
@@ -92,29 +101,51 @@
         justify-content: center;
         text-align: center;
         padding: 16px 8px;
-        height: auto;
-        gap: 8px;
-        border-radius: var(--radius-md);
+        height: 100px;
+        gap: 10px;
+        border-radius: 20px;
         background: var(--bg-card);
+        border: 1px solid var(--border);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     
     .cat-nav-item i {
-        width: 18px;
-        height: 18px;
+        width: 24px;
+        height: 24px;
+        color: var(--primary);
     }
 
-    /* Subcategories: Unified Large Cards on Mobile */
+    .cat-nav-item span {
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    /* Subcategories: High-Priority 3-Column Uniform Grid */
     .sub-nav {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 12px;
-        max-height: 320px;
-        padding: 20px;
+        order: -1; /* Move above title */
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 10px;
+        padding: 0 0 30px;
+        margin-top: 10px;
     }
 
     .sub-nav a {
-        aspect-ratio: 3 / 1.5;
-        font-size: 14px;
-        padding: 12px;
+        border-radius: 12px !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-size: 11px;
+        padding: 8px 12px; /* Lighter padding */
+        min-height: 48px;  /* Sufficient touch target but compact */
+        height: auto;
+        line-height: 1.2;
+        white-space: normal;
+        border: 1px solid var(--border);
+        background: var(--bg-card);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
     
     /* Remove old toggle/scroll elements styles if any remain */
