@@ -229,6 +229,7 @@ body {
     border: 2px solid var(--border);
     color: var(--text-main);
     box-shadow: none;
+    margin-left: 10px;
 }
 
 .btn-outline:hover {
