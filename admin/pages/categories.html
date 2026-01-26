@@ -1,174 +1,288 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>إدارة الأقسام - دليل السويس</title>
     <script src="../services/auth.service.js"></script>
-    <script>AuthService.checkAuth();</script>
+    <script>
+      AuthService.checkAuth();
+    </script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script src="../../js/config.js"></script>
-    <link rel="stylesheet" href="../css/admin.css">
-    
+    <link rel="stylesheet" href="../css/admin.css" />
+
     <script src="../services/supabase.js"></script>
     <script src="../services/categories.service.js"></script>
     <script src="../components/sidebar.js"></script>
     <script src="../components/topbar.js"></script>
     <script src="../utils/drawer.js"></script>
-    
+
     <style>
-        /* Only theme-specific or overrides here */
-        .category-card {
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 24px;
-            background: var(--bg-card);
-            transition: all 0.3s;
-        }
-        .category-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
-        .category-icon-wrapper {
-            width: 56px; height: 56px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 14px;
-            display: flex; align-items: center; justify-content: center;
-            margin-bottom: 16px; color: white;
-        }
+      /* Only theme-specific or overrides here */
+      .category-card {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 24px;
+        background: var(--bg-card);
+        transition: all 0.3s;
+      }
+      .category-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lg);
+      }
+      .category-icon-wrapper {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 16px;
+        color: white;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="app-layout">
-        <div id="sidebar-container"></div>
-        <main class="main-content">
-            <div id="topbar-container"></div>
-            <div class="page-content">
-                <div class="categories-header">
-                    <h1><i data-lucide="layers"></i> إدارة الأقسام</h1>
-                    <button class="btn btn-header-action" onclick="openCategoryModal()">
-                        <i data-lucide="plus-circle"></i> <span>إضافة قسم جديد</span>
-                    </button>
-                </div>
-                <div id="categories-container" class="grid-3"></div>
-            </div>
-        </main>
+      <div id="sidebar-container"></div>
+      <main class="main-content">
+        <div id="topbar-container"></div>
+        <div class="page-content">
+          <div class="categories-header">
+            <h1><i data-lucide="layers"></i> إدارة الأقسام</h1>
+            <button class="btn btn-header-action" onclick="openCategoryModal()">
+              <i data-lucide="plus-circle"></i> <span>إضافة قسم جديد</span>
+            </button>
+          </div>
+          <div id="categories-container" class="grid-3"></div>
+        </div>
+      </main>
     </div>
 
     <!-- Modal -->
-    <div id="category-modal" class="modal-overlay" onclick="closeCategoryModal()">
-        <div class="modal-box" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <h2 class="modal-title" id="modal-title">قسم جديد</h2>
-                <button class="modal-close" onclick="closeCategoryModal()">×</button>
-            </div>
-            <form id="category-form" onsubmit="saveCategory(event)">
-                <div class="form-group">
-                    <label class="form-label">المعرف (ID) *</label>
-                    <input type="text" id="cat-id" class="form-control" required placeholder="restaurants">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">الاسم بالعربية *</label>
-                    <input type="text" id="cat-name-ar" class="form-control" required placeholder="مطاعم">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">الاسم بالإنجليزية</label>
-                    <input type="text" id="cat-name-en" class="form-control" placeholder="Restaurants">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">الأيقونة</label>
-                    <input type="text" id="cat-icon" class="form-control" placeholder="utensils">
-                    <small class="form-hint">Lucide icons (utensils, coffee, car...)</small>
-                </div>
-
-                <!-- Subcategories Management -->
-                <div id="subs-mgmt-section" style="display: none; border-top: 2px solid var(--border); padding-top: 24px; margin-top: 24px;">
-                    <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 16px; color: var(--primary);">الأقسام الفرعية</h3>
-                    
-                    <div id="modal-subs-list" style="display: grid; gap: 8px; margin-bottom: 20px;">
-                        <!-- Rendered by JS -->
-                    </div>
-
-                    <div style="background: var(--bg-body); padding: 16px; border-radius: 12px; border: 1px dashed var(--border);">
-                        <div style="font-size: 13px; font-weight: 700; margin-bottom: 12px;">إضافة قسم فرعي جديد:</div>
-                        <div style="display: grid; gap: 10px;">
-                            <input type="text" id="new-sub-id" class="form-control" style="font-size: 13px; padding: 8px 12px;" placeholder="ID (mish-mash)">
-                            <input type="text" id="new-sub-name" class="form-control" style="font-size: 13px; padding: 8px 12px;" placeholder="الاسم بالعربية">
-                            <button type="button" class="btn btn-primary" style="padding: 8px; font-size: 13px;" onclick="handleAddSub()">
-                                <i data-lucide="plus"></i> إضافة الفرعي
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-actions" style="margin-top: 40px;">
-                    <button type="submit" class="btn btn-primary">حفظ القسم الرئيسي</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeCategoryModal()">إلغاء</button>
-                </div>
-            </form>
+    <div
+      id="category-modal"
+      class="modal-overlay"
+      onclick="closeCategoryModal()"
+    >
+      <div class="modal-box" onclick="event.stopPropagation()">
+        <div class="modal-header">
+          <h2 class="modal-title" id="modal-title">قسم جديد</h2>
+          <button class="modal-close" onclick="closeCategoryModal()">×</button>
         </div>
+        <form id="category-form" onsubmit="saveCategory(event)">
+          <div class="form-group">
+            <label class="form-label">المعرف (ID) *</label>
+            <input
+              type="text"
+              id="cat-id"
+              class="form-control"
+              required
+              placeholder="restaurants"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">الاسم بالعربية *</label>
+            <input
+              type="text"
+              id="cat-name-ar"
+              class="form-control"
+              required
+              placeholder="مطاعم"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">الاسم بالإنجليزية</label>
+            <input
+              type="text"
+              id="cat-name-en"
+              class="form-control"
+              placeholder="Restaurants"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">الأيقونة</label>
+            <input
+              type="text"
+              id="cat-icon"
+              class="form-control"
+              placeholder="utensils"
+            />
+            <small class="form-hint"
+              >Lucide icons (utensils, coffee, car...)</small
+            >
+          </div>
+
+          <!-- Subcategories Management -->
+          <div
+            id="subs-mgmt-section"
+            style="
+              display: none;
+              border-top: 2px solid var(--border);
+              padding-top: 24px;
+              margin-top: 24px;
+            "
+          >
+            <h3
+              style="
+                font-size: 18px;
+                font-weight: 800;
+                margin-bottom: 16px;
+                color: var(--primary);
+              "
+            >
+              الأقسام الفرعية
+            </h3>
+
+            <div
+              id="modal-subs-list"
+              style="display: grid; gap: 8px; margin-bottom: 20px"
+            >
+              <!-- Rendered by JS -->
+            </div>
+
+            <div
+              style="
+                background: var(--bg-body);
+                padding: 16px;
+                border-radius: 12px;
+                border: 1px dashed var(--border);
+              "
+            >
+              <div
+                style="font-size: 13px; font-weight: 700; margin-bottom: 12px"
+              >
+                إضافة قسم فرعي جديد:
+              </div>
+              <div style="display: grid; gap: 10px">
+                <input
+                  type="text"
+                  id="new-sub-id"
+                  class="form-control"
+                  style="font-size: 13px; padding: 8px 12px"
+                  placeholder="ID (mish-mash)"
+                />
+                <input
+                  type="text"
+                  id="new-sub-name"
+                  class="form-control"
+                  style="font-size: 13px; padding: 8px 12px"
+                  placeholder="الاسم بالعربية"
+                />
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  style="padding: 8px; font-size: 13px"
+                  onclick="handleAddSub()"
+                >
+                  <i data-lucide="plus"></i> إضافة الفرعي
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions" style="margin-top: 40px">
+            <button type="submit" class="btn btn-primary">
+              حفظ القسم الرئيسي
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              onclick="closeCategoryModal()"
+            >
+              إلغاء
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <script>
-        document.getElementById('sidebar-container').innerHTML = Sidebar.render('categories');
-        document.getElementById('topbar-container').innerHTML = Topbar.render('الأقسام');
+      // 🔒 State Management محسّن
+      let allCategories = [];
+      let editingCategoryId = null;
+      let isSaving = false;
+      let loadingIndicator = 0;
+      const requestTimeout = 15000; // 15 ثانية
 
-        let editingCategoryId = null;
+      document.getElementById('sidebar-container').innerHTML = Sidebar.render('categories');
+      document.getElementById('topbar-container').innerHTML = Topbar.render('الأقسام');
 
-        async function init() {
-            lucide.createIcons();
-            await loadCategories();
-        }
+      async function init() {
+          lucide.createIcons();
+          await loadCategories();
+      }
 
-        async function loadCategories() {
-            const container = document.getElementById('categories-container');
-            container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 60px;"><i data-lucide="loader" style="width: 48px; height: 48px; animation: spin 1s linear infinite;"></i></div>';
-            
-            try {
-                const cats = await CategoriesService.getAll();
+      // 🌟 دالة تحديث محلي
+      function updateLocalCategory(catId, updatedData) {
+          const categoryIndex = allCategories.findIndex(c => c.id === catId);
+          if (categoryIndex !== -1) {
+              allCategories[categoryIndex] = {
+                  ...allCategories[categoryIndex],
+                  ...updatedData
+              };
+              renderCategories(allCategories);
+          }
+      }
 
-                if (!cats.length) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <i data-lucide="inbox"></i>
-                            <h3>لا توجد أقسام بعد</h3>
-                            <p>ابدأ بإضافة قسم جديد من الزر أعلاه</p>
-                        </div>
-                    `;
-                } else {
-                    container.innerHTML = cats.map(cat => {
-                        const subs = cat.subs || [];
-                        return `
-                            <div class="category-card">
-                                <div class="category-icon-wrapper">
-                                    <i data-lucide="${cat.icon || 'folder'}"></i>
-                                </div>
-                                <h3 class="category-title">${cat.label}</h3>
-                                <div class="category-id">${cat.id}</div>
-                                
-                                <div class="subcategories-section">
-                                    <div class="subcategories-label">الأقسام الفرعية (${subs.length})</div>
-                                    <div class="subcategories-list">
-                                        ${subs.length ? subs.slice(0, 3).map(s => `<span class="sub-badge">${s.label}</span>`).join('') : '<span style="color: var(--text-muted); font-size: 13px;">لا توجد أقسام فرعية</span>'}
-                                        ${subs.length > 3 ? `<span class="sub-badge">+${subs.length - 3}</span>` : ''}
-                                    </div>
-                                </div>
-                                
-                                <div class="category-actions">
-                                    <button class="btn btn-outline" style="flex: 1; padding: 8px;" onclick="editCategory('${cat.id}')">
-                                        <i data-lucide="edit-2" style="width: 18px; height: 18px;"></i>
-                                        تعديل
-                                    </button>
-                                    <button class="btn btn-danger" style="flex: 1; padding: 8px;" onclick="deleteCategory('${cat.id}')">
-                                        <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i>
-                                        حذف
-                                    </button>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-                }
+      // 🌟 دالة إضافة محلية
+      function addCategoryLocally(categoryData) {
+          const newCategory = {
+              ...categoryData,
+              label: categoryData.name_ar,
+              subs: categoryData.subs || []
+          };
+          allCategories.unshift(newCategory);
+          renderCategories(allCategories);
+      }
+
+      async function loadCategories() {
+          const container = document.getElementById('categories-container');
+
+          // 🔒 منع الاستدعاءات المتكررة
+          if (loadingIndicator > 0) {
+              console.warn('⏳ تحميل جاري بالفعل...');
+              return;
+          }
+
+          loadingIndicator++;
+          container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 60px;"><i data-lucide="loader" style="width: 48px; height: 48px; animation: spin 1s linear infinite;"></i></div>';
+
+          try {
+              // 🔄 مع timeout
+              const timeoutPromise = new Promise((_, reject) =>
+                  setTimeout(() => reject(new Error('انتهت مهلة انتظار الطلب - تجاوز 15 ثانية')), requestTimeout)
+              );
+
+              const loadPromise = CategoriesService.getAll();
+              allCategories = await Promise.race([loadPromise, timeoutPromise]);
+
+              if (!allCategories.length) {
+                  container.innerHTML = `
+                      <div class="empty-state">
+                          <i data-lucide="inbox"></i>
+                          <h3>لا توجد أقسام بعد</h3>
+                          <p>ابدأ بإضافة قسم جديد من الزر أعلاه</p>
+                      </div>
+                  `;
+              } else {
+                  renderCategories(allCategories);
+                                  </button>
+                                  <button class="btn btn-danger" style="flex: 1; padding: 8px;" onclick="deleteCategory('${cat.id}')">
+                                      <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i>
+                                      حذف
+                                  </button>
+                              </div>
+                          </div>
+                      `;
+                  }).join('');
+              }
                 lucide.createIcons();
             } catch (error) {
-                console.error('Error:', error);
+                console.error('❌ خطأ في التحميل:', error);
                 container.innerHTML = `
                     <div class="empty-state">
                         <i data-lucide="alert-circle" style="color: #dc2626;"></i>
@@ -177,7 +291,52 @@
                     </div>
                 `;
                 lucide.createIcons();
+            } finally {
+                loadingIndicator--;
             }
+        }
+
+        function renderCategories(categories) {
+            const container = document.getElementById('categories-container');
+            if (!container) return;
+
+            if (!categories.length) {
+                container.innerHTML = '<div class="empty-state"><i data-lucide="inbox"></i><h3>لا توجد أقسام بعد</h3></div>';
+                return;
+            }
+
+            container.innerHTML = categories.map(cat => {
+                const subs = cat.subs || [];
+                return `
+                    <div class="category-card">
+                        <div class="category-icon-wrapper">
+                            <i data-lucide="${cat.icon || 'folder'}"></i>
+                        </div>
+                        <h3 class="category-title">${cat.label}</h3>
+                        <div class="category-id">${cat.id}</div>
+
+                        <div class="subcategories-section">
+                            <div class="subcategories-label">الأقسام الفرعية (${subs.length})</div>
+                            <div class="subcategories-list">
+                                ${subs.length ? subs.slice(0, 3).map(s => `<span class="sub-badge">${s.label}</span>`).join('') : '<span style="color: var(--text-muted); font-size: 13px;">لا توجد أقسام فرعية</span>'}
+                                ${subs.length > 3 ? `<span class="sub-badge">+${subs.length - 3}</span>` : ''}
+                            </div>
+                        </div>
+
+                        <div class="category-actions">
+                            <button class="btn btn-outline" style="flex: 1; padding: 8px;" onclick="editCategory('${cat.id}')">
+                                <i data-lucide="edit-2" style="width: 18px; height: 18px;"></i>
+                                تعديل
+                            </button>
+                            <button class="btn btn-danger" style="flex: 1; padding: 8px;" onclick="deleteCategory('${cat.id}')">
+                                <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i>
+                                حذف
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
         }
 
         function openCategoryModal(catId = null) {
@@ -186,155 +345,253 @@
             const form = document.getElementById('category-form');
             const title = document.getElementById('modal-title');
             const subsSection = document.getElementById('subs-mgmt-section');
-            
-            form.reset();
-            
-            if (catId) {
-                title.innerText = 'تعديل القسم';
-                loadCategoryData(catId);
-                document.getElementById('cat-id').disabled = true;
-                subsSection.style.display = 'block';
-            } else {
-                title.innerText = 'قسم جديد';
-                document.getElementById('cat-id').disabled = false;
-                subsSection.style.display = 'none';
-            }
-            
-            modal.classList.add('active');
-        }
 
-        async function loadCategoryData(catId) {
-            const cats = await CategoriesService.getAll();
-            const cat = cats.find(c => c.id === catId);
-            
-            if (cat) {
-                document.getElementById('cat-id').value = cat.id;
-                document.getElementById('cat-name-ar').value = cat.name_ar;
-                document.getElementById('cat-name-en').value = cat.name_en || '';
-                document.getElementById('cat-icon').value = cat.icon || '';
-                renderSubsList(cat.subs || []);
-            }
-        }
+          form.reset();
 
-        function renderSubsList(subs) {
-            const container = document.getElementById('modal-subs-list');
-            if (subs.length === 0) {
-                container.innerHTML = '<div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 10px;">لا توجد أقسام فرعية بعد</div>';
-                return;
-            }
+          if (catId) {
+              title.innerText = 'تعديل القسم';
+              loadCategoryData(catId);
+              document.getElementById('cat-id').disabled = true;
+              subsSection.style.display = 'block';
+          } else {
+              title.innerText = 'قسم جديد';
+              document.getElementById('cat-id').disabled = false;
+              subsSection.style.display = 'none';
+          }
 
-            container.innerHTML = subs.map(sub => `
-                <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-body); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);">
-                    <div>
-                        <span style="font-weight: 700; font-size: 14px;">${sub.name_ar}</span>
-                        <code style="font-size: 11px; color: var(--text-muted); margin-right: 8px;">(${sub.id})</code>
-                    </div>
-                    <button type="button" class="btn btn-danger btn-icon" style="width: 32px; height: 32px;" onclick="handleDeleteSub('${sub.id}')">
-                        <i data-lucide="x" style="width: 14px; height: 14px;"></i>
-                    </button>
-                </div>
-            `).join('');
-            lucide.createIcons();
-        }
+          modal.classList.add('active');
+      }
 
-        async function handleAddSub() {
-            const id = document.getElementById('new-sub-id').value.trim();
-            const name = document.getElementById('new-sub-name').value.trim();
+      async function loadCategoryData(catId) {
+          // 🌟 استخدم البيانات المحلية بدلًا من استدعاء API
+          let cat = allCategories.find(c => c.id === catId);
 
-            if (!id || !name) {
-                alert('يرجى إدخال المعرف والاسم');
-                return;
-            }
+          // إذا لم توجد البيانات محليًا، استدعِ API (حالة نادرة)
+          if (!cat) {
+              console.warn('📡 البيانات المحلية غير موجودة، استدعاء API...');
+              const cats = await CategoriesService.getAll();
+              cat = cats.find(c => c.id === catId);
+          }
 
-            try {
-                await CategoriesService.createSub({
-                    id,
-                    name_ar: name,
-                    main_cat_id: editingCategoryId
-                });
-                
-                // Clear inputs
-                document.getElementById('new-sub-id').value = '';
-                document.getElementById('new-sub-name').value = '';
-                
-                // Refresh data
-                await loadCategoryData(editingCategoryId);
-                await loadCategories();
-            } catch (error) {
-                console.error(error);
-                alert('خطأ في إضافة القسم الفرعي: ' + error.message);
-            }
-        }
+          if (cat) {
+              document.getElementById('cat-id').value = cat.id;
+              document.getElementById('cat-name-ar').value = cat.name_ar;
+              document.getElementById('cat-name-en').value = cat.name_en || '';
+              document.getElementById('cat-icon').value = cat.icon || '';
+              renderSubsList(cat.subs || []);
+          }
+      }
 
-        async function handleDeleteSub(subId) {
-            if (!confirm('هل أنت متأكد من حذف هذا القسم الفرعي؟')) return;
+      function renderSubsList(subs) {
+          const container = document.getElementById('modal-subs-list');
+          if (subs.length === 0) {
+              container.innerHTML = '<div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 10px;">لا توجد أقسام فرعية بعد</div>';
+              return;
+          }
 
-            try {
-                await CategoriesService.deleteSub(subId);
-                await loadCategoryData(editingCategoryId);
-                await loadCategories();
-            } catch (error) {
-                console.error(error);
-                alert('خطأ في حذف القسم الفرعي: ' + error.message);
-            }
-        }
+          container.innerHTML = subs.map(sub => `
+              <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-body); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);">
+                  <div>
+                      <span style="font-weight: 700; font-size: 14px;">${sub.name_ar}</span>
+                      <code style="font-size: 11px; color: var(--text-muted); margin-right: 8px;">(${sub.id})</code>
+                  </div>
+                  <button type="button" class="btn btn-danger btn-icon" style="width: 32px; height: 32px;" onclick="handleDeleteSub('${sub.id}')">
+                      <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+                  </button>
+              </div>
+          `).join('');
+          lucide.createIcons();
+      }
 
-        function closeCategoryModal() {
-            document.getElementById('category-modal').classList.remove('active');
-            editingCategoryId = null;
-        }
+      async function handleAddSub() {
+          const idInput = document.getElementById('new-sub-id');
+          const nameInput = document.getElementById('new-sub-name');
+          const addBtn = document.querySelector('#subs-mgmt-section button[onclick="handleAddSub()"]');
 
-        async function saveCategory(e) {
-            e.preventDefault();
-            
-            const categoryData = {
-                id: document.getElementById('cat-id').value.trim(),
-                name_ar: document.getElementById('cat-name-ar').value.trim(),
-                name_en: document.getElementById('cat-name-en').value.trim() || null,
-                icon: document.getElementById('cat-icon').value.trim() || 'folder'
-            };
+          const id = idInput.value.trim();
+          const name = nameInput.value.trim();
 
-            try {
-                if (editingCategoryId) {
-                    await CategoriesService.update(editingCategoryId, {
-                        name_ar: categoryData.name_ar,
-                        name_en: categoryData.name_en,
-                        icon: categoryData.icon
-                    });
-                    alert('✅ تم التحديث بنجاح!');
-                } else {
-                    await CategoriesService.create(categoryData);
-                    alert('✅ تم الإضافة بنجاح!');
-                }
-                
-                closeCategoryModal();
-                await loadCategories();
-            } catch (error) {
-                console.error(error);
-                alert('❌ حدث خطأ: ' + error.message);
-            }
-        }
+          if (!id || !name) {
+              alert('يرجى إدخال المعرف والاسم');
+              return;
+          }
 
-        async function editCategory(catId) {
-            openCategoryModal(catId);
-        }
+          try {
+              // 🔒 تعطيل الزر
+              if (addBtn) {
+                  addBtn.disabled = true;
+                  addBtn.innerHTML = '<i data-lucide="loader" style="width: 14px; height: 14px; animation: spin 1s linear infinite;"></i> جاري الإضافة...';
+                  lucide.createIcons();
+              }
 
-        async function deleteCategory(catId) {
-            if (!confirm('⚠️ هل أنت متأكد من حذف هذا القسم؟\n\nسيتم حذف جميع الأقسام الفرعية والأماكن المرتبطة به.')) {
-                return;
-            }
+              // 🌟 إضافة محلية فورية
+              const category = allCategories.find(c => c.id === editingCategoryId);
+              if (category) {
+                  const newSub = {
+                      id,
+                      name_ar: name,
+                      main_cat_id: editingCategoryId,
+                      label: name
+                  };
+                  if (!category.subs) category.subs = [];
+                  category.subs.unshift(newSub);
+                  renderSubsList(category.subs);
+              }
 
-            try {
-                await CategoriesService.delete(catId);
-                alert('✅ تم الحذف بنجاح!');
-                await loadCategories();
-            } catch (error) {
-                console.error(error);
-                alert('❌ حدث خطأ: ' + error.message);
-            }
-        }
+              // ثم إرسال للـ API
+              await CategoriesService.createSub({
+                  id,
+                  name_ar: name,
+                  main_cat_id: editingCategoryId
+              });
 
-        init();
+              // Clear inputs
+              idInput.value = '';
+              nameInput.value = '';
+
+              console.log('✅ تم إضافة القسم الفرعي بنجاح');
+          } catch (error) {
+              console.error(error);
+              // إعادة التحميل عند الخطأ فقط
+              await loadCategoryData(editingCategoryId);
+              alert('❌ خطأ في إضافة القسم الفرعي: ' + error.message);
+          } finally {
+              // 🔒 إعادة تفعيل الزر
+              if (addBtn) {
+                  addBtn.disabled = false;
+                  addBtn.innerHTML = '<i data-lucide="plus"></i> إضافة الفرعي';
+                  lucide.createIcons();
+              }
+          }
+      }
+
+      async function handleDeleteSub(subId) {
+          if (!confirm('هل أنت متأكد من حذف هذا القسم الفرعي؟')) return;
+
+          try {
+              // 🌟 حذف محلي فوري
+              const category = allCategories.find(c => c.id === editingCategoryId);
+              if (category && category.subs) {
+                  category.subs = category.subs.filter(s => s.id !== subId);
+                  renderSubsList(category.subs);
+              }
+
+              // ثم إرسال للـ API
+              await CategoriesService.deleteSub(subId);
+              console.log('✅ تم حذف القسم الفرعي بنجاح');
+          } catch (error) {
+              console.error(error);
+              // إعادة التحميل عند الخطأ فقط
+              await loadCategoryData(editingCategoryId);
+              alert('❌ خطأ في حذف القسم الفرعي: ' + error.message);
+          }
+      }
+
+      function closeCategoryModal() {
+          document.getElementById('category-modal').classList.remove('active');
+          editingCategoryId = null;
+      }
+
+      async function saveCategory(e) {
+          e.preventDefault();
+
+          // 🔒 منع الضغط المتكرر
+          if (isSaving) {
+              console.warn('⏳ عملية حفظ جارية... يرجى الانتظار');
+              return;
+          }
+
+          const idInput = document.getElementById('cat-id');
+          const nameArInput = document.getElementById('cat-name-ar');
+          const nameEnInput = document.getElementById('cat-name-en');
+          const iconInput = document.getElementById('cat-icon');
+          const submitBtn = document.querySelector('#category-form button[type="submit"]');
+
+          const categoryData = {
+              id: idInput.value.trim(),
+              name_ar: nameArInput.value.trim(),
+              name_en: nameEnInput.value.trim() || null,
+              icon: iconInput.value.trim() || 'folder'
+          };
+
+          try {
+              // 🔒 تعطيل الزر وتحديث الحالة
+              isSaving = true;
+              if (submitBtn) {
+                  submitBtn.disabled = true;
+                  submitBtn.innerHTML = '<i data-lucide="loader" style="width: 18px; height: 18px; animation: spin 1s linear infinite;"></i> جاري الحفظ...';
+                  lucide.createIcons();
+              }
+
+              // 🌟 تحديث محلي فوري (تجربة سريعة)
+              if (editingCategoryId) {
+                  // تحديث محلي للفئة الموجودة
+                  updateLocalCategory(editingCategoryId, {
+                      name_ar: categoryData.name_ar,
+                      name_en: categoryData.name_en,
+                      icon: categoryData.icon,
+                      label: categoryData.name_ar
+                  });
+
+                  // ثم إرسال للـ API
+                  await CategoriesService.update(editingCategoryId, {
+                      name_ar: categoryData.name_ar,
+                      name_en: categoryData.name_en,
+                      icon: categoryData.icon
+                  });
+                  console.log('✅ تم تحديث الفئة بنجاح');
+              } else {
+                  // إضافة الفئة محليًا فورًا
+                  addCategoryLocally(categoryData);
+
+                  // ثم إرسال للـ API
+                  const response = await CategoriesService.create(categoryData);
+                  console.log('✅ تم إضافة الفئة بنجاح:', response);
+              }
+
+              closeCategoryModal();
+
+              // 🌟 تحديث خفيف بدون تحميل كامل
+              // (البيانات المحلية موجودة بالفعل)
+              setTimeout(() => lucide.createIcons(), 100);
+
+          } catch (error) {
+              console.error('❌ خطأ:', error);
+              // إعادة الحالة السابقة في حالة الخطأ
+              if (editingCategoryId) {
+                  loadCategories(); // إعادة التحميل عند الخطأ فقط
+              }
+              alert('❌ حدث خطأ: ' + error.message);
+          } finally {
+              // 🔒 إعادة تفعيل الزر
+              isSaving = false;
+              if (submitBtn) {
+                  submitBtn.disabled = false;
+                  submitBtn.innerHTML = 'حفظ القسم الرئيسي';
+              }
+          }
+      }
+
+      async function editCategory(catId) {
+          openCategoryModal(catId);
+      }
+
+      async function deleteCategory(catId) {
+          if (!confirm('⚠️ هل أنت متأكد من حذف هذا القسم؟\n\nسيتم حذف جميع الأقسام الفرعية والأماكن المرتبطة به.')) {
+              return;
+          }
+
+          try {
+              await CategoriesService.delete(catId);
+              console.log('✅ تم الحذف بنجاح');
+              await loadCategories();
+          } catch (error) {
+              console.error(error);
+              alert('❌ حدث خطأ: ' + error.message);
+          }
+      }
+
+      init();
     </script>
-</body>
+  </body>
 </html>
