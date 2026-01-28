@@ -13,49 +13,42 @@
 export function renderPlaceCard(place, isAr, placeLink = 'place.html') {
     const name = isAr ? (place.name_ar || place.name_en) : (place.name_en || place.name_ar);
     const desc = isAr ? (place.desc_ar || place.desc_en || '') : (place.desc_en || place.desc_ar || '');
-    const image = place.image_url || (place.images && place.images[0]) || 'https://via.placeholder.com/400x300?text=No+Image';
+    const image = place.image_url || (place.images && place.images[0]) || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8';
     
-    const shortDesc = desc.length > 100 ? desc.substring(0, 100) + '...' : desc;
-
     // New variables for the updated card structure
     const rating = parseFloat(place.rating || 0).toFixed(1);
     const reviewsCount = place.reviews_count || 0;
     const address = isAr ? (place.address_ar || place.address) : (place.address_en || place.address);
-    // isFav will be determined by syncFavoriteIcons after render, but for initial render, we can assume false or check a global state if available
-    // For now, we'll assume it's handled by the syncFavoriteIcons function after rendering.
-    // The `toggleFavorite` function now expects `this` as the second argument, so `isFav` is not needed here for initial class.
-    // The `fill-current` class will be added by `syncFavoriteIcons` if the item is favorited.
+    const targetUrl = `${placeLink}?id=${place.id}`;
 
     return `
-        <div class="place-card">
-            <div class="card-image">
-                <img src="${image}" alt="${name}" loading="lazy">
-                ${place.is_featured ? `<span class="badge-featured">${I18n.t('place_featured')}</span>` : ''}
-                <button class="favorite-btn" data-id="${place.id}" onclick="toggleFavorite('${place.id}', this)">
-                    <i data-lucide="heart"></i>
-                </button>
-            </div>
-            
-            <div class="card-content">
-                <div class="card-header">
-                    <h3 class="place-title">${name}</h3>
-                    <div class="place-rating">
-                       <i data-lucide="star" class="star-icon"></i>
-                       <span>${rating}</span>
-                       <span class="review-count">(${reviewsCount})</span>
-                    </div>
+        <a href="${targetUrl}" class="place-card-link" style="text-decoration: none; color: inherit; display: block; height: 100%;">
+            <div class="place-card">
+                <div class="card-image">
+                    <img src="${image}" alt="${name}" loading="lazy">
+                    ${place.is_featured ? `<span class="badge-featured">${I18n.t('place_featured')}</span>` : ''}
+                    <button class="favorite-btn" data-id="${place.id}" onclick="event.preventDefault(); event.stopPropagation(); toggleFavorite('${place.id}')">
+                        <i data-lucide="heart"></i>
+                    </button>
                 </div>
                 
-                ${address ? `<p class="place-address">
-                    <i data-lucide="map-pin"></i>
-                    <span>${address}</span>
-                </p>` : ''}
-                
-                <a href="${placeLink}?id=${place.id}" class="btn-details">
-                    ${I18n.t('btn_view_details')} <i data-lucide="arrow-${isAr ? 'left' : 'right'}"></i>
-                </a>
+                <div class="card-content">
+                    <div class="card-header">
+                        <h3 class="place-title">${name}</h3>
+                        <div class="place-rating">
+                           <i data-lucide="star" class="star-icon"></i>
+                           <span>${rating}</span>
+                           <span class="review-count">(${reviewsCount})</span>
+                        </div>
+                    </div>
+                    
+                    ${address ? `<p class="place-address">
+                        <i data-lucide="map-pin"></i>
+                        <span>${address}</span>
+                    </p>` : ''}
+                </div>
             </div>
-        </div>
+        </a>
     `;
 }
 

@@ -87,43 +87,46 @@ const PlaceRenderer = {
         const name = isAr ? (place.name_ar || place.name_en) : (place.name_en || place.name_ar);
         const desc = isAr ? (place.desc_ar || place.desc_en || '') : (place.desc_en || place.desc_ar || '');
         const address = place.address || '';
-        const phone = place.phone || '';
-        const image = place.image || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8';
+        const image = place.image || (place.images && place.images[0]) || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8';
+        const rating = parseFloat(place.rating || 0).toFixed(1);
+        const reviewsCount = place.reviews_count || 0;
         
-        const badges = this._renderBadges(place, isAr);
+        const badges = this._renderBadges(place, isAr); // Use internal reuse helper
+        
+        // Generate star rating display (Simplified logic inline or helper if available)
+        // Since this object doesn't have _renderStars based on previous file read, we'll do inline or simple stars
+        // Ideally we should unify renderers, but for now let's just match the HTML output structure
         
         return `
-            <div class="place-card">
-                ${image ? `
-                    <div class="place-img" style="background-image: url('${image}')" onclick="location.href='pages/place.html?id=${place.id}'">
+            <a href="pages/place.html?id=${place.id}" class="place-card-link" style="text-decoration: none; color: inherit; display: block; height: 100%;">
+                <div class="place-card place-card-clickable">
+                    <div class="card-image"> <!-- Changed from place-img to card-image to match CSS wrapper -->
+                        <div class="place-img" style="background-image: url('${image}'); height: 100%; width: 100%;"></div>
                         ${badges}
-                    </div>
-                ` : ''}
-                <div class="place-body">
-                    <h3 class="place-title" onclick="location.href='pages/place.html?id=${place.id}'" style="cursor:pointer;">${name}</h3>
-                    ${desc ? `<p class="place-desc">${desc.substring(0, 120)}${desc.length > 120 ? '...' : ''}</p>` : ''}
-                    ${address ? `
-                        <p class="place-meta">
-                            <i data-lucide="map-pin"></i>
-                            <span>${address}</span>
-                        </p>
-                    ` : ''}
-                    ${phone ? `
-                        <p class="place-meta">
-                            <i data-lucide="phone"></i>
-                            <span dir="ltr">${phone}</span>
-                        </p>
-                    ` : ''}
-                    <div class="place-actions">
-                        <button class="btn btn-primary btn-sm" onclick="location.href='pages/place.html?id=${place.id}'">
-                            ${isAr ? 'عرض التفاصيل' : 'View Details'}
-                        </button>
-                        <button class="btn-icon" onclick="toggleFavorite('${place.id}'); event.stopPropagation();" data-place-id="${place.id}">
+                        <button class="favorite-btn" data-id="${place.id}" onclick="event.preventDefault(); event.stopPropagation(); toggleFavorite('${place.id}')">
                             <i data-lucide="heart"></i>
                         </button>
                     </div>
+                    
+                    <div class="card-content"> <!-- Changed from place-body to card-content to match CSS -->
+                        <div class="card-header">
+                            <h3 class="place-title">${name}</h3>
+                            <div class="place-rating">
+                               <i data-lucide="star" class="star-icon"></i>
+                               <span>${rating}</span>
+                               <span class="review-count">(${reviewsCount})</span>
+                            </div>
+                        </div>
+                        ${desc ? `<p class="place-desc">${desc.substring(0, 80)}${desc.length > 80 ? '...' : ''}</p>` : ''}
+                        ${address ? `
+                            <p class="place-meta">
+                                <i data-lucide="map-pin"></i>
+                                <span>${address}</span>
+                            </p>
+                        ` : ''}
+                    </div>
                 </div>
-            </div>
+            </a>
         `;
     },
 
