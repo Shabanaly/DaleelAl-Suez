@@ -1,7 +1,36 @@
+/**
+ * Sidebar Component (Admin Panel)
+ * Renders desktop sidebar and mobile drawer navigation
+ * @namespace Sidebar
+ */
 const Sidebar = {
+  /**
+   * Render sidebar HTML with navigation links
+   * @param {string} activePage - Current active page ID
+   * @returns {string} Sidebar HTML string
+   */
   render: (activePage = "home") => {
     // Detect if we're in pages/ subdirectory
-    const isInPages = window.location.pathname.includes("/pages/");
+    // Detect context
+    const path = window.location.pathname;
+    const isInPages = path.includes("/pages/"); // admin/html/pages/
+    const isHtmlRoot = path.includes("/html/") && !isInPages; // admin/html/
+    const isRoot = !isInPages && !isHtmlRoot; // admin/ (root)
+
+    // Helper to resolve paths
+    const getPath = (page) => {
+        if (page === 'home') {
+            if (isInPages) return "../../index.html"; // Go to admin/index.html
+            if (isHtmlRoot) return "../index.html";   // Go to admin/index.html
+            return "index.html";
+        }
+        // For subpages (places, categories, ads)
+        const pageFile = page === 'categories' ? 'categories-list.html' : `${page}.html`;
+        
+        if (isInPages) return pageFile; // Same dir
+        if (isHtmlRoot) return `pages/${pageFile}`; // Down to pages/
+        return `html/pages/${pageFile}`; // Down to html/pages/ (from root)
+    };
 
     // 🌟 اسحب بيانات المستخدم
     const userData = AuthService.getUserData();
@@ -11,25 +40,25 @@ const Sidebar = {
         id: "home",
         icon: "layout-dashboard",
         label: "الرئيسية",
-        url: isInPages ? "../index.html" : "index.html",
+        url: getPath('home'),
       },
       {
         id: "places",
         icon: "map-pin",
         label: "الأماكن",
-        url: isInPages ? "places.html" : "pages/places.html",
+        url: getPath('places'),
       },
       {
         id: "categories",
         icon: "layers",
         label: "الأقسام",
-        url: isInPages ? "categories-list.html" : "pages/categories-list.html",
+        url: getPath('categories'),
       },
       {
         id: "ads",
         icon: "megaphone",
         label: "الإعلانات",
-        url: isInPages ? "ads.html" : "pages/ads.html",
+        url: getPath('ads'),
       },
     ];
 
@@ -63,18 +92,18 @@ const Sidebar = {
                     <span>دليل السويس</span>
                 </div>
                 <nav>${navLinks}</nav>
-                <div class="sidebar-footer" style="padding: 24px; border-top: 1px solid rgba(255,255,255,0.05);">
+                <div class="sidebar-footer">
                     ${
                       userData
                         ? `
-                        <div style="padding: 12px; background: rgba(59, 130, 246, 0.1); border-radius: 8px; margin-bottom: 16px; font-size: 12px;">
-                            <div style="color: var(--text-muted); margin-bottom: 4px;">👤 مسجل دخول</div>
-                            <div style="font-weight: 600; color: var(--primary); word-break: break-all;">${userData.email}</div>
+                        <div class="sidebar-user-box">
+                            <div class="sidebar-user-label">👤 مسجل دخول</div>
+                            <div class="sidebar-user-email">${userData.email}</div>
                         </div>
                     `
                         : ""
                     }
-                    <button onclick="confirmLogout()" class="nav-link" style="width:100%; border:none; background:transparent; color:#ef4444; justify-content:flex-start; cursor:pointer;">
+                    <button onclick="if(confirm('⚠️ هل تريد تسجيل الخروج؟')) AuthService.logout()" class="logout-btn-styled">
                         <i data-lucide="log-out"></i>
                         <span>تسجيل الخروج</span>
                     </button>
@@ -103,22 +132,12 @@ const Sidebar = {
                     `
                         : ""
                     }
-                    <button onclick="confirmLogout()" class="drawer-nav-link" style="width:100%; border:none; background:transparent; color:#ef4444; justify-content:flex-start; cursor:pointer; margin-top: 20px;">
+                    <button onclick="if(confirm('⚠️ هل تريد تسجيل الخروج؟')) AuthService.logout()" class="drawer-nav-link" style="width:100%; border:none; background:transparent; color:#ef4444; justify-content:flex-start; cursor:pointer; margin-top: 20px;">
                         <i data-lucide="log-out"></i>
                         <span>تسجيل الخروج</span>
                     </button>
                 </nav>
             </div>
-
-            <script>
-                // 🌟 دالة تأكيد الخروج
-                function confirmLogout() {
-                    if (confirm('⚠️ هل تريد تسجيل الخروج؟')) {
-                        console.log('🔓 تسجيل الخروج للمستخدم:', '${userData?.email || "Unknown"}');
-                        AuthService.logout();
-                    }
-                }
-            </script>
         `;
   },
 };

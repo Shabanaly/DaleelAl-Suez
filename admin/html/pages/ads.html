@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة الإعلانات - دليل السويس</title>
+    <script src="../../services/auth.service.js"></script>
+    <script>AuthService.checkAuth();</script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../../../common/config/config.js"></script>
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="../../css/modules/ads.css">
+    
+    <script src="../../services/supabase.js"></script>
+    <script src="../../services/ads.service.js"></script>
+    <script src="../../components/sidebar.js"></script>
+    <script src="../../components/topbar.js"></script>
+    <script src="../../utils/drawer.js"></script>
+</head>
+<body>
+    <div class="app-layout">
+        <div id="sidebar-container"></div>
+        <main class="main-content">
+            <div id="topbar-container"></div>
+            <div class="page-content">
+                
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+                    <h2 class="page-title">إدارة مساحات الإعلانات</h2>
+                    <p style="color: var(--text-muted); font-size: 14px;">تحكم في ظهور إعلانات Google Adsense عبر الموقع</p>
+                </div>
+
+                <div id="ads-list" class="grid-2">
+                    <!-- Ad slots will be rendered here -->
+                    <div class="card">جاري تحميل المساحات...</div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="../../js/pages/ads-page.js"></script>
+</body>
+</html>

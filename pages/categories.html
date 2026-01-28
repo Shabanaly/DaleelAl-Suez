@@ -6,45 +6,14 @@
     <title data-i18n="nav_categories">الأقسام - دليل السويس</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="../js/config.js"></script>
+    <script src="../common/config/config.js"></script>
     <link rel="stylesheet" href="../css/reset.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/responsive.css">
-    <script src="../js/theme.js"></script>
-    <script src="../js/i18n.js"></script>
-    <style>
-        /* Page-Specific Styles for All Categories */
-        .all-categories-page .categories-container {
-            display: grid !important;
-            grid-template-columns: repeat(3, 1fr) !important;
-            gap: 15px !important;
-            padding: 10px 0 !important;
-        }
-
-        /* Desktop Adjustments */
-        @media (min-width: 1024px) {
-            .all-categories-page .categories-container {
-                grid-template-columns: repeat(5, 1fr) !important;
-                gap: 24px !important;
-            }
-            
-            /* Enforce card look on Desktop too for this page */
-            .all-categories-page .cat-nav-item {
-                flex-direction: column;
-                justify-content: center;
-                text-align: center;
-                height: 120px;
-                background: var(--bg-card);
-                border: 1px solid var(--border);
-            }
-            .all-categories-page .cat-nav-item i {
-                width: 32px;
-                height: 32px;
-                margin-bottom: 8px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="../css/pages/categories-page.css">
+    <script src="../common/theme/theme.js"></script>
+    <script src="../common/i18n/i18n.js"></script>
 </head>
 <body id="categories-page" class="all-categories-page">
     <header class="site-header">
@@ -58,8 +27,8 @@
             <a href="favorites.html" class="top-nav-link" data-i18n="nav_favorites">المفضلة</a>
             <a href="#" class="top-nav-link" data-i18n="nav_account">حسابي</a>
             <a href="contact.html" class="top-nav-link" data-i18n="nav_contact">تواصل معنا</a>
-            <button class="top-nav-link" onclick="toggleLanguage()" id="lang-toggle">English</button>
-            <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-toggle">
+            <button class="top-nav-link" id="lang-toggle">English</button>
+            <button class="theme-toggle-btn" id="theme-toggle">
                 <i data-lucide="sun" class="theme-toggle-icon"></i>
             </button>
         </nav>
@@ -102,9 +71,14 @@
 
     <nav class="bottom-nav" id="bottom-nav-container"></nav>
 
+    <script src="../js/ui/preloader.js"></script>
+    <script>if(typeof injectPreloader === 'function') injectPreloader();</script>
     <script src="../js/favorites.js"></script>
-    <script src="../js/services/places.service.js"></script>
-    <script src="../js/services/categories.service.js"></script>
-    <script src="../js/main.js"></script>
+    <script src="../common/services/supabase-init.js"></script>
+    <script src="../common/services/cache.service.js"></script>
+    <script src="../common/services/user/places.service.js"></script>
+    <script src="../common/services/user/categories.service.js"></script>
+    <script src="../js/pages/categories-page.js"></script>
+    <script type="module" src="../js/main.js"></script>
 </body>
 </html>

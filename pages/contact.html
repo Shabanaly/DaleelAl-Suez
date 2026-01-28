@@ -9,8 +9,8 @@
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/responsive.css">
-    <script src="../js/theme.js"></script>
-    <script src="../js/i18n.js"></script>
+    <script src="../common/theme/theme.js"></script>
+    <script src="../common/i18n/i18n.js"></script>
 </head>
 <body>
     <header class="site-header">
@@ -64,9 +64,14 @@
 
     <nav class="bottom-nav" id="bottom-nav-container"></nav>
     <script>lucide.createIcons();</script>
+    <script src="../js/ui/preloader.js"></script>
+    <script>if(typeof injectPreloader === 'function') injectPreloader();</script>
     
     
     <script src="../js/favorites.js"></script>
-    <script src="../js/main.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../common/config/config.js"></script>
+    <script src="../common/services/supabase-init.js"></script>
+    <script type="module" src="../js/main.js"></script>
 </body>
 </html>

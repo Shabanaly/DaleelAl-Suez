@@ -182,30 +182,75 @@ html, body {
 
 /* 1. Offers Carousel */
 .offers-carousel {
-    display: flex;
-    overflow-x: auto;
-    gap: 20px;
-    padding: 10px 20px 40px;
-    scrollbar-width: none;
-    scroll-behavior: smooth;
-    scroll-snap-type: x mandatory;
-    justify-content: center; /* Center when items don't overflow */
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    padding: 10px 0;
 }
-.offers-carousel::-webkit-scrollbar { display: none; }
 
-/* Desktop-specific layout fix for overflow */
+.offers-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    direction: rtl; /* RTL support */
+}
+
+.offer-slide {
+    min-width: 100%;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.3;
+    transform: scale(0.95);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.offer-slide.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.offers-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 0;
+    margin-top: 8px;
+}
+
+.offer-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: none;
+    background: var(--border);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.offer-indicator:hover {
+    background: var(--primary-soft);
+    transform: scale(1.2);
+}
+
+.offer-indicator.active {
+    background: var(--primary);
+    width: 28px;
+    border-radius: 5px;
+}
+
+/* Desktop-specific layout fix */
 @media (min-width: 1024px) {
     .offers-carousel {
-        padding: 10px 0 40px;
-        overflow-x: visible; /* Prevents clipping on large screens */
-        flex-wrap: wrap; /* Allows them to stack if they don't fit or show as grid */
-        gap: 24px;
+        max-width: 600px;
+        margin: 0 auto;
     }
 }
 
 .offer-card {
-    min-width: 300px;
-    scroll-snap-align: center;
+    width: calc(100% - 40px);
+    max-width: 350px;
     height: 160px;
     background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
     border-radius: 20px;
@@ -910,6 +955,7 @@ html, body {
         grid-column: 2;
         grid-row: 5;
         margin-top: 0;
+        margin-bottom: 30px;
     }
     
     /* Center Column */
@@ -971,4 +1017,14 @@ html, body {
     .explore-overlay { padding: 32px; }
     .explore-title { font-size: 32px; max-width: 100%; }
     .explore-desc { font-size: 14px; max-width: 100%; -webkit-line-clamp: 2; line-clamp: 2; }
+}
+/* Favorites Active State for Details Page */
+.fav-btn-large.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+.fav-btn-large.active i {
+    fill: #fff; /* Filled heart */
 }

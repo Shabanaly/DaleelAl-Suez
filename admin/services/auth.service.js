@@ -1,101 +1,49 @@
+// Updated AuthService wrapper for Supabase Auth
 const AuthService = {
-  // 1. Credentials (Fixed inside code as requested)
-  CREDENTIALS: {
-    email: "admin@suezguide.com",
-    password: "admin",
-  },
+    // Legacy credentials property kept to prevent errors if referenced, but unused
+    CREDENTIALS: { email: "", password: "" },
 
-  // 🌟 Local Storage Keys
-  STORAGE_KEY: "admin_user_data",
-  SESSION_KEY: "admin_logged_in",
+    getUserData: () => {
+        // Try to get from Supabase session storage first if possible, 
+        // but since getUser is async, we return a basic shape from localStorage if strictly needed sync.
+        // However, best practice: return null and let AuthGuard handle session.
+        // OR try to read the persisted session key manually.
+        const key = 'suez_guide_admin_auth'; // Must match supabase.client.js storageKey
+        try {
+            const sessionStr = localStorage.getItem(key);
+            if (sessionStr) {
+                const session = JSON.parse(sessionStr);
+                return session.user ? {
+                    email: session.user.email,
+                    name: session.user.email.split('@')[0], // derived
+                    lastActivity: new Date().toISOString()
+                } : null;
+            }
+        } catch(e) { console.error(e); }
+        return null;
+    },
 
-  // 🌟 Get cached user data from localStorage
-  getUserData: () => {
-    try {
-      const cached = localStorage.getItem(AuthService.STORAGE_KEY);
-      return cached ? JSON.parse(cached) : null;
-    } catch (e) {
-      console.error("❌ خطأ في قراءة بيانات المستخدم:", e);
-      return null;
-    }
-  },
+    logout: async () => {
+        if (window.SupabaseClient) {
+            const sb = window.SupabaseClient.get();
+            await sb.auth.signOut();
+        } else if (window.supabase) {
+             // Fallback
+             await supabase.auth.signOut();
+        }
+        
+        const isPage = window.location.pathname.includes('/pages/') || window.location.pathname.includes('/html/');
+        window.location.href = isPage ? '../../login.html' : 'login.html';
+    },
 
-  // 🌟 Save user data to localStorage
-  saveUserData: (userData) => {
-    try {
-      const dataToSave = {
-        email: userData.email,
-        name: userData.email.split("@")[0], // استخرج الاسم من البريد
-        loginTime: new Date().toISOString(),
-        lastActivity: new Date().toISOString(),
-      };
-      localStorage.setItem(AuthService.STORAGE_KEY, JSON.stringify(dataToSave));
-      console.log("✅ تم حفظ بيانات المستخدم:", dataToSave);
-      return dataToSave;
-    } catch (e) {
-      console.error("❌ خطأ في حفظ بيانات المستخدم:", e);
-      return null;
-    }
-  },
-
-  // 🌟 Update last activity timestamp
-  updateActivity: () => {
-    try {
-      const userData = AuthService.getUserData();
-      if (userData) {
-        userData.lastActivity = new Date().toISOString();
-        localStorage.setItem(AuthService.STORAGE_KEY, JSON.stringify(userData));
-      }
-    } catch (e) {
-      console.warn("⚠️ خطأ في تحديث النشاط:", e);
-    }
-  },
-
-  // 2. Login Logic
-  login: (email, password) => {
-    if (
-      email === AuthService.CREDENTIALS.email &&
-      password === AuthService.CREDENTIALS.password
-    ) {
-      // 🌟 حفظ بيانات المستخدم محليًا
-      AuthService.saveUserData({ email });
-
-      sessionStorage.setItem(AuthService.SESSION_KEY, "true");
-      return true;
-    }
-    return false;
-  },
-
-  // 3. Logout Logic
-  logout: () => {
-    // 🌟 حذف البيانات المحفوظة
-    try {
-      localStorage.removeItem(AuthService.STORAGE_KEY);
-      sessionStorage.removeItem(AuthService.SESSION_KEY);
-      console.log("✅ تم حذف بيانات المستخدم");
-    } catch (e) {
-      console.error("❌ خطأ في حذف البيانات:", e);
-    }
-
-    window.location.href = window.location.pathname.includes("/pages/")
-      ? "../login.html"
-      : "login.html";
-  },
-
-  // 4. Auth Guard Check
-  checkAuth: () => {
-    const isLoggedIn = sessionStorage.getItem(AuthService.SESSION_KEY);
-    if (isLoggedIn !== "true") {
-      // Determine relative path to login.html
-      const pathPrefix = window.location.pathname.includes("/pages/")
-        ? "../"
-        : "";
-      window.location.href = pathPrefix + "login.html";
-    } else {
-      // 🌟 تحديث النشاط عند كل فحص
-      AuthService.updateActivity();
-    }
-  },
+    checkAuth: () => {
+        // Now handled by auth.guard.js primarily.
+        // This is kept empty or just a pass-through to avoid breaking legacy calls.
+        // auth.guard.js runs automatically.
+        console.log("🔒 Auth check delegated to AuthGuard.");
+    },
+    
+    updateActivity: () => {}
 };
 
 window.AuthService = AuthService;

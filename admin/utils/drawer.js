@@ -13,19 +13,16 @@ window.toggleDrawer = function() {
         } else {
             document.body.style.overflow = '';
         }
+    } else {
+        console.warn('Drawer or overlay not found!');
     }
 };
 
-// Close drawer when clicking on a link
-document.addEventListener('DOMContentLoaded', function() {
-    setTimeout(() => {
-        const drawerLinks = document.querySelectorAll('.drawer-nav-link');
-        drawerLinks.forEach(link => {
-            link.addEventListener('click', function() {
-                if (window.toggleDrawer) {
-                    window.toggleDrawer();
-                }
-            });
-        });
-    }, 100);
+// Close drawer when clicking on a link (Delegated Event)
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.drawer-nav-link')) {
+        if (window.toggleDrawer) {
+            window.toggleDrawer();
+        }
+    }
 });

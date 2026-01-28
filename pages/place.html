@@ -6,20 +6,17 @@
     <title>دليل السويس</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="../js/config.js"></script>
+    <script src="../common/config/config.js"></script>
     <link rel="stylesheet" href="../css/reset.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/responsive.css">
-    <script src="../js/theme.js"></script>
-    <script src="../js/i18n.js"></script>
+    <link rel="stylesheet" href="../css/modules/place-details.css">
+    <link rel="stylesheet" href="../css/modules/card-style.css">
+    <script src="../common/theme/theme.js"></script>
+    <script src="../common/i18n/i18n.js"></script>
 </head>
-<body id="place-details-page">
-    <!-- Overlay for Lightbox (Optional/Native) -->
-    <div id="lightbox-overlay" class="lightbox-overlay" onclick="closeLightbox()">
-        <img id="lightbox-img" src="" alt="">
-    </div>
-
+<body id="place-details-page" class="v8-details-page">
     <!-- Universal header -->
     <header class="site-header">
         <a href="../index.html" class="logo">
@@ -37,84 +34,64 @@
         </nav>
     </header>
 
-    <!-- Global Back Action (Top of Page) -->
-    <div class="top-page-actions">
-        <a href="javascript:history.back()" class="back-link-modern">
-            <i data-lucide="chevron-right"></i> <span data-i18n="nav_back">العودة</span>
-        </a>
-    </div>
-
-    <!-- Magazine Layout Container -->
-    <main class="magazine-layout">
-        
-        <!-- 1. Hero Image (Pinned at top on mobile) -->
-        <div class="details-hero-box">
-            <img id="place-hero-img" src="" alt="" class="details-hero-img">
-            <div class="hero-scroll-indicator">
-                <i data-lucide="mouse-pointer-2"></i>
-            </div>
-        </div>
-
-        <!-- 2. Sidebar (Moved under hero on mobile) -->
-        <aside class="details-sidebar">
-            <div class="sidebar-sticky-content">
-                <div class="place-meta-header">
-                    <div class="badge-row">
-                        <span class="badge highlight"><i data-lucide="star"></i> مميز</span>
-                    </div>
-                    <h1 id="place-name" class="place-main-title">...</h1>
-                    <div id="place-category-badge" class="category-badge">...</div>
-                </div>
-
-                <div class="sidebar-info-grid" id="place-info-grid">
-                    <!-- JS Populates this -->
-                </div>
-
-                <div class="sidebar-actions">
-                    <button class="btn-primary-modern share-btn" onclick="sharePlace()">
-                        <i data-lucide="share-2"></i> <span>مشاركة المكان</span>
-                    </button>
-                    <div id="favorite-btn-container">
-                        <!-- JS if needed or static -->
-                    </div>
-                </div>
-
-                <!-- AD Slot: Sidebar -->
-                <div class="ad-slot" data-ad-slot="details_sidebar" style="margin-top:24px; display:none;"></div>
-            </div>
-        </aside>
-
-        <!-- 3. Right Content Area (Scrollable) -->
-        <section class="details-content-area">
-            
-            <!-- Full Content Card -->
-            <div class="details-article">
-                <div class="article-section">
-                    <h2 class="section-heading"><i data-lucide="align-right"></i> عن المكان</h2>
-                    <p id="place-description" class="article-text"></p>
-                </div>
-
-                <div id="map-section" class="article-section" style="display: none;">
-                    <h2 class="section-heading"><i data-lucide="map"></i> الموقع على الخريطة</h2>
-                    <div id="map-iframe-container" class="map-box-modern">
-                        <!-- Iframe by JS -->
-                    </div>
-                </div>
-
-                <!-- AD Slot: Middleware -->
-                <div class="ad-slot" data-ad-slot="details_middle" style="margin:24px 0; display:none;"></div>
-
-                <div id="gallery-section" class="article-section" style="display: none;">
-                    <h2 class="section-heading"><i data-lucide="images"></i> معرض الصور</h2>
-                    <div class="magazine-gallery" id="place-gallery">
-                        <!-- Gallery Grid by JS -->
-                    </div>
-                </div>
-            </div>
-
+    <!-- V8 MODERN LAYOUT -->
+    <main id="v8-main-content">
+        <!-- 1. Hero Section (JS Injected) -->
+        <section id="v8-hero-section" class="v8-hero">
+            <div class="v8-skeleton v8-skeleton-hero"></div>
         </section>
 
+        <!-- 2. Floating Header Card (JS Injected) -->
+        <section id="v8-header-card" class="v8-header-card v8-fade-in">
+            <div class="v8-skeleton v8-skeleton-text"></div>
+            <div class="v8-skeleton v8-skeleton-text short"></div>
+        </section>
+
+        <!-- 3. Info Cards Grid (JS Injected) -->
+        <section id="v8-info-grid" class="v8-info-grid">
+            <div class="v8-info-card v8-fade-in">
+                <div class="v8-skeleton" style="width:48px;height:48px;"></div>
+                <div style="flex:1;">
+                    <div class="v8-skeleton v8-skeleton-text short"></div>
+                </div>
+            </div>
+            <div class="v8-info-card v8-fade-in">
+                <div class="v8-skeleton" style="width:48px;height:48px;"></div>
+                <div style="flex:1;">
+                    <div class="v8-skeleton v8-skeleton-text short"></div>
+                </div>
+            </div>
+            <div class="v8-info-card v8-fade-in">
+                <div class="v8-skeleton" style="width:48px;height:48px;"></div>
+                <div style="flex:1;">
+                    <div class="v8-skeleton v8-skeleton-text short"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. Action Buttons (JS Injected) -->
+        <section id="v8-action-grid" class="v8-action-grid v8-fade-in"></section>
+
+        <!-- 5. Gallery Section (JS Injected) -->
+        <section id="v8-gallery-section" class="v8-gallery-section v8-fade-in"></section>
+
+        <!-- 6. About Section (JS Injected) -->
+        <section id="v8-about-section" class="v8-content-section v8-fade-in"></section>
+
+        <!-- 7. Map Section (JS Injected) -->
+        <section id="v8-map-section" class="v8-content-section v8-fade-in"></section>
+
+        <!-- 8. Reviews Section (JS Injected) -->
+        <section id="v8-reviews-section" class="v8-content-section v8-fade-in"></section>
     </main>
+
+    <!-- Mobile Bottom Action Bar -->
+    <div id="v8-bottom-bar" class="v8-bottom-bar"></div>
+
+    <!-- Lightbox for Gallery -->
+    <div id="v8-lightbox" class="v8-lightbox" onclick="closeLightbox()">
+        <img id="v8-lightbox-img" src="" alt="">
+    </div>
 
     <footer class="site-footer">
         <div class="footer-content">
@@ -129,15 +106,37 @@
     <nav class="bottom-nav" id="bottom-nav-container"></nav>
 
     <script>lucide.createIcons();</script>
-    <script src="../js/favorites.js"></script>
-    <script src="../js/services/places.service.js"></script>
-    <script src="../js/services/categories.service.js"></script>
-    <script src="../js/main.js"></script>
+    <script src="../js/ui/preloader.js"></script>
+    <script>if(typeof injectPreloader === 'function') injectPreloader();</script>
+    <script src="../common/services/supabase-init.js"></script>
+    <script src="../common/services/cache.service.js"></script>
+    <script src="../common/services/user/places.service.js"></script>
+    <script src="../common/services/user/categories.service.js"></script>
+    <script src="../common/services/user/favorites.service.js"></script>
+    <script src="../common/services/user/reviews.service.js"></script>
+    <script type="module" src="../js/main.js"></script>
     <script>
+        function openLightbox(src) {
+            const lightbox = document.getElementById('v8-lightbox');
+            const img = document.getElementById('v8-lightbox-img');
+            if (lightbox && img) {
+                img.src = src;
+                lightbox.classList.add('active');
+            }
+        }
+        
+        function closeLightbox() {
+            const lightbox = document.getElementById('v8-lightbox');
+            if (lightbox) {
+                lightbox.classList.remove('active');
+            }
+        }
+        
         function sharePlace() {
+            const name = document.querySelector('.v8-place-name')?.innerText || 'مكان رائع';
             if (navigator.share) {
                 navigator.share({
-                    title: document.getElementById('place-name').innerText,
+                    title: name,
                     url: window.location.href
                 });
             } else {

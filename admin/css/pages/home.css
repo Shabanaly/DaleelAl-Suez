@@ -1,0 +1,84 @@
+/* Home Page Specific Styles */
+
+/* 
+   Stats Grid 
+   - Mobile: 1 column
+   - Tablet: 2 columns
+   - Desktop: 4 columns (or as requested, flexible)
+*/
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr); /* 12-column grid system */
+    gap: 24px;
+    width: 100%;
+}
+
+.stat-card-wrapper {
+    grid-column: span 3; /* Default: 4 cards per row (12/3 = 4) */
+}
+
+@media (max-width: 1200px) {
+    .stat-card-wrapper {
+        grid-column: span 4; /* Tablet Landscape: 3 cards per row */
+    }
+}
+
+@media (max-width: 900px) {
+    .stat-card-wrapper {
+        grid-column: span 6; /* Tablet Portrait: 2 cards per row */
+    }
+}
+
+@media (max-width: 600px) {
+    .stat-card-wrapper {
+        grid-column: span 12; /* Mobile: 1 card per row */
+    }
+}
+
+/* Compact Stat Cards */
+.stat-card {
+    padding: 16px; /* Reduced padding */
+    gap: 12px;
+    height: 100%;
+}
+
+.stat-icon {
+    width: 40px; /* Smaller icon */
+    height: 40px;
+    font-size: 20px;
+}
+
+.stat-val {
+    font-size: 20px; /* Slightly smaller font */
+}
+
+/* Recent Activity Section */
+.recent-activity-card {
+    margin-top: 32px;
+    padding: 32px; /* Bigger padding as requested */
+    width: 100%;
+}
+
+.recent-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.recent-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+}
+
+/* Spacious Table */
+.table th, .table td {
+    padding: 16px 20px; /* More breathing room */
+    font-size: 14px;
+}
+
+/* Fix "Empty Space" - ensure main content fills width */
+.page-content {
+    max-width: 100%;
+    width: 100%;
+}

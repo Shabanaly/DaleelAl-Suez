@@ -1,0 +1,151 @@
+/* Categories List Page Specific Styles */
+
+.categories-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+    padding: 24px;
+    background: linear-gradient(135deg, var(--primary) 0%, #0ea5e9 100%);
+    border-radius: 16px;
+    color: white;
+}
+
+@media (max-width: 768px) {
+    .categories-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: stretch;
+        padding: 16px;
+    }
+    
+    .header-actions-group {
+        width: 100%;
+        justify-content: flex-end; /* Or space-between depending on preference */
+        flex-wrap: wrap; 
+    }
+
+    .categories-header h1 {
+        font-size: 20px;
+        align-self: flex-start;
+    }
+}
+
+.categories-header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-actions-group {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.view-toggle {
+    display: flex;
+    background: var(--bg-body);
+    border-radius: 8px;
+    padding: 2px;
+    border: 1px solid var(--border);
+    gap: 4px;
+}
+
+.view-toggle .btn {
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    padding: 6px 10px;
+    border-radius: 6px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.view-toggle .btn:hover {
+    color: var(--text-main);
+    background: rgba(255,255,255,0.05);
+}
+
+.view-toggle .btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+.separator-vertical {
+    width: 1px;
+    background: rgba(255,255,255,0.2);
+    height: 24px;
+    margin: 0 4px;
+    align-self: center;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+.subcategories-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    margin: 2px;
+}
+
+.expand-subs-btn {
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--bg-body);
+    color: var(--text-secondary);
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.expand-subs-btn:hover {
+    background: var(--primary-soft);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Modal Specific for Categories */
+#subs-mgmt-section {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 2px solid var(--border);
+}
+
+#modal-subs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+    .table {
+        font-size: 12px;
+    }
+    
+    .table th,
+    .table td {
+        padding: 8px 4px;
+    }
+    
+    .subcategories-badge {
+        font-size: 11px;
+        padding: 3px 6px;
+    }
+}

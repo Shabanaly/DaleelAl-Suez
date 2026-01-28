@@ -1,0 +1,19 @@
+/* Categories List Page Styles */
+
+.category-list-card {
+    margin-bottom: 24px;
+}
+
+.category-filter-section {
+    margin-bottom: 16px;
+}
+
+.category-modal-box {
+    max-width: 600px;
+}
+
+/* Reuse subs-mgmt styles from categories-page.css */
+.modal-subs-list-scrollable {
+    max-height: 300px;
+    overflow-y: auto;
+}

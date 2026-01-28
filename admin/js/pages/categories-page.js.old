@@ -1,0 +1,438 @@
+/**
+ * Admin Categories Page Controller
+ * Manages categories CRUD operations with optimistic updates
+ */
+
+// State Management
+let allCategories = [];
+let editingCategoryId = null;
+let isSaving = false;
+let loadingIndicator = 0;
+const requestTimeout = 15000; // 15 seconds
+
+/**
+ * Initialize page
+ */
+async function init() {
+    // Render layout components
+    document.getElementById('sidebar-container').innerHTML = Sidebar.render('categories');
+    document.getElementById('topbar-container').innerHTML = Topbar.render('الأقسام');
+    
+    lucide.createIcons();
+    await loadCategories();
+}
+
+/**
+ * Update local category data (optimistic update)
+ * @param {string} catId - Category ID
+ * @param {Object} updatedData - Updated fields
+ */
+function updateLocalCategory(catId, updatedData) {
+    const categoryIndex = allCategories.findIndex(c => c.id === catId);
+    if (categoryIndex !== -1) {
+        allCategories[categoryIndex] = {
+            ...allCategories[categoryIndex],
+            ...updatedData
+        };
+        renderCategories(allCategories);
+    }
+}
+
+/**
+ * Add category locally (optimistic update)
+ * @param {Object} categoryData - New category data
+ */
+function addCategoryLocally(categoryData) {
+    const newCategory = {
+        ...categoryData,
+        label: categoryData.name_ar,
+        subs: categoryData.subs || []
+    };
+    allCategories.unshift(newCategory);
+    renderCategories(allCategories);
+}
+
+/**
+ * Load all categories from database
+ */
+async function loadCategories() {
+    const container = document.getElementById('categories-container');
+    if (!container) return;
+
+    // Prevent duplicate requests
+    if (loadingIndicator > 0) {
+        console.warn('⏳ Loading already in progress...');
+        return;
+    }
+
+    loadingIndicator++;
+    container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 60px;"><i data-lucide="loader" style="width: 48px; height: 48px; animation: spin 1s linear infinite;"></i></div>';
+
+    try {
+        // Request with timeout
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Request timeout - exceeded 15 seconds')), requestTimeout)
+        );
+
+        const loadPromise = CategoriesService.getAll();
+        allCategories = await Promise.race([loadPromise, timeoutPromise]);
+
+        if (!allCategories.length) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i data-lucide="inbox"></i>
+                    <h3>لا توجد أقسام بعد</h3>
+                    <p>ابدأ بإضافة قسم جديد من الزر أعلاه</p>
+                </div>
+            `;
+        } else {
+            renderCategories(allCategories);
+        }
+        lucide.createIcons();
+    } catch (error) {
+        console.error('❌ Load error:', error);
+        container.innerHTML = `
+            <div class="empty-state">
+                <i data-lucide="alert-circle" style="color: #dc2626;"></i>
+                <h3>حدث خطأ</h3>
+                <p>${error.message}</p>
+            </div>
+        `;
+        lucide.createIcons();
+    } finally {
+        loadingIndicator--;
+    }
+}
+
+/**
+ * Render categories grid
+ * @param {Array} categories - Array of category objects
+ */
+function renderCategories(categories) {
+    const container = document.getElementById('categories-container');
+    if (!container) return;
+
+    if (!categories.length) {
+        container.innerHTML = '<div class="empty-state"><i data-lucide="inbox"></i><h3>لا توجد أقسام بعد</h3></div>';
+        return;
+    }
+
+    container.innerHTML = categories.map(cat => {
+        const subs = cat.subs || [];
+        return `
+            <div class="category-card">
+                <div class="category-icon-wrapper">
+                    <i data-lucide="${cat.icon || 'folder'}"></i>
+                </div>
+                <h3 class="category-title">${cat.label}</h3>
+                <div class="category-id">${cat.id}</div>
+
+                <div class="subcategories-section">
+                    <div class="subcategories-label">الأقسام الفرعية (${subs.length})</div>
+                    <div class="subcategories-list">
+                        ${subs.length ? subs.slice(0, 3).map(s => `<span class="sub-badge">${s.label}</span>`).join('') : '<span style="color: var(--text-muted); font-size: 13px;">لا توجد أقسام فرعية</span>'}
+                        ${subs.length > 3 ? `<span class="sub-badge">+${subs.length - 3}</span>` : ''}
+                    </div>
+                </div>
+
+                <div class="category-actions">
+                    <button class="btn btn-outline" style="flex: 1; padding: 8px;" data-category-id="${cat.id}" data-action="edit">
+                        <i data-lucide="edit-2" style="width: 18px; height: 18px;"></i>
+                        تعديل
+                    </button>
+                    <button class="btn btn-danger" style="flex: 1; padding: 8px;" data-category-id="${cat.id}" data-action="delete">
+                        <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i>
+                        حذف
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    // Attach event listeners
+    attachCategoryActionListeners();
+    lucide.createIcons();
+}
+
+/**
+ * Attach event listeners to category action buttons
+ */
+function attachCategoryActionListeners() {
+    const container = document.getElementById('categories-container');
+    if (!container) return;
+
+    container.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action]');
+        if (!btn) return;
+
+        const action = btn.dataset.action;
+        const categoryId = btn.dataset.categoryId;
+
+        if (action === 'edit') {
+            editCategory(categoryId);
+        } else if (action === 'delete') {
+            deleteCategory(categoryId);
+        }
+    });
+}
+
+/**
+ * Open category modal for create/edit
+ * @param {string|null} catId - Category ID (null for new category)
+ */
+function openCategoryModal(catId = null) {
+    editingCategoryId = catId;
+    const modal = document.getElementById('category-modal');
+    const form = document.getElementById('category-form');
+    const title = document.getElementById('modal-title');
+    const subsSection = document.getElementById('subs-mgmt-section');
+
+    form.reset();
+
+    if (catId) {
+        title.innerText = 'تعديل القسم';
+        loadCategoryData(catId);
+        document.getElementById('cat-id').disabled = true;
+        subsSection.style.display = 'block';
+    } else {
+        title.innerText = 'قسم جديد';
+        document.getElementById('cat-id').disabled = false;
+        subsSection.style.display = 'none';
+    }
+
+    modal.classList.add('active');
+}
+
+/**
+ * Load category data into form
+ * @param {string} catId - Category ID
+ */
+async function loadCategoryData(catId) {
+    // Use local data first (optimistic)
+    let cat = allCategories.find(c => c.id === catId);
+
+    // Fallback to API if not found locally
+    if (!cat) {
+        console.warn('📡 Local data not found, fetching from API...');
+        const cats = await CategoriesService.getAll();
+        cat = cats.find(c => c.id === catId);
+    }
+
+    if (cat) {
+        document.getElementById('cat-id').value = cat.id;
+        document.getElementById('cat-name-ar').value = cat.name_ar;
+        document.getElementById('cat-name-en').value = cat.name_en || '';
+        document.getElementById('cat-icon').value = cat.icon || '';
+        renderSubsList(cat.subs || []);
+    }
+}
+
+/**
+ * Render subcategories list in modal
+ * @param {Array} subs - Array of subcategories
+ */
+function renderSubsList(subs) {
+    const container = document.getElementById('modal-subs-list');
+    if (!subs.length) {
+        container.innerHTML = '<div style="color: var(--text-muted); font-size: 13px; text-align: center; padding: 10px;">لا توجد أقسام فرعية بعد</div>';
+        return;
+    }
+
+    container.innerHTML = subs.map(sub => `
+        <div style="display: flex; justify-content: space-between; align-items: center; background: var(--bg-body); padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border);">
+            <div>
+                <span style="font-weight: 700; font-size: 14px;">${sub.name_ar}</span>
+                <code style="font-size: 11px; color: var(--text-muted); margin-right: 8px;">(${sub.id})</code>
+            </div>
+            <button type="button" class="btn btn-danger btn-icon" style="width: 32px; height: 32px;" data-sub-id="${sub.id}">
+                <i data-lucide="x" style="width: 14px; height: 14px;"></i>
+            </button>
+        </div>
+    `).join('');
+    
+    // Attach delete listeners
+    container.querySelectorAll('[data-sub-id]').forEach(btn => {
+        btn.addEventListener('click', () => handleDeleteSub(btn.dataset.subId));
+    });
+    
+    lucide.createIcons();
+}
+
+/**
+ * Add subcategory
+ */
+async function handleAddSub() {
+    const idInput = document.getElementById('new-sub-id');
+    const nameInput = document.getElementById('new-sub-name');
+    const addBtn = document.getElementById('add-sub-btn');
+
+    const id = idInput.value.trim();
+    const name = nameInput.value.trim();
+
+    if (!id || !name) {
+        Toast.warning('يرجى إدخال المعرف والاسم');
+        return;
+    }
+
+    try {
+        UIUtils.setButtonLoading(addBtn, true);
+
+        // Optimistic update
+        const category = allCategories.find(c => c.id === editingCategoryId);
+        if (category) {
+            const newSub = { id, name_ar: name, main_cat_id: editingCategoryId, label: name };
+            if (!category.subs) category.subs = [];
+            category.subs.unshift(newSub);
+            renderSubsList(category.subs);
+        }
+
+        // API call
+        await CategoriesService.createSub({ id, name_ar: name, main_cat_id: editingCategoryId });
+
+        // Clear inputs
+        idInput.value = '';
+        nameInput.value = '';
+
+        Toast.success('تم إضافة القسم الفرعي');
+    } catch (error) {
+        console.error(error);
+        await loadCategoryData(editingCategoryId);
+        Toast.error('خطأ في إضافة القسم الفرعي: ' + error.message);
+    } finally {
+        UIUtils.setButtonLoading(addBtn, false);
+    }
+}
+
+/**
+ * Delete subcategory
+ * @param {string} subId - Subcategory ID
+ */
+async function handleDeleteSub(subId) {
+    const confirmed = await UIUtils.confirm('هل أنت متأكد من حذف هذا القسم الفرعي؟');
+    if (!confirmed) return;
+
+    try {
+        // Optimistic update
+        const category = allCategories.find(c => c.id === editingCategoryId);
+        if (category && category.subs) {
+            category.subs = category.subs.filter(s => s.id !== subId);
+            renderSubsList(category.subs);
+        }
+
+        // API call
+        await CategoriesService.deleteSub(subId);
+        Toast.success('تم حذف القسم الفرعي');
+    } catch (error) {
+        console.error(error);
+        await loadCategoryData(editingCategoryId);
+        Toast.error('خطأ في حذف القسم الفرعي: ' + error.message);
+    }
+}
+
+/**
+ * Close category modal
+ */
+function closeCategoryModal() {
+    document.getElementById('category-modal').classList.remove('active');
+    editingCategoryId = null;
+}
+
+/**
+ * Save category (create or update)
+ * @param {Event} e - Form submit event
+ */
+async function saveCategory(e) {
+    e.preventDefault();
+
+    // Prevent duplicate saves
+    if (isSaving) {
+        console.warn('⏳ Save in progress...');
+        return;
+    }
+
+    const categoryData = {
+        id: document.getElementById('cat-id').value.trim(),
+        name_ar: document.getElementById('cat-name-ar').value.trim(),
+        name_en: document.getElementById('cat-name-en').value.trim() || null,
+        icon: document.getElementById('cat-icon').value.trim() || 'folder'
+    };
+
+    const submitBtn = document.querySelector('#category-form button[type="submit"]');
+
+    try {
+        isSaving = true;
+        UIUtils.setButtonLoading(submitBtn, true);
+
+        if (editingCategoryId) {
+            // Update existing
+            updateLocalCategory(editingCategoryId, {
+                name_ar: categoryData.name_ar,
+                name_en: categoryData.name_en,
+                icon: categoryData.icon,
+                label: categoryData.name_ar
+            });
+
+            await CategoriesService.update(editingCategoryId, {
+                name_ar: categoryData.name_ar,
+                name_en: categoryData.name_en,
+                icon: categoryData.icon
+            });
+            Toast.success('تم تحديث القسم');
+        } else {
+            // Create new
+            addCategoryLocally(categoryData);
+            await CategoriesService.create(categoryData);
+            Toast.success('تم إضافة القسم');
+        }
+
+        closeCategoryModal();
+        setTimeout(() => lucide.createIcons(), 100);
+
+    } catch (error) {
+        console.error('❌ Error:', error);
+        if (editingCategoryId) {
+            loadCategories(); // Reload on error
+        }
+        Toast.error('حدث خطأ: ' + error.message);
+    } finally {
+        isSaving = false;
+        UIUtils.setButtonLoading(submitBtn, false);
+    }
+}
+
+/**
+ * Edit category
+ * @param {string} catId - Category ID
+ */
+function editCategory(catId) {
+    openCategoryModal(catId);
+}
+
+/**
+ * Delete category
+ * @param {string} catId - Category ID
+ */
+async function deleteCategory(catId) {
+    const confirmed = await UIUtils.confirm(
+        'هل أنت متأكد من حذف هذا القسم؟\n\nسيتم حذف جميع الأقسام الفرعية والأماكن المرتبطة به.'
+    );
+    if (!confirmed) return;
+
+    try {
+        await CategoriesService.delete(catId);
+        Toast.success('تم الحذف بنجاح');
+        await loadCategories();
+    } catch (error) {
+        console.error(error);
+        Toast.error('حدث خطأ: ' + error.message);
+    }
+}
+
+// Make functions globally accessible for inline onclick (temporary)
+window.openCategoryModal = openCategoryModal;
+window.closeCategoryModal = closeCategoryModal;
+window.saveCategory = saveCategory;
+window.handleAddSub = handleAddSub;
+
+// Initialize on load
+init();

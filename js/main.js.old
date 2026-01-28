@@ -1,0 +1,886 @@
+/**
+ * Main Application Logic
+ * باقي الوظائف التي لم يتم نقلها بعد
+ */
+
+/**
+ * Initialize homepage with all widgets and content
+ * @async
+ * @returns {Promise<void>}
+ */
+async function initHomepage() {
+    console.log("DEBUG: Initializing Homepage Widgets");
+    await renderOffers();
+    await renderSuezInfo();
+    await renderTrendingHub();
+    await renderQuickActions();
+    await renderExploreCity();
+    renderHomepageReviews();
+    
+    if (window.UserPlacesService) {
+        const allPlaces = await window.UserPlacesService.getLatestPlaces(7);
+        if (allPlaces) renderPlaces(allPlaces, "places-container");
+    }
+}
+
+/**
+ * Initialize category page with subcategories and places
+ * @async
+ * @param {string} path - Current page path
+ * @returns {Promise<void>}
+ */
+async function initCategoryPage(path) {
+    const params = new URLSearchParams(window.location.search);
+    const catId = params.get('id');
+    const subId = params.get('sub');
+
+    if (catId) {
+        if (typeof setupCategoryPageHeader === "function") await setupCategoryPageHeader(catId);
+        if (typeof renderSubCategories === "function") await renderSubCategories(catId, subId);
+
+        if (window.UserPlacesService) {
+            let places = [];
+            if (subId) {
+                places = await window.UserPlacesService.getPlacesBySubCategory(subId);
+            } else {
+                places = await window.UserPlacesService.getPlacesByMainCategory(catId);
+            }
+            renderPlaces(places, 'places-container');
+        }
+    }
+}
+
+/**
+ * Initialize place details page
+ * @async
+ * @returns {Promise<void>}
+ */
+async function initPlaceDetailsPage() {
+    const params = new URLSearchParams(window.location.search);
+    const placeId = params.get('id');
+    if (placeId && window.UserPlacesService) {
+        await renderPlaceDetails(placeId);
+    }
+}
+
+/**
+ * Render complete place details (info, gallery, reviews, etc.)
+ * @async
+ * @param {string} placeId - Place ID from URL params
+ * @returns {Promise<void>}
+ */
+async function renderPlaceDetails(placeId) {
+    const place = await window.UserPlacesService.getById(placeId);
+    if (!place) {
+        document.querySelector('main').innerHTML = '<div style="text-align: center; padding: 100px 20px;"><i data-lucide="alert-circle" style="width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 16px;"></i><h3>المكان غير موجود</h3><a href="../index.html" class="top-nav-link" style="margin-top: 20px; display: inline-block;">العودة للرئيسية</a></div>';
+        if (typeof lucide !== "undefined") lucide.createIcons();
+        if (typeof syncFavoriteIcons === "function") syncFavoriteIcons();
+        return;
+    }
+
+    const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : "ar";
+    const isAr = lang === 'ar';
+
+    // Update Head/Title
+    const name = isAr ? (place.name_ar || place.name_en) : (place.name_en || place.name_ar);
+    const desc = isAr ? (place.desc_ar || place.desc_en || '') : (place.desc_en || place.desc_ar || '');
+    
+    document.getElementById('place-name').innerText = name;
+    document.title = `${name} - دليل السويس`;
+    document.getElementById('place-description').innerText = desc;
+
+    // Fetch Category Name (Non-blocking)
+    if (window.sb && place.main_cat_id) {
+        window.sb.from('categories').select('name_ar, name_en').eq('id', place.main_cat_id).single()
+            .then(({ data: cat }) => {
+                if (cat) {
+                    const catName = isAr ? cat.name_ar : (cat.name_en || cat.name_ar);
+                    const badge = document.getElementById('place-category-badge');
+                    if (badge) badge.innerText = catName;
+                }
+            }).catch(err => console.warn("Cat fetch error", err));
+    }
+
+    // Hero Image
+    const heroImg = place.image_url || (place.images && Array.isArray(place.images) && place.images[0]) || 'https://via.placeholder.com/1200x800?text=No+Image';
+    const heroEl = document.getElementById('place-hero-img');
+    if (heroEl) {
+        heroEl.src = heroImg;
+        heroEl.alt = name;
+    }
+
+    // Sidebar Info Grid
+    const infoGrid = document.getElementById('place-info-grid');
+    let infoHTML = '';
+
+    // 3. Grid Logic (Address, Hours, Phone, WhatsApp, Map)
+    if (place.working_hours) {
+        infoHTML += `
+            <div class="place-info-item">
+                <div class="info-icon"><i data-lucide="clock"></i></div>
+                <div class="info-text">
+                    <label>${isAr ? 'ساعات العمل' : 'Working Hours'}</label>
+                    <span>${place.working_hours}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    if (place.address) {
+        infoHTML += `
+            <div class="place-info-item">
+                <div class="info-icon"><i data-lucide="map-pin"></i></div>
+                <div class="info-text">
+                    <label>${isAr ? 'العنوان' : 'Address'}</label>
+                    <span>${place.address}</span>
+                </div>
+            </div>
+        `;
+    }
+
+    if (place.phone) {
+        infoHTML += `
+            <div class="place-info-item">
+                <div class="info-icon"><i data-lucide="phone"></i></div>
+                <div class="info-text">
+                    <label>${isAr ? 'الهاتف' : 'Phone'}</label>
+                    <span><a href="tel:${place.phone}" style="color: var(--primary); text-decoration: none;">${place.phone}</a></span>
+                </div>
+            </div>
+        `;
+    }
+
+    if (place.whatsapp) {
+        let waNumber = place.whatsapp.replace(/\D/g,'');
+        if (waNumber.startsWith('0')) waNumber = '20' + waNumber.substring(1);
+        else if (!waNumber.startsWith('20')) waNumber = '20' + waNumber;
+        
+        infoHTML += `
+            <div class="place-info-item">
+                <div class="info-icon"><i data-lucide="message-circle"></i></div>
+                <div class="info-text">
+                    <label>${isAr ? 'واتساب' : 'WhatsApp'}</label>
+                    <span><a href="https://wa.me/${waNumber}" target="_blank" style="color: #25d366; text-decoration: none;">${place.whatsapp}</a></span>
+                </div>
+            </div>
+        `;
+    }
+
+    if (place.map_url || place.address) {
+        const mapQuery = place.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.address || '')}`;
+        infoHTML += `
+            <div class="place-info-item">
+                <div class="info-icon"><i data-lucide="navigation"></i></div>
+                <div class="info-text">
+                    <label>${isAr ? 'الموقع' : 'Location'}</label>
+                    <span><a href="${mapQuery}" target="_blank" style="color: var(--primary); text-decoration: none;">${isAr ? 'عرض على الخريطة' : 'View on Map'}</a></span>
+                </div>
+            </div>
+        `;
+    }
+
+    infoGrid.innerHTML = infoHTML;
+
+    // Sidebar Favorite Button
+    const favBtnContainer = document.getElementById('favorite-btn-container');
+    if (favBtnContainer) {
+        favBtnContainer.innerHTML = `
+            <button class="btn-outline-modern fav-btn-large ${typeof isFavorite === 'function' && isFavorite(place.id) ? 'active' : ''}" onclick="toggleFavorite('${place.id}'); this.classList.toggle('active')">
+                <i data-lucide="heart"></i> <span>${isAr ? 'حفظ في المفضلة' : 'Save to Favorites'}</span>
+            </button>
+        `;
+    }
+
+    // Restore Sticky Mobile Action Bar
+    renderStickyActionBar(place, isAr);
+
+    // Map Iframe Section
+    const mapSection = document.getElementById('map-section');
+    const mapContainer = document.getElementById('map-iframe-container');
+    
+    if (mapSection && mapContainer) {
+        let embedUrl = place.map_url || place.urlMap || "";
+        
+        // If no direct link but address exists, use universal search embed
+        if (!embedUrl && place.address) {
+            const query = encodeURIComponent(place.address);
+            embedUrl = `https://www.google.com/maps?q=${query}&output=embed`;
+        }
+
+        if (embedUrl) {
+            mapSection.style.display = 'block';
+            // Note: Direct share links (goo.gl) usually block iframing. 
+            // We use it directly as requested, but recommend /embed links for production.
+            mapContainer.innerHTML = `<iframe src="${embedUrl}" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>`;
+        } else {
+            mapSection.style.display = 'none';
+        }
+    }
+
+    // Gallery (Magazine Style - Robust & Resilient)
+    const gallerySection = document.getElementById('gallery-section');
+    const gallery = document.getElementById('place-gallery');
+
+    if (gallery && gallerySection) {
+        let rawImages = [];
+        
+        // 1. Add Main Image
+        if (place.image_url) rawImages.push(place.image_url);
+        
+        // 2. Add Additional Images (Resilient Parsing)
+        if (place.images) {
+            if (Array.isArray(place.images)) {
+                rawImages = [...rawImages, ...place.images];
+            } else if (typeof place.images === 'string') {
+                 // Check if it's stringified JSON
+                if (place.images.trim().startsWith('[') || place.images.trim().startsWith('{')) {
+                    try {
+                        const parsed = JSON.parse(place.images);
+                        if (Array.isArray(parsed)) rawImages = [...rawImages, ...parsed];
+                        else if (typeof parsed === 'string') rawImages.push(parsed);
+                    } catch(e) { 
+                        // Fallback if not valid JSON
+                        rawImages.push(place.images); 
+                    }
+                } else {
+                    // Plain single string
+                    rawImages.push(place.images);
+                }
+            }
+        }
+
+        // Filter valid, unique URLs
+        const uniqueLinks = [...new Set(rawImages.filter(link => typeof link === 'string' && link.length > 5))];
+        console.log("DEBUG: Final Gallery Links:", uniqueLinks);
+
+        if (uniqueLinks.length > 0) {
+            gallery.innerHTML = uniqueLinks.map(img => 
+                `<div class="gallery-item" onclick="openLightbox('${img}')">
+                    <img src="${img}" alt="${name}" loading="lazy" onerror="this.parentElement.style.display='none'">
+                </div>`
+            ).join('');
+            
+            gallerySection.style.display = 'block';
+        } else {
+            gallerySection.style.display = 'none';
+        }
+    }
+
+    if (typeof lucide !== "undefined") lucide.createIcons();
+    if (typeof syncFavoriteIcons === "function") syncFavoriteIcons();
+}
+
+
+// Lightbox Logic
+window.openLightbox = function(src) {
+    const overlay = document.getElementById('lightbox-overlay');
+    const img = document.getElementById('lightbox-img');
+    if (overlay && img) {
+        img.src = src;
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+};
+
+window.closeLightbox = function() {
+    const overlay = document.getElementById('lightbox-overlay');
+    if (overlay) {
+        overlay.classList.remove('active');
+        document.body.style.overflow = 'auto';
+    }
+};
+
+async function setupCategoryPageHeader(catId) {
+    const titleEl = document.getElementById('cat-page-title');
+    if (!titleEl) return;
+
+    // Default Loading State
+    // titleEl.innerText = catId;
+
+    if (!window.sb) return;
+
+    // Fetch Name from DB
+    const { data, error } = await window.sb
+        .from('categories')
+        .select('name_ar, name_en')
+        .eq('id', catId)
+        .single();
+
+    if (data) {
+        const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : "ar";
+        const label = lang === 'ar' ? (data.name_ar || catId) : (data.name_en || data.name_ar || catId);
+        titleEl.innerText = label;
+        document.title = `${label} - دليل السويس`;
+    }
+}
+
+async function renderSubCategories(mainCatId, activeSubId) {
+    console.log("DEBUG: renderSubCategories called for", mainCatId);
+    const container = document.querySelector('.sub-nav');
+    if (!container) {
+        console.warn("DEBUG: .sub-nav container NOT found");
+        return; 
+    }
+
+    // Fetch Subs from DB
+    let subs = [];
+    if (window.sb) {
+        const { data, error } = await window.sb.from('subcategories').select('*').eq('main_cat_id', mainCatId);
+        if (error) console.error("DEBUG: Sub fetch error", error);
+        subs = data || [];
+    } else {
+        console.error("DEBUG: window.sb not initialized");
+    }
+
+    console.log("DEBUG: Subs found:", subs.length);
+
+    if (!subs.length) {
+        container.style.display = 'none';
+        return;
+    }
+
+    const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : "ar";
+    const isAr = lang === 'ar';
+
+    // "All" Link
+    const allLabel = isAr ? "الكل" : "All";
+    const allActive = !activeSubId ? 'active' : '';
+    // Link to same page (category.html) with just ID, no sub
+    const baseUrl = `category.html?id=${mainCatId}`;
+    
+    let html = `<a href="${baseUrl}" class="${allActive}">${allLabel}</a>`;
+
+    subs.forEach(sub => {
+        const isActive = activeSubId === sub.id ? 'active' : '';
+        const label = isAr ? (sub.name_ar || sub.id) : (sub.name_en || sub.name_ar || sub.id);
+        
+        // Link to same page with &sub=ID
+        html += `<a href="${baseUrl}&sub=${sub.id}" class="${isActive}">${label}</a>`;
+    });
+
+    container.innerHTML = html;
+}
+
+/**
+ * Renders the global categories navigation bar dynamically
+ */
+async function renderGlobalCategories(isHome, currentPath) {
+    const container = document.getElementById('global-cats');
+    if (!container) return;
+
+    // Fix Base Path based on depth
+    let basePath = "categories/";
+    if (currentPath.indexOf("/categories/") !== -1) basePath = "";
+    if (currentPath.indexOf("/subcategories/") !== -1) basePath = "../categories/";
+    if (currentPath.indexOf("/pages/") !== -1) basePath = "../categories/";
+
+    const activePage = currentPath.split('/').pop() || "index.html";
+
+    // Fetch from DB
+    let cats = [];
+    if (window.UserCategoriesService) {
+        cats = await window.UserCategoriesService.getAll();
+    }
+
+    if (!cats.length) {
+        container.innerHTML = `<div style="padding:20px; color:#aaa;">جاري تحميل الأقسام...</div>`;
+        return;
+    }
+
+    // Determine Language
+    const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : (document.documentElement.lang || "ar");
+    const isAr = lang === 'ar';
+
+    // Different Layout for "All Categories" Page
+    const isAllCatsPage = currentPath.endsWith("/categories.html");
+
+    let html = "";
+    cats.forEach(cat => {
+        const catId = cat.id;
+        const icon = cat.icon || "folder";
+        
+        // Bilingual Label
+        const label = isAr ? (cat.name_ar || catId) : (cat.name_en || cat.name_ar || catId);
+        
+        // Dynamic Link Construction
+        // We now point EVERYTHING to the single dynamic page
+        // Adjust relative path based on current location
+        let linkPrefix = "pages/";
+        if (currentPath.includes("/pages/") || currentPath.includes("/categories/") || currentPath.includes("/subcategories/")) {
+            linkPrefix = ""; // Already in pages/ or deep, so ./category.html works if in pages, but...
+            // "pages/category.html" is in "pages/".
+            // If we are in "index.html" (root) -> "pages/category.html"
+            // If we are in "pages/about.html" -> "category.html"
+        }
+        
+        if (currentPath.includes("/pages/")) linkPrefix = "";
+        
+        const catUrl = `${linkPrefix}category.html?id=${catId}`;
+        const isActive = (activePage === "category.html" && currentPath.includes(`id=${catId}`)) ? "active" : "";
+        
+        if (isAllCatsPage) {
+            // GRID Layout (Card style)
+            html += `
+                <a href="${catUrl}" class="cat-nav-item card-style">
+                    <i data-lucide="${icon}"></i> 
+                    <span>${label}</span>
+                </a>`;
+        } else {
+            // HORIZONTAL SCROLL Layout (Chip style)
+            html += `
+                <a href="${catUrl}" class="cat-nav-item ${isActive}">
+                    <i data-lucide="${icon}"></i> 
+                    <span>${label}</span>
+                </a>`;
+        }
+    });
+
+    container.innerHTML = html;
+    
+    // Support i18n and Icons
+    if (typeof updatePageContent === "function") {
+        const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : (document.documentElement.lang || "ar");
+        updatePageContent(lang);
+    }
+    if (typeof lucide !== "undefined") lucide.createIcons();
+
+    // Scroll Logic for dynamic row
+    initCategoryScroll();
+}
+
+/**
+ * Renders the global bottom navigation bar dynamically
+ */
+function renderBottomNav(isHome, currentPath) {
+    const container = document.getElementById('bottom-nav-container');
+    if (!container) return;
+
+    // Determine path prefix based on directory depth
+    let toHome = isHome ? "index.html" : "../index.html";
+    let toCats = isHome ? "pages/categories.html" : "../pages/categories.html";
+    let toFavs = isHome ? "pages/favorites.html" : "../pages/favorites.html";
+
+    // Simple Patch for depth level
+     if (currentPath.includes("/categories/") || currentPath.includes("/subcategories/") || currentPath.includes("/pages/")) {
+         toHome = "../index.html";
+         toCats = "../pages/categories.html";
+         toFavs = "../pages/favorites.html";
+     }
+
+    const navItems = [
+        { id: "home", icon: "home", ar: "الرئيسية", url: toHome },
+        { id: "categories", icon: "grid", ar: "الأقسام", url: toCats },
+        { id: "favorites", icon: "heart", ar: "المفضلة", url: toFavs },
+        { id: "account", icon: "user", ar: "حسابي", url: "#" }
+    ];
+
+    let html = "";
+    navItems.forEach(item => {
+        let isActive = "";
+        
+        // Debug Active Logic
+        if (item.id === "home" && isHome) isActive = "active";
+        if (item.id === "categories" && (currentPath.includes("/categories/") || currentPath.includes("/subcategories/") || currentPath.includes("categories.html"))) isActive = "active";
+        if (item.id === "favorites" && currentPath.includes("favorites.html")) isActive = "active";
+
+        const onClick = item.id === "account" ? 'onclick="window.openAccountModal(event)"' : "";
+        
+        html += `
+            <a href="${item.url}" class="nav-item-mobile ${isActive}" ${onClick}>
+                <i data-lucide="${item.icon}"></i> <span>${item.ar}</span>
+            </a>`;
+    });
+
+    container.innerHTML = html;
+    if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
+/**
+ * Render offers section
+ * @async
+ */
+async function renderOffers() {
+    const containerId = 'offers-container';
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    try {
+        DOMHelpers.setLoading(containerId, true);
+        
+        const places = await DataManager.getOfferPlaces(6);
+        if (!places || places.length === 0) {
+            container.parentElement.style.display = 'none';
+            return;
+        }
+
+        const isAr = DOMHelpers.isArabic();
+        const html = PlaceRenderer.renderList(places, isAr, 'offer');
+        
+        DOMHelpers.updateContainer(containerId, html);
+        container.parentElement.style.display = 'block';
+    } catch (e) {
+        console.error("Offers Render Error", e);
+        container.parentElement.style.display = 'none';
+    }
+}
+
+async function renderSuezInfo() {
+    const container = document.getElementById('info-container');
+    if (!container) return;
+
+    const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : "ar";
+    const isAr = lang === 'ar';
+
+    // Initial Skeleton/Loading
+    container.innerHTML = `
+        <div class="info-chip">
+            <div class="info-icon"><i data-lucide="cloud"></i></div>
+            <div class="info-body">
+                <div class="info-value" id="suez-temp">--°C</div>
+                <div class="info-label">${isAr ? 'جو السويس' : 'Suez Weather'}</div>
+            </div>
+        </div>
+        <div class="info-chip">
+            <div class="info-icon" style="color: var(--secondary);"><i data-lucide="clock"></i></div>
+            <div class="info-body">
+                <div class="info-value" id="real-time-clock">--:--:--</div>
+                <div class="info-label" id="real-time-date">--/--/----</div>
+            </div>
+        </div>
+    `;
+    if (typeof lucide !== "undefined") lucide.createIcons();
+
+    // 1. Fetch Live Weather (Open-Meteo)
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=29.97&longitude=32.53&current_weather=true')
+        .then(res => res.json())
+        .then(data => {
+            if (data.current_weather) {
+                const temp = Math.round(data.current_weather.temperature);
+                const tempEl = document.getElementById('suez-temp');
+                if (tempEl) tempEl.innerText = `${temp}°C`;
+            }
+        }).catch(err => console.warn("Weather fetch failed", err));
+
+    // 2. Start Real-time Clock
+    function updateClock() {
+        const now = new Date();
+        const clockEl = document.getElementById('real-time-clock');
+        const dateEl = document.getElementById('real-time-date');
+        
+        if (clockEl) {
+            clockEl.innerText = now.toLocaleTimeString(isAr ? 'ar-EG' : 'en-US', { 
+                hour: '2-digit', minute: '2-digit', second: '2-digit' 
+            });
+        }
+        if (dateEl) {
+            dateEl.innerText = now.toLocaleDateString(isAr ? 'ar-EG' : 'en-US', {
+                day: 'numeric', month: 'short'
+            });
+        }
+    }
+
+    updateClock();
+    setInterval(updateClock, 1000);
+}
+
+/**
+ * Render trending hub section
+ * @async
+ */
+async function renderTrendingHub() {
+    const containerId = 'trending-container';
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    try {
+        DOMHelpers.setLoading(containerId, true);
+        
+        const places = await DataManager.getTrendingPlaces(10);
+        const isAr = DOMHelpers.isArabic();
+        const html = PlaceRenderer.renderList(places, isAr, 'trending');
+        
+        DOMHelpers.updateContainer(containerId, html);
+    }catch (e) {
+        console.error("Trending Hub Render Error", e);
+        container.parentElement.style.display = 'none';
+    }
+}
+
+/**
+ * Render quick actions section (urgent services)
+ * @async
+ */
+async function renderQuickActions() {
+    const containerId = 'quick-actions-container';
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    try {
+        DOMHelpers.setLoading(containerId, true);
+        
+        const places = await DataManager.getUrgentPlaces(12);
+        if (!places || places.length === 0) {
+            container.parentElement.style.display = 'none';
+            return;
+        }
+
+        const isAr = DOMHelpers.isArabic();
+        const html = PlaceRenderer.renderList(places, isAr, 'quick');
+        
+        DOMHelpers.updateContainer(containerId, html);
+        container.parentElement.style.display = 'block';
+    } catch (e) {
+        console.error("Quick Actions Render Error", e);
+        container.parentElement.style.display = 'none';
+    }
+}
+
+function renderHomepageReviews() {
+     const container = document.getElementById('reviews-container');
+    if (!container) return;
+    container.innerHTML = "";
+}
+
+function renderPlaces(places, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    if (!places || places.length === 0) {
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">لا توجد أماكن حالياً</div>`;
+        return;
+    }
+
+    const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : "ar";
+    const isAr = lang === 'ar';
+    const path = window.location.pathname;
+    const isHome = path === "/" || path.endsWith("index.html") || path.endsWith("/") || path === "";
+    const placeLink = isHome ? "pages/place.html" : "place.html";
+
+    container.innerHTML = places.map(place => {
+        const name = isAr ? (place.name_ar || place.name_en) : (place.name_en || place.name_ar);
+        const desc = isAr ? (place.desc_ar || place.desc_en || '') : (place.desc_en || place.desc_ar || '');
+        const image = place.image_url || (place.images && place.images[0]) || 'https://via.placeholder.com/400x300?text=No+Image';
+        
+        // Truncate description
+        const shortDesc = desc.length > 100 ? desc.substring(0, 100) + '...' : desc;
+
+        return `
+            <div class="listing-card" onclick="location.href='${placeLink}?id=${place.id}'" style="cursor: pointer;">
+                <div class="listing-img">
+                    <img src="${image}" alt="${name}" loading="lazy">
+                    <div class="fav-btn" data-id="${place.id}" onclick="event.stopPropagation(); toggleFavorite('${place.id}')">
+                        <i data-lucide="heart"></i>
+                    </div>
+                </div>
+                <div class="listing-content">
+                    <h3>${name}</h3>
+                    <p>${shortDesc}</p>
+                    ${place.address ? `<div class="address-tag">
+                        <i data-lucide="map-pin" style="width: 14px; height: 14px;"></i>
+                        <span>${place.address}</span>
+                    </div>` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    if (typeof lucide !== "undefined") lucide.createIcons();
+    if (typeof syncFavoriteIcons === "function") syncFavoriteIcons();
+}
+
+// ... Keep pure UI helpers like Scroll/Modal ... 
+function initCategoryScroll() {} 
+window.scrollCats = function(dir) {};
+/* --- Mobile Account Modal Logic --- */
+function createAccountModal() {
+    if (document.querySelector('.account-modal')) return;
+
+    const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : "ar";
+    const isAr = lang === "ar";
+
+    const modalHTML = `
+        <div class="modal-backdrop" onclick="closeAccountModal()"></div>
+        <div class="account-modal">
+            <div class="modal-header">
+                <h3 data-i18n="nav_account">${isAr ? "حسابي" : "Account"}</h3>
+                <div class="modal-close" onclick="closeAccountModal()"><i data-lucide="x"></i></div>
+            </div>
+            
+            <div class="modal-section">
+                <h4 data-i18n="nav_home">${isAr ? "اللغة" : "Language"}</h4>
+                <button class="modal-action-btn" onclick="toggleLanguage()">
+                    <span>${isAr ? "English" : "العربية"}</span>
+                    <i data-lucide="globe"></i>
+                </button>
+            </div>
+
+            <div class="modal-section">
+                <h4 data-i18n="theme_toggle">${isAr ? "المظهر" : "Theme"}</h4>
+                <button class="modal-action-btn" onclick="toggleTheme()">
+                    <span>Dark / Light</span>
+                    <i data-lucide="moon"></i>
+                </button>
+            </div>
+
+            <div class="modal-section">
+                <h4>${isAr ? "تسجيل الدخول" : "Login"}</h4>
+                <button class="modal-action-btn auth-btn" disabled>
+                    <span>${isAr ? "متابعة باستخدام Google" : "Continue with Google"}</span>
+                    <span class="badge-soon">${isAr ? "قريبًا" : "Soon"}</span>
+                </button>
+                <button class="modal-action-btn auth-btn" disabled>
+                    <span>${isAr ? "متابعة باستخدام Facebook" : "Continue with Facebook"}</span>
+                    <span class="badge-soon">${isAr ? "قريبًا" : "Soon"}</span>
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    if (typeof lucide !== "undefined") lucide.createIcons();
+}
+
+window.openAccountModal = function(e) {
+    if(e) e.preventDefault();
+    createAccountModal();
+    
+    // Helper delay to ensure DOM is ready before adding active class for animation
+    requestAnimationFrame(() => {
+        document.querySelector('.modal-backdrop').classList.add('active');
+        document.querySelector('.account-modal').classList.add('active');
+    });
+};
+
+window.closeAccountModal = function() {
+    const backdrop = document.querySelector('.modal-backdrop');
+    const modal = document.querySelector('.account-modal');
+    if (backdrop) backdrop.classList.remove('active');
+    if (modal) modal.classList.remove('active');
+};
+
+async function renderExploreCity() {
+    const container = document.getElementById('explore-container');
+    if (!container || !window.UserPlacesService) return;
+
+    try {
+        const place = await window.UserPlacesService.getFeaturedPlace();
+        if (!place) {
+            container.parentElement.style.display = 'none';
+            return;
+        }
+
+        const lang = typeof getPreferredLanguage === "function" ? getPreferredLanguage() : "ar";
+        const isAr = lang === 'ar';
+        const name = isAr ? (place.name_ar || place.name_en) : (place.name_en || place.name_ar);
+        const image = place.image_url || (place.images && place.images[0]) || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200';
+
+        container.innerHTML = `
+            <div class="explore-hero-card" onclick="location.href='pages/place.html?id=${place.id}'">
+                <img src="${image}" alt="${name}" class="explore-bg">
+                <div class="explore-overlay">
+                    <div class="explore-badge">${isAr ? 'نرشح لك اليوم' : 'Daily Spotlight'}</div>
+                    <h2 class="explore-title">${name}</h2>
+                    <p class="explore-desc">${isAr ? (place.desc_ar || '').substring(0, 120) : (place.desc_en || '').substring(0, 120)}...</p>
+                    <div class="explore-footer">
+                        <span class="explore-btn">${isAr ? 'اكتشف الآن' : 'Explore Now'}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        container.parentElement.style.display = 'block';
+    } catch (e) {
+        console.error("Explore City Error", e);
+        container.parentElement.style.display = 'none';
+    }
+}
+
+async function renderAds() {
+    if (!window.AdsService) {
+        // Mock if service not loaded (should be loaded in index/place/etc)
+        window.AdsService = {
+            getActiveAds: async () => {
+                if (!window.sb) return [];
+                const { data } = await window.sb.from('ads_settings').select('*').eq('is_active', true);
+                return data || [];
+            }
+        };
+    }
+
+    try {
+        const ads = await window.AdsService.getActiveAds();
+        ads.forEach(ad => {
+            const container = document.querySelector(`[data-ad-slot="${ad.slot_id}"], [data-ad-position="${ad.slot_id}"]`);
+            if (container && ad.ad_code) {
+                container.innerHTML = ad.ad_code;
+                container.style.display = 'block';
+                
+                // Execute any scripts in the ad code
+                const scripts = container.querySelectorAll('script');
+                scripts.forEach(oldScript => {
+                    const newScript = document.createElement('script');
+                    Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                    oldScript.parentNode.replaceChild(newScript, oldScript);
+                });
+            }
+        });
+    } catch (e) {
+        console.error("Ad Render Error", e);
+    }
+}
+
+/**
+ * Normalize WhatsApp number to international format (Egypt country code)
+ * @param {string} number - Phone number in any format
+ * @returns {string} Normalized number with country code (20)
+ */
+function normalizeWhatsAppNumber(number) {
+    let waNumber = number.replace(/\D/g, '');
+    if (waNumber.startsWith('0')) {
+        waNumber = '20' + waNumber.substring(1);
+    } else if (!waNumber.startsWith('20')) {
+        waNumber = '20' + waNumber;
+    }
+    return waNumber;
+}
+
+/**
+ * Render sticky action bar for place details (mobile)
+ * Displays call, WhatsApp, and map actions at the bottom of the screen
+ * @param {Object} place - Place object with phone, whatsapp, address, map_url
+ * @param {boolean} isAr - Is Arabic language active
+ */
+function renderStickyActionBar(place, isAr) {
+    // Remove existing bar if present
+    const existing = document.querySelector('.mobile-action-bar');
+    if (existing) existing.remove();
+
+    const bar = document.createElement('div');
+    bar.className = 'mobile-action-bar';
+    
+    const actions = [];
+    
+    // Phone action
+    if (place.phone) {
+        const phoneLabel = isAr ? 'اتصال' : 'Call';
+        actions.push(`<a href="tel:${place.phone}" class="action-item call"><i data-lucide="phone"></i> <span>${phoneLabel}</span></a>`);
+    }
+    
+    // WhatsApp action
+    if (place.whatsapp) {
+        const waNumber = normalizeWhatsAppNumber(place.whatsapp);
+        actions.push(`<a href="https://wa.me/${waNumber}" class="action-item whatsapp"><i data-lucide="message-circle"></i> <span>واتساب</span></a>`);
+    }
+    
+    // Map action (always visible)
+    const mapQuery = place.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.address || '')}`;
+    const mapLabel = isAr ? 'خريطة' : 'Map';
+    actions.push(`<a href="${mapQuery}" target="_blank" class="action-item map"><i data-lucide="navigation"></i> <span>${mapLabel}</span></a>`);
+
+    bar.innerHTML = actions.join('');
+    document.body.appendChild(bar);
+    
+    // Re-init icons and sync favorites
+    if (typeof lucide !== "undefined") lucide.createIcons();
+    if (typeof syncFavoriteIcons === "function") syncFavoriteIcons();
+}

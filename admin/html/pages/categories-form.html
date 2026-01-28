@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة/تعديل قسم - دليل السويس</title>
+    <script src="../../services/auth.service.js"></script>
+    <script>AuthService.checkAuth();</script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../../../common/config/config.js"></script>
+    <link rel="stylesheet" href="../../css/admin.css">
+    
+    <script src="../../services/supabase.js"></script>
+    <script src="../../../common/services/admin/categories.service.js"></script>
+    <script src="../../../common/services/translation.service.js"></script>
+    <script src="../../components/sidebar.js"></script>
+    <script src="../../components/topbar.js"></script>
+    <script src="../../utils/drawer.js"></script>
+</head>
+<body>
+    <div class="app-layout">
+        <div id="sidebar-container"></div>
+        <main class="main-content">
+            <div id="topbar-container"></div>
+            <div class="page-content">
+                
+                <div class="form-header">
+                    <a href="categories-list.html" class="btn btn-outline btn-icon"><i data-lucide="arrow-right"></i></a>
+                    <h2 class="page-title" id="form-title">إضافة قسم جديد</h2>
+                </div>
+
+                <div class="card form-card">
+                    <form id="category-form">
+                        <input type="hidden" id="c_old_id"> <!-- For tracking updates -->
+                        
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">اسم القسم بالعربية *</label>
+                                <input id="c_name_ar" class="form-control" required placeholder="مثال: مطاعم" onblur="handleCatNameTranslation()">
+                            </div>
+                            
+                            <!-- Hidden English Name Group -->
+                            <div class="form-group" id="group_name_en" style="display: none;">
+                                <label class="form-label">
+                                    Name in English <span class="badge" style="background: var(--primary-soft); color: var(--primary); font-size: 10px;">AUTO</span>
+                                </label>
+                                <div style="display: flex; gap: 8px;">
+                                    <input id="c_name_en" class="form-control" placeholder="e.g., Restaurants">
+                                    <button type="button" class="btn btn-outline btn-icon" onclick="toggleEnField('name')" title="إخفاء">
+                                        <i data-lucide="eye-off"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Manual Toggle if hidden -->
+                        <div class="form-group" style="margin-top: -12px; margin-bottom: 20px;">
+                            <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 4px 12px;" onclick="toggleEnField('name')">
+                                <i data-lucide="languages" style="width: 14px;"></i> إضافة الاسم بالإنجليزي
+                            </button>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">المعرف (ID) *</label>
+                                <div class="input-with-hint">
+                                    <div style="display: flex; gap: 8px;">
+                                        <input id="c_id" class="form-control" required placeholder="restaurants" style="text-align: left; direction: ltr;">
+                                        <button type="button" class="btn btn-outline btn-icon" onclick="generateIdFromEn()" title="استخراج من الإنجليزي">
+                                            <i data-lucide="wand-2"></i>
+                                        </button>
+                                    </div>
+                                    <small class="form-hint">يستخدم في URL و الكود. يفضل الإنجليزية بدون مسافات.</small>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الأيقونة (Lucide Icon)</label>
+                                <div class="input-group">
+                                    <input id="c_icon" class="form-control" placeholder="utensils" style="text-align: left; direction: ltr;">
+                                    <a href="https://lucide.dev/icons" target="_blank" class="btn btn-outline" style="padding: 0 12px; display: flex; align-items: center;">
+                                        <i data-lucide="external-link" style="width: 16px;"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions-footer">
+                            <button type="button" onclick="window.history.back()" class="btn btn-secondary">إلغاء</button>
+                            <button type="submit" class="btn btn-primary" id="save-btn">
+                                <i data-lucide="save"></i> حفظ البيانات
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- UX Scripts -->
+    <script src="../../js/ui/toast.js"></script>
+    <script src="../../js/utils/ui-utils.js"></script>
+    
+    <!-- Page Logic -->
+    <script type="module" src="../../js/pages/categories-form.js"></script>
+</body>
+</html>

@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إضافة/تعديل مكان - دليل السويس</title>
+    <script src="../../services/auth.service.js"></script>
+    <script>AuthService.checkAuth();</script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../../../common/config/config.js"></script>
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="../../css/modules/places.css">
+    
+    <script src="../../services/supabase.js"></script>
+    <script src="../../../common/services/admin/places.service.js"></script>
+    <script src="../../../common/services/admin/categories.service.js"></script>
+    <script src="../../../common/services/translation.service.js"></script>
+    <script src="../../services/upload.service.js"></script>
+    <script src="../../components/sidebar.js"></script>
+    <script src="../../components/topbar.js"></script>
+    <script src="../../utils/drawer.js"></script>
+</head>
+<body>
+    <div class="app-layout">
+        <div id="sidebar-container"></div>
+        <main class="main-content">
+            <div id="topbar-container"></div>
+            <div class="page-content">
+                
+                <div class="form-header">
+                    <a href="places.html" class="btn btn-outline btn-icon"><i data-lucide="arrow-right"></i></a>
+                    <h2 class="page-title" id="form-title">إضافة مكان جديد</h2>
+                </div>
+
+                <div class="card form-card">
+                    <form id="place-form">
+                        <input type="hidden" id="p_id">
+                        
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">الاسم بالعربية *</label>
+                                <input id="p_name_ar" class="form-control" required placeholder="مثال: مطعم النيل" onblur="handleNameTranslation()">
+                            </div>
+                            <!-- English Name (Hidden by default) -->
+                            <div class="form-group" id="group_name_en" style="display: none;">
+                                <label class="form-label">
+                                    Name in English <span class="badge badge-auto">AUTO</span>
+                                </label>
+                                <div class="input-group-center">
+                                    <input id="p_name_en" class="form-control" required placeholder="e.g., Nile Restaurant">
+                                    <button type="button" class="btn btn-outline btn-icon" onclick="toggleEnField('name')" title="إخفاء">
+                                        <i data-lucide="eye-off"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">القسم الرئيسي *</label>
+                                <select id="p_main_cat" class="form-control" required onchange="updateSubCats()"></select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">القسم الفرعي *</label>
+                                <select id="p_sub_cat" class="form-control" required></select>
+                            </div>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">العنوان (عربي) *</label>
+                                <input id="p_address_ar" class="form-control" placeholder="مثال: شارع الجلاء، السويس" required onblur="handleAddressTranslation()">
+                            </div>
+                            <!-- English Address (Hidden by default) -->
+                            <div class="form-group" id="group_address_en" style="display: none;">
+                                <label class="form-label">
+                                    Address (English) <span class="badge badge-auto">AUTO</span>
+                                </label>
+                                <div class="input-group-center">
+                                    <input id="p_address_en" class="form-control" placeholder="e.g., El Galaa St, Suez">
+                                    <button type="button" class="btn btn-outline btn-icon" onclick="toggleEnField('address')" title="إخفاء">
+                                        <i data-lucide="eye-off"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Manual Toggle for Address -->
+                        <div class="form-group manual-toggles" id="address-toggle-container">
+                             <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 4px 12px; margin-bottom: 20px;" onclick="toggleEnField('address')">
+                                 <i data-lucide="languages" style="width: 14px;"></i> إضافة العنوان بالإنجليزي
+                            </button>
+                        </div>
+
+                        <div class="grid-3">
+                            <div class="form-group">
+                                <label class="form-label">رقم الهاتف التواصل</label>
+                                <input id="p_phone" class="form-control" placeholder="مثال: 01012345678">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">رقم الواتساب</label>
+                                <input id="p_whatsapp" class="form-control" placeholder="مثال: 01012345678">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">ساعات العمل</label>
+                                <div class="input-group-center" style="gap:10px;">
+                                    <input type="time" id="p_hours_start" class="form-control" title="من">
+                                    <span style="color:var(--text-muted); font-size:12px;">إلى</span>
+                                    <input type="time" id="p_hours_end" class="form-control" title="إلى">
+                                </div>
+                                <input type="hidden" id="p_hours">
+                            </div>
+                        </div>
+                        
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">الوصف (عربي)</label>
+                                <textarea id="p_desc_ar" class="form-control" placeholder="وصف موجز بالعربية..." onblur="handleDescTranslation()"></textarea>
+                            </div>
+                            <!-- English Description (Hidden by default) -->
+                            <div class="form-group" id="group_desc_en" style="display: none;">
+                                <label class="form-label">
+                                    Description (English) <span class="badge badge-auto">AUTO</span>
+                                </label>
+                                <div class="input-group-row">
+                                    <textarea id="p_desc_en" class="form-control" placeholder="Brief description in English..."></textarea>
+                                    <button type="button" class="btn btn-outline btn-icon" onclick="toggleEnField('desc')" title="إخفاء">
+                                        <i data-lucide="eye-off"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Manual Translation Toggle Buttons (If hidden) -->
+                        <div class="form-group manual-toggles" id="manual-trans-toggles">
+                            <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 4px 12px;" onclick="toggleEnField('name')">
+                                <i data-lucide="languages" style="width: 14px;"></i> إضافة الاسم بالإنجليزي
+                            </button>
+                            <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 4px 12px;" onclick="toggleEnField('desc')">
+                                <i data-lucide="languages" style="width: 14px;"></i> إضافة الوصف بالإنجليزي
+                            </button>
+                        </div>
+                        <!-- End Manual Toggles -->
+
+                        <!-- Upload Section -->
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">الصورة الرئيسية للمكان</label>
+                                <div class="upload-area" 
+                                     onclick="document.getElementById('p_file').click()"
+                                     id="upload-area">
+                                    <input type="file" id="p_file" hidden accept="image/*" onchange="handleFileUpload(this)">
+                                    <i data-lucide="image-plus" style="width:32px; height:32px; color:var(--text-muted); margin-bottom:8px;"></i>
+                                    <div id="upload-msg" class="upload-msg">رفع الصورة الرئيسية</div>
+                                    <input type="hidden" id="p_image">
+                                </div>
+                                    <input type="hidden" id="p_image">
+                                </div>
+                                <img id="preview-img" src="" class="preview-img">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">صور المعرض (Gallery)</label>
+                                <div class="upload-area" 
+                                     onclick="document.getElementById('gallery_files').click()">
+                                    <input type="file" id="gallery_files" hidden accept="image/*" multiple onchange="handleGalleryUpload(this)">
+                                    <i data-lucide="images" class="upload-icon"></i>
+                                    <div id="gallery-msg" class="upload-msg">رفع صور للتفاصيل</div>
+                                </div>
+                                <div id="gallery-preview" class="gallery-preview">
+                                    <!-- Gallery items here -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- NEW: Advanced Section Controls Hub -->
+                        <div class="visibility-section">
+                            <h4 class="visibility-title">
+                                <i data-lucide="layout"></i> توزيع الأقسام في الصفحة الرئيسية
+                            </h4>
+                            
+                            <div class="grid-3 visibility-grid">
+                                <label class="checkbox-label" class="form-label">
+                                    <input type="checkbox" id="p_featured_new" class="checkbox-input">
+                                    <span>استكشف مدينتك (Spotlight)</span>
+                                </label>
+                                <label class="checkbox-label" class="form-label">
+                                    <input type="checkbox" id="p_trending" class="checkbox-input">
+                                    <span>الأكثر بحثاً (Trending)</span>
+                                </label>
+                                <label class="checkbox-label" class="form-label">
+                                    <input type="checkbox" id="p_urgent" class="checkbox-input">
+                                    <span>خدمات عاجلة (Quick)</span>
+                                </label>
+                            </div>
+
+                            <div class="offer-divider">
+                                <label class="offer-label" class="form-label">
+                                    <input type="checkbox" id="p_has_offer" class="checkbox-input" onchange="toggleOfferFields()">
+                                    <span class="offer-text">تفعيل قسم العروض والخصومات 🔥</span>
+                                </label>
+                                
+                                <div id="offer-fields" class="grid-2">
+                                    <div class="form-group">
+                                        <label class="form-label">وصف العرض (عربي)</label>
+                                        <input id="p_offer_ar" class="form-control" placeholder="مثال: خصم 50% لفترة محدودة" onblur="handleOfferTranslation()">
+                                    </div>
+                                    
+                                    <!-- English Offer (Hidden by default) -->
+                                    <div class="form-group" id="group_offer_en" style="display: none;">
+                                        <label class="form-label">
+                                            Offer Description (EN) <span class="badge badge-auto">AUTO</span>
+                                        </label>
+                                        <div class="input-group-center">
+                                            <input id="p_offer_en" class="form-control" placeholder="e.g., 50% OFF Limited Time">
+                                            <button type="button" class="btn btn-outline btn-icon" onclick="toggleEnField('offer')" title="إخفاء">
+                                                <i data-lucide="eye-off"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group manual-offer-toggle" id="manual-offer-toggle" style="display: none;">
+                                     <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 4px 12px;" onclick="toggleEnField('offer')">
+                                         <i data-lucide="languages" style="width: 14px;"></i> إضافة العرض بالإنجليزي
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions form-actions-divider">
+                            <button type="submit" class="btn btn-primary" id="save-btn">
+                                <i data-lucide="save"></i> حفظ البيانات
+                            </button>
+                            <a href="places.html" class="btn btn-secondary">إلغاء</a>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.getElementById('sidebar-container').innerHTML = Sidebar.render('places');
+        document.getElementById('topbar-container').innerHTML = Topbar.render('الأماكن');
+        lucide.createIcons();
+
+        const params = new URLSearchParams(window.location.search);
+        const editId = params.get('id');
+        let galleryImages = [];
+
+        // Auto Translation Handlers
+        async function handleNameTranslation() {
+            const arName = document.getElementById('p_name_ar').value;
+            const enNameInput = document.getElementById('p_name_en');
+            const enGroup = document.getElementById('group_name_en');
+            
+            if (arName && !enNameInput.value) {
+                // Show loading state if needed, or just translate
+                try {
+                    const translated = await TranslationService.translateArToEn(arName);
+                    if (translated) {
+                        enNameInput.value = translated;
+                        enGroup.style.display = 'block'; // Auto reveal
+                    }
+                } catch (e) {
+                    console.error("Translation error", e);
+                }
+            }
+        }
+
+        async function handleDescTranslation() {
+            const arDesc = document.getElementById('p_desc_ar').value;
+            const enDescInput = document.getElementById('p_desc_en');
+            const enGroup = document.getElementById('group_desc_en');
+            
+            if (arDesc && !enDescInput.value) {
+                try {
+                    const translated = await TranslationService.translateArToEn(arDesc);
+                    if (translated) {
+                        enDescInput.value = translated;
+                        enGroup.style.display = 'block'; // Auto reveal
+                    }
+                } catch (e) {
+                    console.error("Translation error", e);
+                }
+            }
+        }
+
+        function toggleEnField(type) {
+            const id = `group_${type}_en`;
+            const el = document.getElementById(id);
+            if (el.style.display === 'none') {
+                el.style.display = 'block';
+            } else {
+                el.style.display = 'none';
+            }
+        }
+
+        async function init() {
+            // Populate Categories
+            const catSelect = document.getElementById('p_main_cat');
+            catSelect.innerHTML = '<option value="">اختر القسم الرئيسي...</option>';
+            
+            try {
+                const cats = await CategoriesService.getAll();
+                cats.forEach(c => {
+                    catSelect.innerHTML += `<option value="${c.id}">${c.label}</option>`;
+                });
+
+                if (editId) {
+                    document.getElementById('form-title').innerText = 'تعديل بيانات مكان';
+                    await loadPlaceData(editId);
+                }
+            } catch (e) {
+                console.error("Initialization Error", e);
+            }
+        }
+
+        async function loadPlaceData(id) {
+            try {
+                const place = await PlacesService.getById(id);
+                if (place) {
+                    document.getElementById('p_id').value = place.id;
+                    document.getElementById('p_name_ar').value = place.name_ar;
+                    
+                    if (place.name_en) {
+                        document.getElementById('p_name_en').value = place.name_en;
+                        document.getElementById('group_name_en').style.display = 'block';
+                    }
+                    
+                    document.getElementById('p_main_cat').value = place.main_cat_id;
+                    
+                    // Update subcategories based on main category
+                    await updateSubCats();
+                    document.getElementById('p_sub_cat').value = place.sub_cat_id || '';
+                    
+                    document.getElementById('p_sub_cat').value = place.sub_cat_id || '';
+                    
+                    document.getElementById('p_address_ar').value = place.address_ar || place.address || '';
+                    if (place.address_en) {
+                        document.getElementById('p_address_en').value = place.address_en;
+                        document.getElementById('group_address_en').style.display = 'block';
+                    }
+                    
+                    // Legacy support check if needed, but we focus on new fields
+                    // document.getElementById('p_map_url').value = place.map_url || ''; // REMOVED
+                    document.getElementById('p_phone').value = place.phone || '';
+                    document.getElementById('p_whatsapp').value = place.whatsapp || '';
+                    document.getElementById('p_whatsapp').value = place.whatsapp || '';
+                    // document.getElementById('p_hours').value = place.working_hours || '';
+                    parseWorkingHours(place.working_hours || '');
+                    document.getElementById('p_desc_ar').value = place.desc_ar || '';
+                    document.getElementById('p_desc_ar').value = place.desc_ar || '';
+                    
+                    if (place.desc_en) {
+                        document.getElementById('p_desc_en').value = place.desc_en;
+                        document.getElementById('group_desc_en').style.display = 'block';
+                    }
+                    
+                    if (place.image_url) {
+                        document.getElementById('p_image').value = place.image_url;
+                        const preview = document.getElementById('preview-img');
+                        preview.src = place.image_url;
+                        preview.style.display = 'block';
+                    }
+
+                    if (place.images && Array.isArray(place.images)) {
+                        galleryImages = place.images;
+                        renderGallery();
+                    }
+
+                    // Section Toggles
+                    document.getElementById('p_featured_new').checked = !!place.is_featured;
+                    document.getElementById('p_trending').checked = !!place.is_trending;
+                    document.getElementById('p_urgent').checked = !!place.is_urgent;
+                    document.getElementById('p_has_offer').checked = !!place.has_offer;
+                    document.getElementById('p_offer_ar').value = place.offer_text_ar || '';
+                    document.getElementById('p_offer_en').value = place.offer_text_en || '';
+                    
+                    toggleOfferFields();
+                }
+            } catch (e) {
+                console.error("Load Place Error", e);
+                alert('حدث خطأ أثناء تحميل البيانات');
+            }
+        }
+
+        async function updateSubCats() {
+            const mainId = document.getElementById('p_main_cat').value;
+            const subSelect = document.getElementById('p_sub_cat');
+            
+            subSelect.innerHTML = '<option value="">اختر القسم الفرعي...</option>';
+            
+            if (!mainId) return;
+
+            try {
+                const subs = await CategoriesService.getSubs(mainId);
+                subSelect.innerHTML += subs.map(s => `<option value="${s.id}">${s.label}</option>`).join('');
+            } catch (e) {
+                console.error("Sub Cats Load Error", e);
+            }
+        }
+
+        async function handleFileUpload(input) {
+            if (!input.files || !input.files[0]) return;
+            
+            const file = input.files[0];
+            const msg = document.getElementById('upload-msg');
+            msg.innerText = 'جاري الرفع...';
+            
+            try {
+                const url = await UploadService.uploadImage(file, 'places');
+                document.getElementById('p_image').value = url;
+                
+                const preview = document.getElementById('preview-img');
+                preview.src = url;
+                preview.style.display = 'block';
+                msg.innerText = 'تم الرفع بنجاح!';
+            } catch (e) {
+                console.error(e);
+                msg.innerText = 'فشل الرفع، حاول مرة أخرى';
+                alert(I18n.t('upload_error') + ': ' + e.message);
+            }
+        }
+
+        async function handleGalleryUpload(input) {
+            if (!input.files || input.files.length === 0) return;
+            
+            const msg = document.getElementById('gallery-msg');
+            const originalText = msg.innerText;
+            msg.innerText = 'جاري رفع الصور...';
+            
+            try {
+                for (let file of input.files) {
+                    const url = await UploadService.uploadImage(file, 'places/gallery');
+                    galleryImages.push(url);
+                }
+                renderGallery();
+                msg.innerText = 'تم رفع ' + input.files.length + ' صور بنجاح!';
+                setTimeout(() => msg.innerText = originalText, 3000);
+            } catch (e) {
+                console.error(e);
+                msg.innerText = 'خطأ في الرفع';
+                alert('حدث خطأ أثناء رفع بعض الصور');
+            }
+        }
+
+        function renderGallery() {
+            const container = document.getElementById('gallery-preview');
+            container.innerHTML = galleryImages.map((url, index) => `
+                <div class="gallery-item">
+                    <img src="${url}">
+                    <button type="button" onclick="removeGalleryImage(${index})" 
+                            class="gallery-item-delete">
+                        <i data-lucide="trash-2"></i>
+                    </button>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        function removeGalleryImage(index) {
+            galleryImages.splice(index, 1);
+            renderGallery();
+        }
+
+        document.getElementById('place-form').onsubmit = async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('save-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader" class="spin"></i> جاري الحفظ...';
+            lucide.createIcons();
+
+            const data = {
+                name_ar: document.getElementById('p_name_ar').value,
+                name_en: document.getElementById('p_name_en').value,
+                main_cat_id: document.getElementById('p_main_cat').value,
+                sub_cat_id: document.getElementById('p_sub_cat').value || null,
+                address_ar: document.getElementById('p_address_ar').value,
+                address_en: document.getElementById('p_address_en').value,
+                // address: ... we can sync this or just rely on address_ar as fallback
+                address: document.getElementById('p_address_ar').value, // Fallback for legacy
+                // map_url: REMOVED
+                phone: document.getElementById('p_phone').value,
+                whatsapp: document.getElementById('p_whatsapp').value,
+                working_hours: formatWorkingHours(),
+                desc_ar: document.getElementById('p_desc_ar').value,
+                desc_en: document.getElementById('p_desc_en').value,
+                image_url: document.getElementById('p_image').value,
+                images: galleryImages, // Save gallery array
+                is_featured: document.getElementById('p_featured_new').checked,
+                is_trending: document.getElementById('p_trending').checked,
+                is_urgent: document.getElementById('p_urgent').checked,
+                has_offer: document.getElementById('p_has_offer').checked,
+                offer_text_ar: document.getElementById('p_offer_ar').value,
+                offer_text_en: document.getElementById('p_offer_en').value,
+                is_active: true
+            };
+
+            try {
+                if (editId) {
+                    await PlacesService.update(editId, data);
+                } else {
+                    await PlacesService.create(data);
+                }
+                alert(I18n.t('alert_save_success') || 'تم حفظ المكان بنجاح');
+                window.location.href = '#/places';
+            } catch (error) {
+                console.error('Error saving place:', error);
+                alert((I18n.t('alert_save_error') || 'حدث خطأ أثناء الحفظ:') + '\n' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="save"></i> حفظ البيانات';
+                lucide.createIcons();
+            }
+        };
+
+        async function handleOfferTranslation() {
+            const arOffer = document.getElementById('p_offer_ar').value;
+            const enOfferInput = document.getElementById('p_offer_en');
+            const enGroup = document.getElementById('group_offer_en');
+            
+            if (arOffer && !enOfferInput.value) {
+                try {
+                    const translated = await TranslationService.translateArToEn(arOffer);
+                    if (translated) {
+                        enOfferInput.value = translated;
+                        enGroup.style.display = 'block';
+                    }
+                } catch (e) {
+                    console.error("Translation error", e);
+                }
+            }
+        }
+
+        function toggleOfferFields() {
+            const hasOffer = document.getElementById('p_has_offer').checked;
+            document.getElementById('offer-fields').style.display = hasOffer ? 'grid' : 'none';
+            document.getElementById('manual-offer-toggle').style.display = hasOffer ? 'block' : 'none';
+        }
+
+        function formatWorkingHours() {
+            const start = document.getElementById('p_hours_start').value;
+            const end = document.getElementById('p_hours_end').value;
+            
+            if (!start && !end) return '';
+            
+            // Format to 12h AM/PM
+            const formatTime = (t) => {
+                if (!t) return '';
+                let [h, m] = t.split(':');
+                h = parseInt(h);
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                h = h % 12;
+                h = h ? h : 12; // the hour '0' should be '12'
+                return `${h}:${m} ${ampm}`;
+            };
+
+            if (start && end) return `${formatTime(start)} - ${formatTime(end)}`;
+            if (start) return `Starts ${formatTime(start)}`;
+            return `Ends ${formatTime(end)}`;
+        }
+
+        function parseWorkingHours(str) {
+            if (!str) return;
+            // Try to parse "9:00 AM - 10:00 PM"
+            // Simple regex approach or split
+            // This is "best effort" for existing data. Ideally data should be structured in DB, but we are string-based.
+            // If data is just random text, it won't load into pickers well.
+            // But we will try to parse standard format generated by us.
+            
+            // Convert "9:00 PM" to "21:00" for input[type=time]
+            const to24 = (timeStr) => {
+               const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/i);
+               if (!match) return '';
+               let [_, h, m, ap] = match;
+               h = parseInt(h);
+               if (ap.toUpperCase() === 'PM' && h < 12) h += 12;
+               if (ap.toUpperCase() === 'AM' && h === 12) h = 0;
+               return `${h.toString().padStart(2, '0')}:${m}`;
+            };
+
+            if (str.includes('-')) {
+                const [s, e] = str.split('-').map(x => x.trim());
+                if (s) document.getElementById('p_hours_start').value = to24(s);
+                if (e) document.getElementById('p_hours_end').value = to24(e);
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

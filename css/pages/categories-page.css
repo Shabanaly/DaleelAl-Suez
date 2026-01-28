@@ -1,0 +1,32 @@
+/* Categories Page Specific Styles */
+
+.all-categories-page .categories-container {
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 15px !important;
+    padding: 10px 0 !important;
+}
+
+/* Desktop Adjustments */
+@media (min-width: 1024px) {
+    .all-categories-page .categories-container {
+        grid-template-columns: repeat(5, 1fr) !important;
+        gap: 24px !important;
+    }
+    
+    /* Enforce card look on Desktop too for this page */
+    .all-categories-page .cat-nav-item {
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        height: 120px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+    }
+    
+    .all-categories-page .cat-nav-item i {
+        width: 32px;
+        height: 32px;
+        margin-bottom: 8px;
+    }
+}

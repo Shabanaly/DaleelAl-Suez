@@ -439,125 +439,95 @@ html, body {
 }
 
 /* RESPONSIVE CONTROL */
-@media (max-width: 1023px) { .top-nav { display: none; } }
+@media (max-width: 1023px) {
+    /* Show Top Nav container for Settings */
+    .top-nav {
+        display: flex;
+        gap: 8px;
+    }
+    /* Hide Navigation Links (Home, Account, etc) - they are in Bottom Nav */
+    .top-nav a {
+        display: none !important;
+    }
+    /* Ensure Buttons (Lang, Theme) are visible and compact */
+    .top-nav button {
+        display: flex !important;
+        font-size: 12px;
+        padding: 8px 12px;
+    }
+    .theme-toggle-btn {
+        width: 40px;
+        height: 40px;
+    }
+    .theme-toggle-btn i {
+        width: 22px;
+        height: 22px;
+    }
+}
 @media (min-width: 1024px) { .bottom-nav { display: none; } }
 
-/* ==================== ACCOUNT MODAL (BOTTOM SHEET) ==================== */
-.modal-backdrop {
+/* ==================== SITE PRELOADER (SUEZ LOGO) ==================== */
+#site-preloader {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(4px);
-    z-index: 4000;
-    opacity: 0;
-    visibility: hidden;
-    transition: 0.3s ease;
-}
-
-.modal-backdrop.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.account-modal {
-    position: fixed;
-    bottom: -100%;
-    left: 0;
-    width: 100%;
-    background: var(--bg-card);
-    border-radius: 24px 24px 0 0;
-    padding: 32px 24px 100px; /* Extra padding for bottom nav safely */
-    z-index: 4001;
-    transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    border-top: 1px solid var(--border);
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
-}
-
-.account-modal.active {
-    bottom: 0;
-}
-
-.modal-header {
+    background: var(--bg-main);
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-}
-
-.modal-header h3 {
-    font-size: 20px;
-    font-weight: 700;
-    color: var(--text-main);
-}
-
-.modal-close {
-    width: 32px;
-    height: 32px;
-    background: var(--bg-input);
-    border-radius: 50%;
-    display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    color: var(--text-muted);
+    z-index: 99999;
+    transition: opacity 0.6s ease, visibility 0.6s;
 }
 
-.modal-section {
-    margin-bottom: 24px;
-    padding-bottom: 24px;
-    border-bottom: 1px solid var(--border);
+#site-preloader.fade-out {
+    opacity: 0;
+    visibility: hidden;
 }
 
-.modal-section:last-child {
-    border-bottom: none;
-}
-
-.modal-section h4 {
-    font-size: 14px;
-    color: var(--text-muted);
-    margin-bottom: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Modal Actions */
-.modal-action-btn {
-    width: 100%;
-    padding: 14px;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    color: var(--text-main);
-    font-size: 16px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
-    margin-bottom: 12px;
-}
-
-.modal-action-btn i { width: 20px; height: 20px; }
-
-.auth-btn {
-    opacity: 0.6;
-    cursor: not-allowed;
+.loader-logo-wrapper {
     position: relative;
-    overflow: hidden;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 24px;
 }
 
-.badge-soon {
-    font-size: 10px;
-    background: var(--primary);
-    color: #fff;
-    padding: 2px 8px;
-    border-radius: 10px;
+/* Animated Gear */
+.loader-gear {
+    animation: gear-rotate 10s linear infinite;
+    transform-origin: 256px 256px; /* Exact center of 512x512 viewBox */
 }
 
-/* ==================== FAVORITES BUTTON ==================== */
+/* Animated Waves */
+.loader-waves {
+    animation: wave-flow 3s ease-in-out infinite alternate;
+    transform-origin: center;
+}
+
+@keyframes gear-rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes wave-flow {
+    from { transform: translateX(-5px); }
+    to { transform: translateX(5px); }
+}
+
+.loader-text {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: 1px;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+}
 .fav-btn {
     position: absolute;
     top: 12px;

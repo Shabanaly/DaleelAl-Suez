@@ -1,0 +1,23 @@
+/* Places Page Styles */
+
+.places-filter-card {
+    margin-bottom: 24px;
+}
+
+.filter-section {
+    margin-bottom: 16px;
+}
+
+.filter-label {
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.category-chips-list {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+}

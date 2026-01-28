@@ -9,9 +9,9 @@
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
-    <script src="js/theme.js"></script>
-    <script src="js/i18n.js"></script>
-    <script src="js/config.js"></script>
+    <script src="common/theme/theme.js"></script>
+    <script src="common/i18n/i18n.js"></script>
+    <script src="common/config/config.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775"
      crossorigin="anonymous"></script>
@@ -130,13 +130,22 @@
     <nav class="bottom-nav" id="bottom-nav-container"></nav>
 
     <!-- Project Logic Assets -->
-    <!-- Static Data Removed -->
+    <!-- Core Modules - Already loaded in <head>, preloader only needed here -->
+    <script src="js/ui/preloader.js"></script>
     
+    <!-- Data & Rendering Layers - Loaded as non-modules for global availability -->
+    <script src="js/data/data-manager.js"></script>
+    <script src="js/utils/dom-helpers.js"></script>
     
+    <!-- Services -->
+    <script src="common/services/supabase-init.js"></script>
+    <script src="common/services/cache.service.js"></script>
+    <script src="common/services/user/categories.service.js"></script>
+    <script src="common/services/user/places.service.js"></script>
+    
+    <!-- Main Logic -->
+    <script type="module" src="js/main.js"></script>
+
     <script>lucide.createIcons();</script>
-    <script src="js/favorites.js"></script>
-    <script src="js/services/places.service.js"></script> 
-    <script src="js/services/categories.service.js"></script> <!-- New Service -->
-    <script src="js/main.js"></script>
 </body>
 </html>

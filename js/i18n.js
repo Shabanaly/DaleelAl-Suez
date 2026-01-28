@@ -669,3 +669,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (cloak) cloak.remove();
     });
 });
+
+// Expose globally for onclick handlers
+window.toggleLanguage = toggleLanguage;
+window.getPreferredLanguage = getPreferredLanguage;

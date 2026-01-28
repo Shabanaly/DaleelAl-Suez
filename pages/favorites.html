@@ -6,13 +6,14 @@
     <title data-i18n="nav_favorites">المفضلة - دليل السويس</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="../js/config.js"></script>
+    <script src="../common/config/config.js"></script>
     <link rel="stylesheet" href="../css/reset.css">
     <link rel="stylesheet" href="../css/layout.css">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/responsive.css">
-    <script src="../js/theme.js"></script>
-    <script src="../js/i18n.js"></script>
+    <link rel="stylesheet" href="../css/modules/card-style.css">
+    <script src="../common/theme/theme.js"></script>
+    <script src="../common/i18n/i18n.js"></script>
 </head>
 <body>
     <header class="site-header">
@@ -76,18 +77,17 @@
     <nav class="bottom-nav" id="bottom-nav-container"></nav>
 
     <!-- Global Logic -->
-    <script src="../js/favorites.js"></script>
-    <script src="../js/services/places.service.js"></script>
-    <script src="../js/services/categories.service.js"></script>
-    <script src="../js/main.js"></script>
+    <!-- Global Logic -->
+    <script src="../js/ui/preloader.js"></script>
+    <script>if(typeof injectPreloader === 'function') injectPreloader();</script>
+    <script type="module" src="../js/pages/favorites-page.js"></script>
+    <script src="../common/services/supabase-init.js"></script>
+    <script type="module" src="../common/services/user/favorites.service.js"></script>
+    <script type="module" src="../js/main.js"></script>
     
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // favorites.js handles data fetching and rendering now
-            if (typeof renderFavorites === 'function') {
-                renderFavorites();
-            }
-        });
-    </script>
+    <style>
+        .spin { animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
 </body>
 </html>
