@@ -5,8 +5,8 @@ const SupabaseService = {
     client: null,
 
     init: () => {
-        if (window.sb) {
-            SupabaseService.client = window.sb;
+        if (SupabaseService.client || window.sb) {
+            SupabaseService.client = SupabaseService.client || window.sb;
             return;
         }
 

@@ -30,7 +30,7 @@ const StatsService = {
     getRecentActivity: async (limit = 5) => {
         const sb = SupabaseService.getClient();
         const { data, error } = await sb.from('places')
-            .select('id, name_ar, main_cat_id, created_at')
+            .select('id, name_ar, created_at') // Removed main_cat_id to fix crash
             .order('created_at', { ascending: false })
             .limit(limit);
             

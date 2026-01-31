@@ -23,6 +23,10 @@ const AuthService = {
         return null;
     },
 
+    isAuthenticated: () => {
+        return !!AuthService.getUserData();
+    },
+
     logout: async () => {
         if (window.SupabaseClient) {
             const sb = window.SupabaseClient.get();

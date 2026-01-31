@@ -140,5 +140,18 @@ const Sidebar = {
             </div>
         `;
   },
+
+  setActive: (activePage) => {
+      document.querySelectorAll('.nav-link, .drawer-nav-link').forEach(el => el.classList.remove('active'));
+      const activeLinks = document.querySelectorAll(`a[href*="#/${activePage}"], a[href*="#${activePage}"]`);
+      // Fallback: match by ID if href doesn't match perfectly or for dashboard
+      
+      if(activePage === 'dashboard' || activePage === 'home') {
+          // Just simplistic check
+          document.querySelectorAll('a[href="#/"]').forEach(el => el.classList.add('active'));
+      } else {
+           activeLinks.forEach(el => el.classList.add('active'));
+      }
+  }
 };
 window.Sidebar = Sidebar;

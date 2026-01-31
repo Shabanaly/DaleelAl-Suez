@@ -27,8 +27,8 @@ const PlacesPageController = {
         const tbody = document.getElementById('places-table-body');
         const gridView = document.getElementById('places-grid-view');
         
-        const loadingHtml = `<div style="grid-column: 1/-1; text-align: center; padding: 40px;">${I18n.t('loading_text')}</div>`;
-        if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 40px;">${I18n.t('loading_text')}</td></tr>`;
+        const loadingHtml = `<div style="grid-column: 1/-1; text-align: center; padding: 40px;">جاري التحميل...</div>`;
+        if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; padding: 40px;">جاري التحميل...</td></tr>`;
         if (gridView) gridView.innerHTML = loadingHtml;
 
         try {
@@ -36,7 +36,7 @@ const PlacesPageController = {
             this.renderPlaces(this.allPlaces);
         } catch (error) {
             console.error('Failed to load places:', error);
-            const errorMsg = `${I18n.t('error_loading')}: ${error.message}`;
+            const errorMsg = `خطأ في التحميل: ${error.message}`;
             if (tbody) tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: red;">${errorMsg}</td></tr>`;
             if (gridView) gridView.innerHTML = `<div style="text-align: center; color: red; grid-column: 1/-1;">${errorMsg}</div>`;
         }
@@ -88,15 +88,15 @@ const PlacesPageController = {
         if (!tbody) return;
 
         if (!places || places.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 40px;">${I18n.t('no_places_found')}</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 40px;">لا توجد أماكن مضافة</td></tr>`;
             return;
         }
 
         tbody.innerHTML = places.map(place => {
             const isChecked = place.is_active ? 'checked' : '';
-            const statusLabel = place.is_active ? I18n.t('status_open') : I18n.t('status_closed');
+            const statusLabel = place.is_active ? 'مفتوح' : 'مغلق';
             // Image handling
-            const imageSrc = place.logo || place.thumbnail || place.image_url || 'https://via.placeholder.com/40?text=P';
+            const imageSrc = place.logo || place.thumbnail || place.image_url || 'https://placehold.co/40x40?text=P';
 
             return `
                 <tr>
@@ -111,7 +111,7 @@ const PlacesPageController = {
                     </td>
                     <td>
                         <span class="badge category-badge">
-                            ${place.main_cat_id || I18n.t('uncategorized')}
+                            ${place.main_cat_id || 'غير مصنف'}
                         </span>
                     </td>
                     <td>
@@ -122,7 +122,7 @@ const PlacesPageController = {
                         </div>
                     </td>
                     <td>
-                        <label class="status-toggle" title="${I18n.t('toggle_status_title')}">
+                        <label class="status-toggle" title="تغيير الحالة">
                             <input type="checkbox" onchange="togglePlaceStatus('${place.id}', ${place.is_active})" ${isChecked}>
                             <span class="slider"></span>
                             <span class="status-text">${statusLabel}</span>
@@ -130,10 +130,10 @@ const PlacesPageController = {
                     </td>
                     <td>
                         <div class="table-actions-group">
-                            <a href="places-form.html?id=${place.id}" class="btn btn-outline btn-icon" title="${I18n.t('btn_edit')}">
+                            <a href="places-form.html?id=${place.id}" class="btn btn-outline btn-icon" title="تعديل">
                                 <i data-lucide="edit-2" style="width: 18px; height: 18px;"></i>
                             </a>
-                            <button class="btn btn-danger btn-icon" onclick="deletePlace('${place.id}')" title="${I18n.t('btn_delete')}">
+                            <button class="btn btn-danger btn-icon" onclick="deletePlace('${place.id}')" title="حذف">
                                 <i data-lucide="trash-2" style="width: 18px; height: 18px;"></i>
                             </button>
                         </div>

@@ -176,6 +176,178 @@ html, body {
 
 [data-ad-slot="home_hero_bottom"], [data-ad-position="hero-bottom"] { max-width: 970px; margin-top: -40px; position: relative; z-index: 20; }
 [data-ad-slot="details_sidebar"], [data-ad-position="sidebar"] { width: 100%; max-width: 300px; }
+/* Homepage Enhanced Sections */
+.home-section { padding: 24px 20px 0; }
+.home-section .section-head { margin-bottom: 16px; }
+
+/* 1. Offers Carousel */
+.offers-carousel {
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    padding: 10px 0;
+}
+
+.offers-track {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+    direction: rtl; /* RTL support */
+}
+
+.offer-slide {
+    min-width: 100%;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0.3;
+    transform: scale(0.95);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.offer-slide.active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.offers-indicators {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 0;
+    margin-top: 8px;
+}
+
+.offer-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    border: none;
+    background: var(--border);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+}
+
+.offer-indicator:hover {
+    background: var(--primary-soft);
+    transform: scale(1.2);
+}
+
+.offer-indicator.active {
+    background: var(--primary);
+    width: 28px;
+    border-radius: 5px;
+}
+
+/* Desktop-specific layout fix */
+@media (min-width: 1024px) {
+    .offers-carousel {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+}
+
+.offer-card {
+    width: calc(100% - 40px);
+    max-width: 350px;
+    height: 160px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    border-radius: 20px;
+    padding: 24px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+}
+
+.offer-badge {
+    background: #f59e0b;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 10px;
+    font-weight: 800;
+    text-transform: uppercase;
+    width: fit-content;
+}
+
+/* 2. Suez Info Hub */
+.info-hub {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+}
+.info-chip {
+    flex: 1;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: 0.3s;
+}
+.info-chip:hover { transform: translateY(-3px); border-color: var(--primary-soft); }
+.info-icon {
+    width: 42px;
+    height: 42px;
+    background: var(--bg-main);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary);
+}
+.info-chip .info-value { font-size: 16px; font-weight: 800; color: var(--text-main); line-height: 1.2; }
+.info-chip .info-label { font-size: 11px; color: var(--text-muted); margin-top: 2px; font-weight: 600; }
+
+/* 3. Trending Hub */
+.trending-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.trending-chip {
+    padding: 8px 16px;
+    background: var(--primary-light);
+    border: 1px solid var(--primary-soft);
+    border-radius: 99px;
+    font-size: 13px;
+    color: var(--primary);
+    text-decoration: none;
+    transition: 0.3s;
+}
+.trending-chip:hover { background: var(--primary); color: #fff; }
+
+/* 4. Quick Actions */
+.quick-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+.quick-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+    color: var(--text-main);
+}
+.quick-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 24px;
+}
+.quick-btn span { font-size: 11px; font-weight: 700; text-align: center; }
+
 /* 5. Reviews */
 .reviews-list { display: flex; flex-direction: column; gap: 16px; }
 .review-card {

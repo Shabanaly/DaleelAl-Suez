@@ -13,17 +13,19 @@
     <meta property="og:url" content="https://daleel-al-suez.vercel.app/">
     <meta property="og:type" content="website">
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
+    <!-- Home Page Specific Styles (Clean Architecture) -->
+    <link rel="stylesheet" href="css/pages/home.css">
+    
+    <!-- Core Modules -->
+    <script src="common/config/config.js"></script>
     <script src="common/theme/theme.js"></script>
     <script src="common/i18n/i18n.js"></script>
-    <script src="common/config/config.js"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775"
-     crossorigin="anonymous"></script>
-     <link rel="icon" href="/assets/icons/favicon.png" type="image/png">
+    <script src="js/ui/preloader.js"></script>
 </head>
 <body id="home-page">
     <!-- Universal Top Navbar (Persistent) -->
@@ -34,9 +36,10 @@
         </a>
         <nav class="top-nav">
             <a href="index.html" class="top-nav-link active" data-i18n="nav_home">الرئيسية</a>
+            <!-- Desktop Links -->
             <a href="pages/categories.html" class="top-nav-link" data-i18n="nav_categories">الأقسام</a>
             <a href="pages/favorites.html" class="top-nav-link" data-i18n="nav_favorites">المفضلة</a>
-            <a href="#" class="top-nav-link" data-i18n="nav_account">حسابي</a>
+            <a href="#" onclick="openAccountModal(event)" class="top-nav-link" data-i18n="nav_account">حسابي</a>
             <a href="pages/contact.html" class="top-nav-link" data-i18n="nav_contact">تواصل معنا</a>
             <button class="top-nav-link" onclick="toggleLanguage()" id="lang-toggle">English</button>
             <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-toggle">
@@ -45,74 +48,116 @@
         </nav>
     </header>
 
-    <main>
-        <!-- Hero Section -->
-        <div class="hero-container">
+    <!-- 
+        CLEAN ARCHITECTURE: Home Layout 
+        Controlled by css/pages/home.css
+    -->
+    <main class="home-layout">
+        
+        <!-- 1. HERO SECTION (Full Width) -->
+        <section class="home-hero home-full-width">
+            <!-- ... content ... -->
             <div class="hero-content">
-                <h1 data-i18n="hero_title">اكتشف أفضل أماكن السويس</h1>
-                <p data-i18n="hero_desc">دليلك المحلي الذكي للمطاعم، الخدمات والأطباء في مدينة السويس.</p>
+                <h1 class="hero-title" data-i18n="hero_title">اكتشف <span>السويس</span> من جديد</h1>
+                <p class="hero-desc" data-i18n="hero_desc">دليلك الذكي لأفضل المطاعم، الكافيهات، والخدمات في مدينتك.</p>
+                
+                <!-- Search Component Intact -->
                 <div class="search-ui">
-                    <i data-lucide="search"></i>
-                    <input type="text" data-i18n="search_placeholder" placeholder="ابحث عن مكان، مطعم، دكتور...">
+                    <input type="text" data-i18n="search_placeholder" placeholder="بتدور على إيه النهاردة؟" autocomplete="off">
+                    <div id="search-suggestions" class="search-suggestions hidden"></div>
                 </div>
             </div>
+        </section>
+        </section>
+
+        <!-- 1.5 STORIES SECTION (New) -->
+        <section class="stories-section home-full-width">
+            <div id="stories-container" class="stories-track">
+                <!-- Injected by JS -->
+            </div>
+        </section>
+
+        <!-- 2. MOOD PICKER (New Feature) -->
+        <section class="home-section mood-section home-full-width">
+            <div class="section-header">
+                 <h3 class="section-title">مودك إيه النهاردة؟ 🤔</h3>
+            </div>
+            <div id="mood-picker-container" class="mood-grid">
+                <!-- Injected by JS -->
+            </div>
+        </section>
+
+      <div class="home-content">
+            <!-- 2.5 EVENTS SECTION (New) -->
+            <section class="home-section events-section">
+                <div class="section-header">
+                    <h3 class="section-title">أجندة السويس 📅</h3>
+                </div>
+                <div id="events-container" class="events-scroll">
+                    <!-- Injected by JS -->
+                </div>
+            </section>
+
+            <!-- 3. SUEZ LIVE (New Feature) -->
+            <section class="home-section">
+                 <div id="suez-live-widget" class="live-widget">
+                     <!-- Injected by JS -->
+                     <div class="live-stat">
+                         <div class="live-val">--°C</div>
+                         <div class="live-lbl">الجو الآن</div>
+                     </div>
+                     <div class="live-stat">
+                         <div class="live-val">--</div>
+                         <div class="live-lbl">مكان مفتوح</div>
+                     </div>
+                 </div>
+            </section>
+
+            <!-- 3.5 HIDDEN GEMS (New) -->
+            <section class="home-section">
+                <div class="section-header">
+                    <h3 class="section-title">جواهر مستخبية 💎</h3>
+                    <p style="font-size:12px; color:var(--text-muted); margin-top:-5px">أماكن تستاهل التجربة</p>
+                </div>
+                <div id="gems-container" class="gems-grid">
+                    <!-- Injected by JS -->
+                </div>
+            </section>
+
+
+            <!-- 4. TRENDING / OFFERS (Refactored) -->
+            <section class="home-section">
+                <div class="section-header">
+                    <h3 class="section-title">عروض مميزة 🔥</h3>
+                </div>
+                <div id="offers-container" class="offers-carousel">
+                    <!-- Injected by JS -->
+                </div>
+            </section>
+
+            <!-- 5. MAIN CONTENT (Listings) -->
+            <section class="home-section">
+                <div class="section-header">
+                    <h3 class="section-title">أحدث الإضافات</h3>
+                    <a href="pages/categories.html" class="top-nav-link" style="font-size:12px">عرض الكل</a>
+                </div>
+                
+                <div id="places-container" class="home-listings-grid">
+                    <!-- Injected by JS -->
+                </div>
+            </section>
         </div>
-        <div class="ad-slot" data-ad-slot="home_hero_bottom" id="ad-home-hero" style="display:none;"></div>
 
-        <!-- NEW: Special Offers Carousel -->
-        <section class="home-section" id="offers-section">
-            <div class="section-head"><h3 data-i18n="section_offers">عروض مميزة 🔥</h3></div>
-            <div class="offers-carousel" id="offers-container"></div>
-        </section>
-
-        <!-- NEW: Suez Info Hub -->
-        <section class="home-section" id="info-section">
-            <div class="info-hub" id="info-container"></div>
-        </section>
-
-        <!-- NEW: Trending Hub -->
-        <section class="home-section" id="trending-section">
-            <div class="section-head"><h3 data-i18n="section_trending">الأكثر بحثاً</h3></div>
-            <div class="trending-container" id="trending-container"></div>
-        </section>
-
-        <!-- NEW: Quick Actions Grid -->
-        <section class="home-section" id="quick-actions-section">
-            <div class="section-head"><h3 data-i18n="section_quick">خدمات عاجلة</h3></div>
-            <div class="quick-grid" id="quick-actions-container"></div>
-        </section>
-
-        <!-- NEW: Explore Your City (Randomized) -->
-        <section class="home-section" id="explore-section">
-            <div class="section-head"><h3 data-i18n="section_explore">استكشف مدينتك</h3></div>
-            <div id="explore-container"></div>
-        </section>
-
-        <!-- Dedicated Categories Navigation (Always Visible Type) -->
-        <section class="categories-nav-section">
-            <div class="nav-scroll-wrapper">
-                <div class="categories-container" id="global-cats"></div>
+        <!-- SIDEBAR (Restored) -->
+        <aside class="home-sidebar">
+            <div class="sidebar-widget">
+                <h3 class="widget-title">الأقسام</h3>
+                <div id="categories-sidebar-container" class="sidebar-list">
+                    <!-- Injected by JS -->
+                </div>
             </div>
-        </section> <!-- /categories-nav-section -->
+        </aside>
 
-        <!-- Main Content -->
-        <section class="section-wrapper">
-            <div class="section-head">
-                <h3 data-i18n="section_latest">أحدث الإضافات</h3>
-            </div>
-            <div id="places-container" class="places-list">
-                <!-- Javascript Renders Cards Here -->
-            </div>
-            
-            <!-- NEW: Recent Reviews -->
-            <div class="reviews-section" style="margin-top: 40px;">
-                <div class="section-head"><h3 data-i18n="section_reviews">آراء مستخدمينا</h3></div>
-                <div id="reviews-container" class="reviews-list"></div>
-            </div>
-
-            <!-- AD Slot: Bottom -->
-            <div class="ad-slot" data-ad-slot="home_footer_top" id="ad-home-bottom" style="display:none; margin-top:40px;"></div>
-        </section>
     </main>
 
     <!-- Professional Global Footer -->

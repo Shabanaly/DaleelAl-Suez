@@ -13,7 +13,7 @@ const Topbar = {
                     <button class="mobile-menu-btn" onclick="toggleDrawer()">
                         <i data-lucide="menu"></i>
                     </button>
-                    <h1 class="page-title">${pageTitle}</h1>
+                    <h1 class="page-title" id="page-title">${pageTitle}</h1>
                 </div>
                 <div style="display:flex; align-items:center; gap: 16px;">
                     <button class="btn btn-outline btn-icon"><i data-lucide="bell"></i></button>
@@ -28,6 +28,11 @@ const Topbar = {
             </header>
         `;
   },
+  
+  setTitle: (title) => {
+      const el = document.getElementById('page-title');
+      if (el) el.textContent = title;
+  }
 };
 
 window.Topbar = Topbar;

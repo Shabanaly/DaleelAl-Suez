@@ -288,6 +288,24 @@
             }
         }
 
+        async function handleAddressTranslation() {
+            const arAddress = document.getElementById('p_address_ar').value;
+            const enAddressInput = document.getElementById('p_address_en');
+            const enGroup = document.getElementById('group_address_en');
+            
+            if (arAddress && !enAddressInput.value) {
+                try {
+                    const translated = await TranslationService.translateArToEn(arAddress);
+                    if (translated) {
+                        enAddressInput.value = translated;
+                        enGroup.style.display = 'block'; // Auto reveal
+                    }
+                } catch (e) {
+                    console.error("Translation error", e);
+                }
+            }
+        }
+
         function toggleEnField(type) {
             const id = `group_${type}_en`;
             const el = document.getElementById(id);
@@ -505,11 +523,11 @@
                 } else {
                     await PlacesService.create(data);
                 }
-                alert(I18n.t('alert_save_success') || 'تم حفظ المكان بنجاح');
+                alert('تم حفظ المكان بنجاح');
                 window.location.href = '#/places';
             } catch (error) {
                 console.error('Error saving place:', error);
-                alert((I18n.t('alert_save_error') || 'حدث خطأ أثناء الحفظ:') + '\n' + error.message);
+                alert('حدث خطأ أثناء الحفظ:' + '\n' + error.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = '<i data-lucide="save"></i> حفظ البيانات';

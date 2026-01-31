@@ -1,158 +1,256 @@
 /**
- * Home Page Controller
- * Orchestrates all home page rendering and initialization
+ * Home Page Controller (Clean Architecture)
+ * Orchestrates home page modules.
+ * Decoupled from legacy renderers.
  */
 
-import { renderOffers } from '../renderers/home/offers-renderer.js';
-import { renderTrendingHub } from '../renderers/home/trending-renderer.js';
-import { renderQuickActions } from '../renderers/home/urgent-renderer.js';
-import { renderExploreCity } from '../renderers/home/featured-renderer.js';
+import { initMoodPicker } from '../features/mood-picker.js';
+import { initSuezLive } from '../features/suez-live.js';
+import { initStories } from '../features/stories-bar.js';
+import { initEvents } from '../features/events-widget.js';
+import { initHiddenGems } from '../features/hidden-gems.js';
+import { initTrendingTags } from '../features/trending-bar.js';
+import { initQuickServices } from '../features/quick-services.js';
+import { initAIBot } from '../features/ai-bot.js';
 
 /**
- * Initialize homepage with all widgets and content
+ * Initialize homepage
  */
+import { initCategoriesSidebar } from '../features/categories-sidebar.js'; // New
+import { searchPlaces } from '../features/search-engine.js'; // Helper
+
+const SEARCH_HISTORY_KEY = 'suez_search_history';
+
+// Global Helper for onclick events in HTML strings
+window.selectPlace = (id, name) => {
+    // Sanitization handled by function
+    addToHistory({ type: 'place', id, name });
+    location.href = `pages/place.html?id=${id}`;
+};
+
+function addToHistory(item) {
+    let history = JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY) || '[]');
+    // Remove duplicates
+    history = history.filter(h => {
+        if (item.type === 'text') return h.query !== item.query;
+        if (item.type === 'place') return h.id !== item.id;
+        return true;
+    });
+    // Add to top
+    history.unshift(item);
+    // Limit to 5
+    if (history.length > 5) history.pop();
+    localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history));
+}
+
 export async function initHomePage() {
-    console.log("DEBUG: Initializing Homepage Widgets");
+    console.log("🚀 Initializing Clean Home Page");
+
+    // 1. Core Visuals
+    initMoodPicker('mood-picker-container');
+    initSuezLive('suez-live-widget');
+    initStories('stories-container');
     
-    try {
-        // Render all sections concurrently
-        await Promise.all([
-            renderOffers(),
-            renderSuezInfo(),
-            renderTrendingHub(),
-            renderQuickActions(),
-            renderExploreCity()
-        ]);
-        
-        // Render reviews (if needed)
-        renderHomepageReviews();
-        
-        // Load latest places
-        if (window.UserPlacesService) {
-            const allPlaces = await window.UserPlacesService.getLatestPlaces(7);
-            if (allPlaces) renderPlaces(allPlaces, "places-container");
-        }
-    } catch (error) {
-        console.error('Home page initialization error:', error);
-    }
+    initEvents('events-container');
+    initHiddenGems('gems-container');
+    
+    // 2. Sidebar (Restored)
+    initCategoriesSidebar('categories-sidebar-container');
+
+    // 3. Search & Autosuggest
+    setupSearchLogic();
+
+    // 4. Init Listings
+    loadLatestPlaces();
 }
 
-/**
- * Render Suez info widget (weather + clock)
- */
-async function renderSuezInfo() {
-    const container = document.getElementById('info-container');
-    if (!container) return;
-
-    const lang = localStorage.getItem('lang') || 'ar';
-    const isAr = lang === 'ar';
-
-    // Initial HTML
-    container.innerHTML = `
-        <div class="info-chip">
-            <div class="info-icon"><i data-lucide="cloud"></i></div>
-            <div class="info-body">
-                <div class="info-value" id="suez-temp">--°C</div>
-                <div class="info-label">${isAr ? 'جو السويس' : 'Suez Weather'}</div>
-            </div>
-        </div>
-        <div class="info-chip">
-            <div class="info-icon" style="color: var(--secondary);"><i data-lucide="clock"></i></div>
-            <div class="info-body">
-                <div class="info-value" id="real-time-clock">--:--:--</div>
-                <div class="info-label" id="real-time-date">--/--/----</div>
-            </div>
-        </div>
-    `;
-    if (typeof lucide !== "undefined") lucide.createIcons();
-
-    // Fetch weather
-    fetch('https://api.open-meteo.com/v1/forecast?latitude=29.97&longitude=32.53&current_weather=true')
-        .then(res => res.json())
-        .then(data => {
-            if (data.current_weather) {
-                const temp = Math.round(data.current_weather.temperature);
-                const tempEl = document.getElementById('suez-temp');
-                if (tempEl) tempEl.innerText = `${temp}°C`;
-            }
-        }).catch(err => console.warn("Weather fetch failed", err));
-
-    // Start clock
-    function updateClock() {
-        const now = new Date();
-        const clockEl = document.getElementById('real-time-clock');
-        const dateEl = document.getElementById('real-time-date');
-        
-        if (clockEl) {
-            clockEl.innerText = now.toLocaleTimeString(isAr ? 'ar-EG' : 'en-US', { 
-                hour: '2-digit', minute: '2-digit', second: '2-digit' 
-            });
-        }
-        if (dateEl) {
-            dateEl.innerText = now.toLocaleDateString(isAr ? 'ar-EG' : 'en-US', {
-                day: 'numeric', month: 'short'
-            });
-        }
-    }
-
-    updateClock();
-    setInterval(updateClock, 1000);
-}
-
-/**
- * Render homepage reviews section
- */
-function renderHomepageReviews() {
-    const container = document.getElementById('reviews-container');
-    if (!container) return;
-    container.innerHTML = "";
-}
-
-/**
- * Render places in a container
- */
-function renderPlaces(places, containerId) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    if (!places || places.length === 0) {
-        container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--text-muted);">لا توجد أماكن حالياً</div>`;
+function setupSearchLogic() {
+    console.log("🔍 Setting up Search Logic...");
+    const searchContainer = document.querySelector('.search-ui');
+    if (!searchContainer) {
+        console.warn("Search UI container not found");
         return;
     }
 
-    const lang = localStorage.getItem('lang') || 'ar';
-    const isAr = lang === 'ar';
-    const path = window.location.pathname;
-    const isHome = path === "/" || path.endsWith("index.html") || path.endsWith("/") || path === "";
-    const placeLink = isHome ? "pages/place.html" : "place.html";
+    const input = searchContainer.querySelector('input');
+    const suggestionsBox = document.getElementById('search-suggestions');
+    const icon = searchContainer.querySelector('i') || searchContainer.querySelector('svg');
 
-    container.innerHTML = places.map(place => {
-        const name = isAr ? (place.name_ar || place.name_en) : (place.name_en || place.name_ar);
-        const desc = isAr ? (place.desc_ar || place.desc_en || '') : (place.desc_en || place.desc_ar || '');
-        const image = place.image_url || (place.images && place.images[0]) || 'https://via.placeholder.com/400x300?text=No+Image';
+    if (!input) {
+        console.warn("Search input not found");
+        return;
+    }
+
+    console.log("✅ Search Input Found. Attaching listeners.");
+
+    // Perform Search (Redirect)
+    const doSearch = () => {
+        const val = input.value.trim();
+        console.log("Search Requested:", val);
+        if (val) window.location.href = `pages/search.html?q=${encodeURIComponent(val)}`;
+    };
+
+    // Autosuggest
+    let timeout;
+    input.addEventListener('input', (e) => {
+        const query = e.target.value.trim();
+        console.log("Input:", query); // Debug
+        clearTimeout(timeout);
         
-        const shortDesc = desc.length > 100 ? desc.substring(0, 100) + '...' : desc;
+        if (query.length < 2) {
+            suggestionsBox.classList.add('hidden');
+            return;
+        }
 
+        timeout = setTimeout(async () => {
+            console.log("Fetching suggestions for:", query);
+            try {
+                // Use existing search engine
+                const results = await searchPlaces(query);
+                console.log("Suggestions:", results);
+                renderSuggestions(results, suggestionsBox);
+            } catch (err) {
+                console.error("Search Suggest Error:", err);
+            }
+        }, 300);
+    });
+
+    // 3. Enter Key -> Search Results Page
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const val = input.value.trim();
+            if (val) {
+                addToHistory({ type: 'text', query: val });
+                location.href = `pages/search.html?q=${encodeURIComponent(val)}`;
+            }
+        }
+    });
+    
+    // 4. Click Outside to Close
+    document.addEventListener('click', (e) => {
+        if (!searchContainer.contains(e.target)) {
+            suggestionsBox.classList.add('hidden');
+        }
+    });
+}
+
+// Render Recent History
+function renderHistory(container) {
+    const history = JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY) || '[]');
+    if (history.length === 0) {
+        container.classList.add('hidden');
+        return;
+    }
+
+    const html = history.map(item => {
+        if (item.type === 'place') {
+            return `
+                <div class="suggestion-item history-item" onclick="location.href='pages/place.html?id=${item.id}'">
+                    <div class="suggestion-icon" style="background:#f0f2f5"><i data-lucide="clock" style="color:#65676b"></i></div>
+                    <div class="suggestion-info">
+                        <h4>${item.name}</h4>
+                        <p>آخر زيارة</p>
+                    </div>
+                </div>`;
+        } else {
+            return `
+                <div class="suggestion-item history-item" onclick="location.href='pages/search.html?q=${encodeURIComponent(item.query)}'">
+                    <div class="suggestion-icon" style="background:#f0f2f5"><i data-lucide="search" style="color:#65676b"></i></div>
+                    <div class="suggestion-info">
+                        <h4>${item.query}</h4>
+                        <p>بحث سابق</p>
+                    </div>
+                </div>`;
+        }
+    }).join('');
+
+    // Add Header "Recent"
+    container.innerHTML = `<div style="padding:8px 12px; font-size:12px; color:#65676b; font-weight:600">عمليات البحث الأخيرة</div>` + html;
+    container.classList.remove('hidden');
+    lucide.createIcons();
+}
+
+// Render Suggestions (Smart)
+function renderSuggestions(places, container, query) {
+    if (!places || places.length === 0) {
+        container.innerHTML = `<div style="padding:15px; text-align:center; color:#666">مفيش نتائج لـ "${query}" 😕</div>`;
+        container.classList.remove('hidden');
+        return;
+    }
+    
+    const getImg = (p) => p.image_url || 'assets/images/placeholder.jpg';
+    
+    // Show up to 50 items (Scroll handled by CSS)
+    let html = places.slice(0, 50).map(place => {
+        const name = place.name_ar || place.name_en || 'اسم المكان';
+        const safeName = name.replace(/'/g, "\\'"); // Escape quotes
         return `
-            <div class="listing-card" onclick="location.href='${placeLink}?id=${place.id}'" style="cursor: pointer;">
+        <div class="suggestion-item" onclick="selectPlace('${place.id}', '${safeName}')">
+            <div class="suggestion-icon">
+                <img src="${getImg(place)}" onerror="this.src='assets/images/placeholder.jpg'">
+            </div>
+            <div class="suggestion-info">
+                <h4>${place.name_ar || place.name_en || 'اسم المكان'}</h4>
+                <p>${place.address || 'السويس'}</p>
+            </div>
+             <div style="margin-right:auto; padding-left:5px;">
+                <i data-lucide="arrow-left" style="width:16px; color:var(--primary)"></i>
+            </div>
+        </div>
+    `;
+    }).join('');
+
+    // "See All" Link
+    html += `
+        <div class="suggestion-item" style="justify-content:center; color:var(--primary); font-weight:700" onclick="location.href='pages/search.html?q=${encodeURIComponent(query)}'">
+            عرض كل النتائج لـ "${query}"
+        </div>
+    `;
+    
+    container.innerHTML = html;
+    container.classList.remove('hidden');
+}
+
+
+
+async function loadLatestPlaces() {
+    const container = document.getElementById('places-container');
+    if (!container) return; // Should exist
+
+    if (window.UserPlacesService) {
+        try {
+            const places = await window.UserPlacesService.getLatestPlaces(8);
+            if (places && places.length > 0) {
+                renderHomePlaces(places, container);
+            } else {
+                container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px;">لا توجد أماكن حالياً</div>`;
+            }
+        } catch (e) {
+            console.error("Failed to load places", e);
+            container.innerHTML = `<div style="text-align: center; color: var(--text-muted);">خطأ في تحميل الأماكن</div>`;
+        }
+    }
+}
+
+function renderHomePlaces(places, container) {
+    // We use a simple render logic specific to Home Grid
+    // This strictly follows the decoupling rule.
+    // It creates cards compatible with css/pages/home.css
+    
+    container.innerHTML = places.map(place => {
+        const image = place.image_url || 'assets/images/placeholder.jpg';
+        const name = place.name_ar || place.name_en; // Default to AR
+        
+        return `
+            <div class="listing-card" onclick="location.href='pages/place.html?id=${place.id}'">
                 <div class="listing-img">
                     <img src="${image}" alt="${name}" loading="lazy">
-                    <div class="fav-btn" data-id="${place.id}" onclick="event.stopPropagation(); toggleFavorite('${place.id}')">
-                        <i data-lucide="heart"></i>
-                    </div>
                 </div>
                 <div class="listing-content">
                     <h3>${name}</h3>
-                    <p>${shortDesc}</p>
-                    ${place.address ? `<div class="address-tag">
-                        <i data-lucide="map-pin" style="width: 14px; height: 14px;"></i>
-                        <span>${place.address}</span>
-                    </div>` : ''}
+                    <p style="font-size: 12px; color: var(--text-muted);">${place.address || 'السويس'}</p>
                 </div>
             </div>
         `;
     }).join('');
-
-    if (typeof lucide !== "undefined") lucide.createIcons();
-    if (typeof syncFavoriteIcons === "function") syncFavoriteIcons();
 }
