@@ -7,14 +7,13 @@ const ANON_KEY = "sb_publishable_XC-WUiZW4nu0jtXAKz7dYQ_DdIzLnZi";
 const supabase = createClient(URL, ANON_KEY);
 
 async function check() {
-    console.log("Checking subcategories for 'restaurants'...");
+    console.log("Checking ads_settings...");
     
-    // 2. subcategories
-    const { data: subs, error: err2 } = await supabase.from('subcategories').select('*').eq('main_cat_id', 'restaurants');
-    if (err2) console.error("SubCategories Error:", err2.message);
+    const { data: ads, error } = await supabase.from('ads_settings').select('*');
+    if (error) console.error("Ads Settings Error:", error.message);
     else {
-        console.log("SubCategories Found:", subs ? subs.length : 0);
-        console.log("Sample:", subs);
+        console.log("Ads Slots Found:", ads ? ads.length : 0);
+        console.log("Sample:", ads);
     }
 }
 
