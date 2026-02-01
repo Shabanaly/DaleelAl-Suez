@@ -20,6 +20,8 @@
     <link rel="stylesheet" href="css/responsive.css">
     <!-- Home Page Specific Styles (Clean Architecture) -->
     <link rel="stylesheet" href="css/pages/home.css">
+    <link rel="stylesheet" href="css/modules/offers.css">
+    <link rel="stylesheet" href="css/modules/place-details.css">
     
     <!-- Core Modules -->
     <script src="common/config/config.js"></script>
@@ -194,14 +196,14 @@
     <script src="js/ui/preloader.js"></script>
     
     <!-- Data & Rendering Layers - Loaded as non-modules for global availability -->
-    <script src="js/data/data-manager.js"></script>
+
     <script src="js/utils/dom-helpers.js"></script>
     
     <!-- Services -->
     <script src="common/services/supabase-init.js"></script>
     <script src="common/services/cache.service.js"></script>
-    <script src="common/services/user/categories.service.js"></script>
-    <script src="common/services/user/places.service.js"></script>
+    <script src="js/db/categories.js"></script>
+    <script src="js/db/places.js"></script>
     
     <!-- Main Logic -->
     <script type="module" src="js/main.js"></script>

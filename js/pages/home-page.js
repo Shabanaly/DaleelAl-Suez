@@ -12,6 +12,7 @@ import { initHiddenGems } from '../features/hidden-gems.js';
 import { initTrendingTags } from '../features/trending-bar.js';
 import { initQuickServices } from '../features/quick-services.js';
 import { initAIBot } from '../features/ai-bot.js';
+import { renderOffers } from '../renderers/home/offers-renderer.js';
 
 /**
  * Initialize homepage
@@ -60,7 +61,8 @@ export async function initHomePage() {
     // 3. Search & Autosuggest
     setupSearchLogic();
 
-    // 4. Init Listings
+    // 4. Init Offers & Listings
+    renderOffers();
     loadLatestPlaces();
 }
 

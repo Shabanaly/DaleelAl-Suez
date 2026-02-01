@@ -42,56 +42,37 @@
             <div class="v8-skeleton v8-skeleton-hero"></div>
         </section>
 
-        <!-- 2. Floating Header Card (JS Injected) -->
-        <section id="v8-header-card" class="v8-header-card v8-fade-in">
-            <div class="v8-skeleton v8-skeleton-text"></div>
-            <div class="v8-skeleton v8-skeleton-text short"></div>
-        </section>
+        <!-- 2. Desktop Content Grid (Contact + About) -->
+        <div class="v9-content-grid">
+            <!-- Contact Info List -->
+            <section id="v8-info-grid" class="v9-contact-section">
+                <!-- List Skeleton -->
+                <div style="display:flex; gap:16px; margin-bottom:12px; align-items:center;">
+                    <div class="v8-skeleton" style="width:48px; height:48px; border-radius:50%;"></div>
+                    <div style="flex:1;">
+                        <div class="v8-skeleton v8-skeleton-text short"></div>
+                    </div>
+                </div>
+            </section>
 
-        <!-- 3. Info Cards Grid (JS Injected) -->
-        <section id="v8-info-grid" class="v8-info-grid">
-            <div class="v8-info-card v8-fade-in">
-                <div class="v8-skeleton" style="width:48px;height:48px;"></div>
-                <div style="flex:1;">
-                    <div class="v8-skeleton v8-skeleton-text short"></div>
-                </div>
-            </div>
-            <div class="v8-info-card v8-fade-in">
-                <div class="v8-skeleton" style="width:48px;height:48px;"></div>
-                <div style="flex:1;">
-                    <div class="v8-skeleton v8-skeleton-text short"></div>
-                </div>
-            </div>
-            <div class="v8-info-card v8-fade-in">
-                <div class="v8-skeleton" style="width:48px;height:48px;"></div>
-                <div style="flex:1;">
-                    <div class="v8-skeleton v8-skeleton-text short"></div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 4. Action Buttons (JS Injected) -->
-        <section id="v8-action-grid" class="v8-action-grid v8-fade-in"></section>
+            <!-- About Section -->
+            <section id="v8-about-section" class="v8-content-section v8-fade-in"></section>
+        </div>
         
-        <!-- AD SLOT: Details Sidebar (Placed here as interstitial) -->
+        <!-- AD SLOT: Details Sidebar -->
         <div data-ad-slot="details_sidebar" class="ad-container" style="display:none; margin: 20px 0; text-align: center;"></div>
 
-
-        <!-- 5. Gallery Section (JS Injected) -->
+        <!-- 5. Gallery Section -->
         <section id="v8-gallery-section" class="v8-gallery-section v8-fade-in"></section>
 
-        <!-- 6. About Section (JS Injected) -->
-        <section id="v8-about-section" class="v8-content-section v8-fade-in"></section>
-
-        <!-- 7. Map Section (JS Injected) -->
+        <!-- 7. Map Section -->
         <section id="v8-map-section" class="v8-content-section v8-fade-in"></section>
 
-        <!-- 8. Reviews Section (JS Injected) -->
+        <!-- 8. Reviews Section -->
         <section id="v8-reviews-section" class="v8-content-section v8-fade-in"></section>
     </main>
 
-    <!-- Mobile Bottom Action Bar -->
-    <div id="v8-bottom-bar" class="v8-bottom-bar"></div>
+    <!-- Mobile Bottom Bar Removed (Merged to Hero) -->
 
     <!-- Lightbox for Gallery -->
     <div id="v8-lightbox" class="v8-lightbox" onclick="closeLightbox()">
@@ -115,10 +96,10 @@
     <script>if(typeof injectPreloader === 'function') injectPreloader();</script>
     <script src="../common/services/supabase-init.js"></script>
     <script src="../common/services/cache.service.js"></script>
-    <script src="../common/services/user/places.service.js"></script>
-    <script src="../common/services/user/categories.service.js"></script>
-    <script src="../common/services/user/favorites.service.js"></script>
-    <script src="../common/services/user/reviews.service.js"></script>
+    <script src="../js/db/places.js"></script>
+    <script src="../js/db/categories.js"></script>
+    <script src="../js/db/favorites.js"></script>
+    <script src="../js/db/reviews.js"></script>
     <script type="module" src="../js/main.js"></script>
     <script>
         function openLightbox(src) {

@@ -22,8 +22,8 @@ import { renderGlobalCategories } from './renderers/categories/category-grid-ren
 import { renderBottomNav } from './renderers/common/bottom-nav-renderer.js';
 
 // Services
-import '../common/services/user/favorites.service.js';
-import '../common/services/user/reviews.service.js';
+import './db/favorites.js';
+import './db/reviews.js';
 
 // Page Controllers
 import { initHomePage } from './pages/home-page.js';

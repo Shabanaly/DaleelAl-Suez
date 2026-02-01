@@ -1,3 +1,5 @@
+-- Home Features Schema (Trending Tags & Quick Services)
+
 -- 1. Trending Tags Table
 CREATE TABLE public.trending_tags (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -17,10 +19,9 @@ CREATE TABLE public.quick_services (
     sort_order INTEGER DEFAULT 0
 );
 
--- Enable RLS
+-- 3. Security Policies
 ALTER TABLE public.trending_tags ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.quick_services ENABLE ROW LEVEL SECURITY;
 
--- Public Read Policies
 CREATE POLICY "Public read trending" ON public.trending_tags FOR SELECT USING (is_active = true);
 CREATE POLICY "Public read services" ON public.quick_services FOR SELECT USING (is_active = true);

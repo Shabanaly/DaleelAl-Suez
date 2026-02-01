@@ -31,8 +31,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Handle Submit
     form.addEventListener('submit', handleSave);
+    
+    // Live ID Generation
+    const enInput = document.getElementById('c_name_en');
+    if (enInput) {
+        enInput.addEventListener('input', window.generateIdFromEn);
+    }
 });
 
+// Translation & UI Helpers
 // Translation & UI Helpers
 window.handleCatNameTranslation = async function() {
     const arName = document.getElementById('c_name_ar').value;
@@ -45,6 +52,7 @@ window.handleCatNameTranslation = async function() {
             if (translated) {
                 enNameInput.value = translated;
                 enGroup.style.display = 'block'; // Auto reveal
+                window.generateIdFromEn(); // Auto generate ID
             }
         } catch (e) {
             console.error("Translation error", e);
@@ -64,13 +72,17 @@ window.generateIdFromEn = function() {
     const enName = document.getElementById('c_name_en').value;
     const idInput = document.getElementById('c_id');
     
-    if (enName && !idInput.value) {
+    // Always generate if enName exists and ID is empty OR user is typing (if we want live updates)
+    // Since ID is readonly for user, we can force update it from name if it's a NEW record.
+    // But check if we are in Edit mode (c_old_id is populated).
+    const isEdit = !!document.getElementById('c_old_id').value;
+    if (isEdit) return; // Don't auto-change ID on edit
+
+    if (enName) {
         const id = enName.toLowerCase()
             .replace(/[^a-z0-9]+/g, '-') // Replace non-alphanumeric with hyphen
             .replace(/^-+|-+$/g, '');   // Trim hyphens
         idInput.value = id;
-    } else if (!enName) {
-        window.Toast.warning('يرجى كتابة الاسم بالإنجليزي أولاً');
     }
 };
 

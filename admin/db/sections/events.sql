@@ -1,4 +1,6 @@
--- Create Events Table
+-- Events Module Schema
+
+-- 1. Events Table
 CREATE TABLE public.events (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     title TEXT NOT NULL,
@@ -12,10 +14,9 @@ CREATE TABLE public.events (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Enable RLS
+-- 2. Security Policies
 ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
 
--- Policies
 CREATE POLICY "Public can view active events" 
 ON public.events FOR SELECT 
 USING (is_active = TRUE AND end_time > NOW());

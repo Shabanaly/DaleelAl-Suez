@@ -27,32 +27,23 @@ export async function renderPlaceDetails(placeId) {
     // Parse Images
     const images = parseImages(place);
 
-    // 1. Render Hero Section
-    renderV8Hero(images, name, place);
+    // 1. Render Hero Section (Includes Header & Actions)
+    await renderV8Hero(images, name, place, isAr);
 
-    // 2. Render Header Card
-    renderV8HeaderCard(place, name, isAr);
+    // 2. Render Contact Info (Was Info Cards)
+    renderV8ContactInfo(place, isAr);
 
-    // 3. Render Info Cards
-    renderV8InfoCards(place, isAr);
-
-    // 4. Render Action Buttons
-    renderV8ActionGrid(place, isAr);
-
-    // 5. Render Gallery
+    // 3. Render Gallery
     renderV8Gallery(images, name);
 
-    // 6. Render About Section
+    // 4. Render About Section
     renderV8About(desc, isAr);
 
-    // 7. Render Map Section
+    // 5. Render Map Section
     renderV8Map(place, isAr);
 
-    // 8. Render Reviews Section
+    // 6. Render Reviews Section
     renderV8Reviews(place, isAr);
-
-    // 9. Render Mobile Bottom Bar
-    renderV8BottomBar(place, isAr);
 
     // Initialize icons
     if (typeof lucide !== "undefined") lucide.createIcons();
@@ -105,22 +96,86 @@ function showPlaceNotFound() {
 }
 
 /**
- * 1. Render Hero Section
+ * 1. Render Hero Section (Includes Header & Actions)
  */
-function renderV8Hero(images, name, place) {
+async function renderV8Hero(images, name, place, isAr) {
     const container = document.getElementById('v8-hero-section');
     if (!container) return;
 
-    container.innerHTML = `
-        <img src="${images[0]}" alt="${name}" class="v8-hero-img">
-        <div class="v8-hero-overlay"></div>
-        <a href="javascript:history.back()" class="v8-hero-back">
-            <i data-lucide="chevron-right"></i>
-        </a>
-        <button id="v8-hero-fav-btn" class="v8-hero-fav" onclick="toggleFavorite('${place.id}')">
-            <i data-lucide="heart"></i>
+    // Get category name
+    let categoryName = isAr ? 'غير محدد' : 'Not specified';
+    if (place.main_cat_id && window.sb) {
+        try {
+            const { data } = await window.sb.from('categories').select('name_ar, name_en').eq('id', place.main_cat_id).single();
+            if (data) {
+                categoryName = isAr ? data.name_ar : (data.name_en || data.name_ar);
+            }
+        } catch (e) {}
+    }
+
+    // Prepare Action Buttons Links
+    const phone = place.phone;
+    const whatsapp = place.whatsapp;
+    const waNumber = whatsapp ? normalizeWhatsAppNumber(whatsapp) : null;
+    const address = isAr ? (place.address_ar || place.address) : (place.address_en || place.address);
+    // const mapUrl = place.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address || '')}`; // Moved to location text click if needed, or separate button? 
+    // Image 1 & 2 show: "Call Now" (Orange) and "Share" (Blue). 
+    // Image 2 also shows "Share" on desktop? Image 1 shows Call & Share.
+    // Let's implement Call & Share as primary.
+
+    let buttonsHtml = '';
+    
+    // Call Button
+    if (phone) {
+        buttonsHtml += `
+            <a href="tel:${phone}" class="v9-hero-btn call">
+                <span>${isAr ? 'اتصل الآن' : 'Call Now'}</span>
+                <i data-lucide="phone"></i>
+            </a>
+        `;
+    }
+
+    // Share Button
+    buttonsHtml += `
+        <button class="v9-hero-btn share" onclick="sharePlace()">
+            <span>${isAr ? 'مشاركة' : 'Share'}</span>
+            <i data-lucide="share-2"></i>
         </button>
-        ${place.is_featured ? '<div class="v8-hero-badge">مميز</div>' : ''}
+    `;
+
+    container.innerHTML = `
+        <div class="v9-hero-inner">
+            <img src="${images[0]}" alt="${name}" class="v9-hero-img">
+            <div class="v9-hero-overlay">
+                <!-- Top Nav Buttons -->
+                <div class="v9-top-actions">
+                    <button class="v9-icon-btn" onclick="history.back()">
+                        <i data-lucide="arrow-right"></i> <!-- RTL: Right arrow points back in intent usually, checking icons -->
+                    </button>
+                    <!-- Favorite Button would go here if needed, but maybe not in design? keeping it for functionality -->
+                     <button id="v8-hero-fav-btn" class="v9-icon-btn" onclick="toggleFavorite('${place.id}')">
+                        <i data-lucide="heart"></i>
+                    </button>
+                </div>
+
+                <!-- Bottom Content -->
+                <div class="v9-hero-content">
+                    <div class="v9-hero-text-side">
+                        <div class="v9-category-badge">${categoryName}</div>
+                        <h1 class="v9-hero-title">${name}</h1>
+                        
+                        <div class="v9-location-row">
+                            <i data-lucide="map-pin"></i>
+                            <span>${address || (isAr ? 'غير محدد' : 'Not specified')}</span>
+                        </div>
+                    </div>
+
+                    <div class="v9-hero-buttons">
+                        ${buttonsHtml}
+                    </div>
+                </div>
+            </div>
+        </div>
     `;
 
     // Check favorite status
@@ -138,6 +193,7 @@ async function checkFavoriteStatus(id) {
         const btn = document.getElementById('v8-hero-fav-btn');
         if (btn && favIds.has(id)) {
             btn.classList.add('active');
+            // If active, maybe change icon fill style in CSS
         }
     } catch (e) {
         console.error('Error checking favorite status:', e);
@@ -145,147 +201,89 @@ async function checkFavoriteStatus(id) {
 }
 
 /**
- * 2. Render Header Card
+ * 2. Render Contact Information (Replaces Info Cards)
+ * Matches Image 3 layout (Contact Info List)
  */
-async function renderV8HeaderCard(place, name, isAr) {
-    const container = document.getElementById('v8-header-card');
-    if (!container) return;
-
-    const rating = parseFloat(place.rating || 0).toFixed(1);
-    const reviewsCount = place.reviews_count || 0;
-
-    // Get category name
-    let categoryName = isAr ? 'غير محدد' : 'Not specified';
-    if (place.main_cat_id && window.sb) {
-        try {
-            const { data } = await window.sb.from('categories').select('name_ar, name_en').eq('id', place.main_cat_id).single();
-            if (data) {
-                categoryName = isAr ? data.name_ar : (data.name_en || data.name_ar);
-            }
-        } catch (e) {}
-    }
-
-    container.innerHTML = `
-        <div class="v8-header-top">
-            <h1 class="v8-place-name">${name}</h1>
-            <div class="v8-rating-badge">
-                <i data-lucide="star"></i>
-                ${rating}
-            </div>
-        </div>
-        <div class="v8-header-meta">
-            <span class="v8-category-tag">${categoryName}</span>
-            <span class="v8-meta-dot"></span>
-            <span>${reviewsCount} ${isAr ? 'تقييم' : 'reviews'}</span>
-            ${place.address ? `
-                <span class="v8-meta-dot"></span>
-                <span>${isAr ? (place.address_ar || place.address) : (place.address_en || place.address)}</span>
-            ` : ''}
-        </div>
-    `;
-}
-
-/**
- * 3. Render Info Cards
- */
-function renderV8InfoCards(place, isAr) {
+function renderV8ContactInfo(place, isAr) {
+    // We reuse the 'v8-info-grid' container ID but styled differently now
     const container = document.getElementById('v8-info-grid');
     if (!container) return;
 
-    const workingHours = place.working_hours || (isAr ? 'غير محدد' : 'Not specified');
-    const address = isAr ? (place.address_ar || place.address || '') : (place.address_en || place.address || '');
-    const rating = parseFloat(place.rating || 0).toFixed(1);
-    const reviewsCount = place.reviews_count || 0;
+    const phone = place.phone;
+    const website = place.website; // Assuming website field exists or similar
+    const createdDate = place.created_at ? new Date(place.created_at).toLocaleDateString(isAr ? 'ar-EG' : 'en-US') : null;
 
-    // Determine if open (simple logic - can be enhanced)
-    const isOpenNow = true; // Placeholder - would need actual time parsing
+    // If no data, hide
+    if (!phone && !website && !createdDate) {
+        container.style.display = 'none';
+        return;
+    }
 
-    container.innerHTML = `
-        <div class="v8-info-card v8-fade-in">
-            <div class="v8-info-icon">
-                <i data-lucide="clock"></i>
-            </div>
-            <div class="v8-info-content">
-                <div class="v8-info-label">${isAr ? 'ساعات العمل' : 'Working Hours'}</div>
-                <div class="v8-info-value ${isOpenNow ? 'open' : 'closed'}">
-                    ${workingHours}
+    let itemsHtml = '';
+
+    // Phone
+    if (phone) {
+        itemsHtml += `
+            <div class="v9-contact-item">
+                <div class="v9-contact-icon bg-blue">
+                    <i data-lucide="phone"></i>
+                </div>
+                <div class="v9-contact-text">
+                    <div class="v9-label">${isAr ? 'رقم الهاتف' : 'Phone Number'}</div>
+                    <div class="v9-value" dir="ltr">${phone}</div>
                 </div>
             </div>
-        </div>
-        
-        <div class="v8-info-card v8-fade-in">
-            <div class="v8-info-icon">
-                <i data-lucide="map-pin"></i>
+        `;
+    }
+
+    // Website (or Website link if available)
+    if (website) { 
+         itemsHtml += `
+            <div class="v9-contact-item">
+                <div class="v9-contact-icon bg-globe">
+                    <i data-lucide="globe"></i>
+                </div>
+                <div class="v9-contact-text">
+                    <div class="v9-label">${isAr ? 'الموقع الإلكتروني' : 'Website'}</div>
+                    <a href="${website}" target="_blank" class="v9-value link">${isAr ? 'زيارة الموقع' : 'Visit Website'}</a>
+                </div>
             </div>
-            <div class="v8-info-content">
-                <div class="v8-info-label">${isAr ? 'العنوان' : 'Address'}</div>
-                <div class="v8-info-value">${address || (isAr ? 'غير محدد' : 'Not specified')}</div>
+        `;
+    }
+
+    // Date/Time (using created_at as generic info or maybe Working Hours if preferred)
+    // The image 3 shows "Date Joined" or similar clock icon. Let's use Date Added for now or Working Hours.
+    // Image 3 has a clock icon with a date. Let's assume it's "Date Added" or "Working Hours".
+    // Let's use "Date Added" as seen in image 3 likely "تاريخ الإضافة".
+    if (createdDate) {
+         itemsHtml += `
+            <div class="v9-contact-item">
+                <div class="v9-contact-icon bg-clock">
+                    <i data-lucide="clock"></i>
+                </div>
+                <div class="v9-contact-text">
+                    <div class="v9-label">${isAr ? 'تاريخ الإضافة' : 'Date Added'}</div>
+                    <div class="v9-value">${createdDate}</div>
+                </div>
             </div>
-        </div>
-        
-        <div class="v8-info-card v8-fade-in">
-            <div class="v8-info-icon">
-                <i data-lucide="star"></i>
-            </div>
-            <div class="v8-info-content">
-                <div class="v8-info-label">${isAr ? 'التقييم' : 'Rating'}</div>
-                <div class="v8-info-value">${rating} (${reviewsCount} ${isAr ? 'تقييم' : 'reviews'})</div>
-            </div>
+        `;
+    }
+
+    container.innerHTML = `
+        <h3 class="v9-section-title">${isAr ? 'معلومات التواصل' : 'Contact Information'}</h3>
+        <div class="v9-contact-list">
+            ${itemsHtml}
         </div>
     `;
+    
+    // Clean up old classes if present by just using v9 classes inside
+    container.className = 'v9-contact-section v8-fade-in'; 
 }
 
-/**
- * 4. Render Action Buttons
- */
+// 4. Render Action Buttons - REMOVED (Merged into Hero)
 function renderV8ActionGrid(place, isAr) {
     const container = document.getElementById('v8-action-grid');
-    if (!container) return;
-
-    const phone = place.phone;
-    const whatsapp = place.whatsapp;
-    const waNumber = whatsapp ? normalizeWhatsAppNumber(whatsapp) : null;
-    const address = isAr ? (place.address_ar || place.address) : (place.address_en || place.address);
-    const mapUrl = place.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address || '')}`;
-
-    let html = '';
-
-    if (phone) {
-        html += `
-            <a href="tel:${phone}" class="v8-action-btn call">
-                <i data-lucide="phone"></i>
-                <span>${isAr ? 'اتصال' : 'Call'}</span>
-            </a>
-        `;
-    }
-
-    if (waNumber) {
-        html += `
-            <a href="https://wa.me/${waNumber}" target="_blank" class="v8-action-btn whatsapp">
-                <i data-lucide="message-circle"></i>
-                <span>${isAr ? 'واتساب' : 'WhatsApp'}</span>
-            </a>
-        `;
-    }
-
-    html += `
-        <a href="${mapUrl}" target="_blank" class="v8-action-btn map">
-            <i data-lucide="navigation"></i>
-            <span>${isAr ? 'الاتجاهات' : 'Directions'}</span>
-        </a>
-    `;
-
-    // If only 2 buttons, add share button
-    if (!phone || !waNumber) {
-        html += `
-            <button class="v8-action-btn share" onclick="sharePlace()">
-                <i data-lucide="share-2"></i>
-                <span>${isAr ? 'مشاركة' : 'Share'}</span>
-            </button>
-        `;
-    }
-
-    container.innerHTML = html;
+    if (container) container.remove(); // Clean up if exists
 }
 
 /**
@@ -581,47 +579,8 @@ function setupReviewSubmit(placeId, isAr) {
 /**
  * 9. Render Mobile Bottom Bar
  */
+// 9. Render Bottom Bar - REMOVED (Buttons in Hero)
 function renderV8BottomBar(place, isAr) {
     const container = document.getElementById('v8-bottom-bar');
-    if (!container) return;
-
-    const phone = place.phone;
-    const whatsapp = place.whatsapp;
-    const waNumber = whatsapp ? normalizeWhatsAppNumber(whatsapp) : null;
-    const address = isAr ? (place.address_ar || place.address) : (place.address_en || place.address);
-    const mapUrl = place.map_url || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address || '')}`;
-
-    let html = '';
-
-    if (phone) {
-        html += `
-            <a href="tel:${phone}" class="v8-bottom-btn call">
-                <i data-lucide="phone"></i>
-                ${isAr ? 'اتصال' : 'Call'}
-            </a>
-        `;
-    }
-
-    if (waNumber) {
-        html += `
-            <a href="https://wa.me/${waNumber}" target="_blank" class="v8-bottom-btn whatsapp">
-                <i data-lucide="message-circle"></i>
-                ${isAr ? 'واتساب' : 'WhatsApp'}
-            </a>
-        `;
-    }
-
-    html += `
-        <a href="${mapUrl}" target="_blank" class="v8-bottom-btn map">
-            <i data-lucide="navigation"></i>
-            ${isAr ? 'خريطة' : 'Map'}
-        </a>
-    `;
-
-    container.innerHTML = html;
-
-    // Hide if no contact options
-    if (!phone && !waNumber && !address) {
-        container.style.display = 'none';
-    }
+    if (container) container.remove();
 }

@@ -16,13 +16,26 @@ export async function renderOffers() {
     try {
         // Fetch max 7 offers
         const places = await window.UserPlacesService.getOfferPlaces(7);
-        if (!places || places.length === 0) {
-            container.parentElement.style.display = 'none';
-            return;
-        }
-
         const lang = localStorage.getItem('lang') || 'ar';
         const isAr = lang === 'ar';
+
+        if (!places || places.length === 0) {
+            container.innerHTML = `
+                <div class="offer-card empty-state">
+                    <div class="offer-content">
+                        <div style="font-size: 54px; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.1));">✨</div>
+                        <h4 class="offer-title">
+                            ${isAr ? 'انتظروا عروضنا قريباً' : 'Exciting Offers Coming Soon'}
+                        </h4>
+                        <p class="offer-text" style="justify-content: center; font-size: 16px;">
+                            ${isAr ? 'نعمل حالياً على تجهيز أقوى الخصومات لكم' : 'We are working on bringing you the best discounts.'}
+                        </p>
+                    </div>
+                </div>
+            `;
+            container.parentElement.style.display = 'block';
+            return;
+        }
 
         // Create carousel wrapper
         container.innerHTML = `
@@ -31,15 +44,20 @@ export async function renderOffers() {
                     ${places.map((place, index) => {
                         const name = isAr ? (place.name_ar || place.name_en) : (place.name_en || place.name_ar);
                         const offerText = isAr ? (place.offer_text_ar || 'خصم خاص') : (place.offer_text_en || 'Special Offer');
+                        const image = place.image_url || 'assets/images/placeholder.jpg';
                         
                         return `
                             <div class="offer-slide ${index === 0 ? 'active' : ''}" data-index="${index}">
-                                <div class="offer-card" onclick="location.href='pages/place.html?id=${place.id}'" style="cursor:pointer;">
-                                    <div>
-                                        <div class="offer-badge">${isAr ? 'عرض حصري' : 'Exclusive'}</div>
-                                        <h4 style="margin: 8px 0; font-size:18px; font-weight:800;">${name}</h4>
+                                <div class="offer-card" onclick="location.href='pages/place.html?id=${place.id}'">
+                                    <div class="offer-card-bg" style="background-image: url('${image}')"></div>
+                                    <div class="offer-content">
+                                        <div class="offer-badge">
+                                            <i data-lucide="tag" style="width:12px; margin-inline-end:5px;"></i>
+                                            ${isAr ? 'عرض حصري' : 'Exclusive'}
+                                        </div>
+                                        <h4 class="offer-title">${name}</h4>
+                                        <p class="offer-text">${offerText}</p>
                                     </div>
-                                    <p style="font-size:14px; opacity:0.9; font-weight:600;">${offerText}</p>
                                 </div>
                             </div>
                         `;
@@ -48,8 +66,7 @@ export async function renderOffers() {
                 <div class="offers-indicators">
                     ${places.map((_, index) => `
                         <button class="offer-indicator ${index === 0 ? 'active' : ''}" 
-                                data-index="${index}" 
-                                aria-label="عرض ${index + 1}">
+                                data-index="${index}">
                         </button>
                     `).join('')}
                 </div>
@@ -57,6 +74,7 @@ export async function renderOffers() {
         `;
         
         container.parentElement.style.display = 'block';
+        if (typeof lucide !== 'undefined') lucide.createIcons();
         
         // Initialize carousel
         initOffersCarousel(places.length);

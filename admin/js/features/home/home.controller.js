@@ -18,7 +18,22 @@ const HomeController = {
 
             if (typeof StatsService !== 'undefined') {
                 stats = await StatsService.getDashboardStats();
-                recent = await StatsService.getRecentActivity();
+                const rawRecent = await StatsService.getRecentActivity();
+                
+                // Enrich with Category Strings
+                // categories-service.js must be loaded
+                if (window.CategoriesService) {
+                    const allCats = await window.CategoriesService.getAll();
+                    const catMap = {};
+                    allCats.forEach(c => catMap[c.id] = c.name_ar);
+                    
+                    recent = rawRecent.map(item => ({
+                        ...item,
+                        category_name: catMap[item.main_cat_id] || item.main_cat_id // Fallback to ID
+                    }));
+                } else {
+                    recent = rawRecent;
+                }
             } else {
                 console.warn("StatsService is not loaded.");
             }

@@ -59,12 +59,9 @@
                         <div class="grid-2">
                             <div class="form-group">
                                 <label class="form-label">القسم الرئيسي *</label>
-                                <select id="p_main_cat" class="form-control" required onchange="updateSubCats()"></select>
+                                <select id="p_main_cat" class="form-control" required></select>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">القسم الفرعي *</label>
-                                <select id="p_sub_cat" class="form-control" required></select>
-                            </div>
+
                         </div>
 
                         <div class="grid-2">
@@ -174,53 +171,80 @@
                             </div>
                         </div>
                         
-                        <!-- NEW: Advanced Section Controls Hub -->
+                        <!-- NEW: AI-Driven Feature Selection Hub -->
                         <div class="visibility-section">
                             <h4 class="visibility-title">
-                                <i data-lucide="layout"></i> توزيع الأقسام في الصفحة الرئيسية
+                                <i data-lucide="sparkles"></i> ظهور المكان في المنصة (UI Features)
                             </h4>
                             
-                            <div class="grid-3 visibility-grid">
-                                <label class="checkbox-label" class="form-label">
-                                    <input type="checkbox" id="p_featured_new" class="checkbox-input">
-                                    <span>استكشف مدينتك (Spotlight)</span>
-                                </label>
-                                <label class="checkbox-label" class="form-label">
-                                    <input type="checkbox" id="p_trending" class="checkbox-input">
-                                    <span>الأكثر بحثاً (Trending)</span>
-                                </label>
-                                <label class="checkbox-label" class="form-label">
-                                    <input type="checkbox" id="p_urgent" class="checkbox-input">
-                                    <span>خدمات عاجلة (Quick)</span>
-                                </label>
+                            <div class="feature-group">
+                                <span class="feature-group-title">أقسام الاكتشاف (Discovery)</span>
+                                <div class="feature-grid">
+                                    <label class="feature-card">
+                                        <input type="checkbox" id="p_featured_new">
+                                        <div class="feature-card-content">
+                                            <i data-lucide="star"></i>
+                                            <span>أضواء المدينة (Spotlight)</span>
+                                        </div>
+                                    </label>
+                                    
+                                    <label class="feature-card trending">
+                                        <input type="checkbox" id="p_trending">
+                                        <div class="feature-card-content">
+                                            <i data-lucide="trending-up"></i>
+                                            <span>الأكثر طلباً (Trending)</span>
+                                        </div>
+                                    </label>
+
+                                    <label class="feature-card gem">
+                                        <input type="checkbox" id="p_hidden_gem">
+                                        <div class="feature-card-content">
+                                            <i data-lucide="gem"></i>
+                                            <span>جوهرة خفية (Gem)</span>
+                                        </div>
+                                    </label>
+                                </div>
                             </div>
 
-                            <div class="offer-divider">
-                                <label class="offer-label" class="form-label">
-                                    <input type="checkbox" id="p_has_offer" class="checkbox-input" onchange="toggleOfferFields()">
-                                    <span class="offer-text">تفعيل قسم العروض والخصومات 🔥</span>
-                                </label>
-                                
-                                <div id="offer-fields" class="grid-2">
+                            <div class="feature-group">
+                                <span class="feature-group-title">أقسام الخدمات (Services)</span>
+                                <div class="feature-grid">
+                                    <label class="feature-card urgent">
+                                        <input type="checkbox" id="p_urgent">
+                                        <div class="feature-card-content">
+                                            <i data-lucide="alert-circle"></i>
+                                            <span>خدمة عاجلة (Quick)</span>
+                                        </div>
+                                    </label>
+
+                                    <label class="feature-card" style="grid-column: span 2;">
+                                        <input type="checkbox" id="p_has_offer" onchange="toggleOfferFields()">
+                                        <div class="feature-card-content" style="flex-direction: row; justify-content: flex-start; gap: 20px;">
+                                            <i data-lucide="tag"></i>
+                                            <div style="text-align: right;">
+                                                <span>تفعيل قسم العروض والخصومات</span>
+                                                <p style="font-size: 11px; color: var(--text-muted); margin-top: 4px;">سيظهر في قسم "عروض السويس" بالرئيسية</p>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div id="offer-fields" class="offer-box" style="display: none;">
+                                <div class="grid-2">
                                     <div class="form-group">
                                         <label class="form-label">وصف العرض (عربي)</label>
                                         <input id="p_offer_ar" class="form-control" placeholder="مثال: خصم 50% لفترة محدودة" onblur="handleOfferTranslation()">
                                     </div>
                                     
-                                    <!-- English Offer (Hidden by default) -->
                                     <div class="form-group" id="group_offer_en" style="display: none;">
-                                        <label class="form-label">
-                                            Offer Description (EN) <span class="badge badge-auto">AUTO</span>
-                                        </label>
+                                        <label class="form-label">Offer Description (EN)</label>
                                         <div class="input-group-center">
                                             <input id="p_offer_en" class="form-control" placeholder="e.g., 50% OFF Limited Time">
-                                            <button type="button" class="btn btn-outline btn-icon" onclick="toggleEnField('offer')" title="إخفاء">
-                                                <i data-lucide="eye-off"></i>
-                                            </button>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group manual-offer-toggle" id="manual-offer-toggle" style="display: none;">
+                                <div class="form-group manual-offer-toggle" id="manual-offer-toggle">
                                      <button type="button" class="btn btn-outline" style="font-size: 12px; padding: 4px 12px;" onclick="toggleEnField('offer')">
                                          <i data-lucide="languages" style="width: 14px;"></i> إضافة العرض بالإنجليزي
                                     </button>
@@ -348,13 +372,8 @@
                         document.getElementById('group_name_en').style.display = 'block';
                     }
                     
+                    
                     document.getElementById('p_main_cat').value = place.main_cat_id;
-                    
-                    // Update subcategories based on main category
-                    await updateSubCats();
-                    document.getElementById('p_sub_cat').value = place.sub_cat_id || '';
-                    
-                    document.getElementById('p_sub_cat').value = place.sub_cat_id || '';
                     
                     document.getElementById('p_address_ar').value = place.address_ar || place.address || '';
                     if (place.address_en) {
@@ -393,6 +412,7 @@
                     document.getElementById('p_featured_new').checked = !!place.is_featured;
                     document.getElementById('p_trending').checked = !!place.is_trending;
                     document.getElementById('p_urgent').checked = !!place.is_urgent;
+                    document.getElementById('p_hidden_gem').checked = !!place.is_hidden_gem;
                     document.getElementById('p_has_offer').checked = !!place.has_offer;
                     document.getElementById('p_offer_ar').value = place.offer_text_ar || '';
                     document.getElementById('p_offer_en').value = place.offer_text_en || '';
@@ -405,21 +425,7 @@
             }
         }
 
-        async function updateSubCats() {
-            const mainId = document.getElementById('p_main_cat').value;
-            const subSelect = document.getElementById('p_sub_cat');
-            
-            subSelect.innerHTML = '<option value="">اختر القسم الفرعي...</option>';
-            
-            if (!mainId) return;
 
-            try {
-                const subs = await CategoriesService.getSubs(mainId);
-                subSelect.innerHTML += subs.map(s => `<option value="${s.id}">${s.label}</option>`).join('');
-            } catch (e) {
-                console.error("Sub Cats Load Error", e);
-            }
-        }
 
         async function handleFileUpload(input) {
             if (!input.files || !input.files[0]) return;
@@ -495,7 +501,6 @@
                 name_ar: document.getElementById('p_name_ar').value,
                 name_en: document.getElementById('p_name_en').value,
                 main_cat_id: document.getElementById('p_main_cat').value,
-                sub_cat_id: document.getElementById('p_sub_cat').value || null,
                 address_ar: document.getElementById('p_address_ar').value,
                 address_en: document.getElementById('p_address_en').value,
                 // address: ... we can sync this or just rely on address_ar as fallback
@@ -511,6 +516,7 @@
                 is_featured: document.getElementById('p_featured_new').checked,
                 is_trending: document.getElementById('p_trending').checked,
                 is_urgent: document.getElementById('p_urgent').checked,
+                is_hidden_gem: document.getElementById('p_hidden_gem').checked,
                 has_offer: document.getElementById('p_has_offer').checked,
                 offer_text_ar: document.getElementById('p_offer_ar').value,
                 offer_text_en: document.getElementById('p_offer_en').value,
@@ -524,7 +530,7 @@
                     await PlacesService.create(data);
                 }
                 alert('تم حفظ المكان بنجاح');
-                window.location.href = '#/places';
+                window.location.href = 'places.html';
             } catch (error) {
                 console.error('Error saving place:', error);
                 alert('حدث خطأ أثناء الحفظ:' + '\n' + error.message);

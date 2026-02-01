@@ -62,33 +62,27 @@
                         </div>
 
                         <div class="grid-2">
-                            <div class="form-group">
-                                <label class="form-label">المعرف (ID) *</label>
-                                <div class="input-with-hint">
-                                    <div style="display: flex; gap: 8px;">
-                                        <input id="c_id" class="form-control" required placeholder="restaurants" style="text-align: left; direction: ltr;">
-                                        <button type="button" class="btn btn-outline btn-icon" onclick="generateIdFromEn()" title="استخراج من الإنجليزي">
-                                            <i data-lucide="wand-2"></i>
-                                        </button>
-                                    </div>
-                                    <small class="form-hint">يستخدم في URL و الكود. يفضل الإنجليزية بدون مسافات.</small>
-                                </div>
+                            <!-- ID Field (Hidden as requested, auto-generated) -->
+                            <div class="form-group" style="display: none;">
+                                <label class="form-label">المعرف (ID)</label>
+                                <input id="c_id" class="form-control" readonly>
                             </div>
+
                             <div class="form-group">
                                 <label class="form-label">الأيقونة (Lucide Icon)</label>
-                                <div class="input-group">
-                                    <input id="c_icon" class="form-control" placeholder="utensils" style="text-align: left; direction: ltr;">
-                                    <a href="https://lucide.dev/icons" target="_blank" class="btn btn-outline" style="padding: 0 12px; display: flex; align-items: center;">
-                                        <i data-lucide="external-link" style="width: 16px;"></i>
+                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                    <input id="c_icon" class="form-control" placeholder="مثال: utensils, home, car" style="text-align: left; direction: ltr;">
+                                    <a href="https://lucide.dev/icons" target="_blank" class="btn btn-outline" style="justify-content: center; opacity: 0.8; height: 40px;">
+                                        <i data-lucide="external-link" style="width: 16px;"></i> تصفح مكتبة الأيقونات
                                     </a>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-actions-footer">
-                            <button type="button" onclick="window.history.back()" class="btn btn-secondary">إلغاء</button>
-                            <button type="submit" class="btn btn-primary" id="save-btn">
-                                <i data-lucide="save"></i> حفظ البيانات
+                        <div class="form-actions-footer" style="gap: 16px; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--border);">
+                            <button type="button" onclick="window.history.back()" class="btn btn-outline btn-lg" style="min-width: 120px;">إلغاء</button>
+                            <button type="submit" class="btn btn-primary btn-lg" id="save-btn" style="min-width: 160px;">
+                                <i data-lucide="save"></i> حفظ القسم
                             </button>
                         </div>
                     </form>

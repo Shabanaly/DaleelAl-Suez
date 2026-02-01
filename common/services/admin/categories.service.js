@@ -5,47 +5,26 @@
  */
 const CategoriesService = {
     /**
-     * Get all categories with subcategories embedded
+     * Get all categories (Main only)
      * @async
-     * @returns {Promise<Array>} Array of category objects with nested subcategories
+     * @returns {Promise<Array>} Array of category objects
      */
     getAll: async () => {
         const sb = SupabaseService.getClient();
         
         try {
-            // Fetch Main
-            const { data: cats, error: err1 } = await sb.from('categories').select('*').order('id');
-            if (err1) throw err1;
+            // Fetch Main only
+            const { data: cats, error } = await sb.from('categories').select('*').order('id');
+            if (error) throw error;
 
-            // Fetch Subs
-            const { data: subs, error: err2 } = await sb.from('subcategories').select('*');
-            if (err2) throw err2;
-
-            // Map Subs to Main
             return cats.map(c => ({
                 ...c,
-                label: c.name_ar, // Admin UI helper
-                subs: subs.filter(s => s.main_cat_id === c.id).map(s => ({
-                    ...s,
-                    label: s.name_ar
-                }))
+                label: c.name_ar // Admin UI helper
             }));
         } catch (e) {
             console.error(e);
             return [];
         }
-    },
-
-    /**
-     * Get subcategories for a specific category
-     * @async
-     * @param {number|string} mainId - Main category ID
-     * @returns {Promise<Array>} Array of subcategory objects
-     */
-    getSubs: async (mainId) => {
-        const sb = SupabaseService.getClient();
-        const { data } = await sb.from('subcategories').select('*').eq('main_cat_id', mainId);
-        return data ? data.map(s => ({...s, label: s.name_ar})) : [];
     },
 
     /**
@@ -102,61 +81,6 @@ const CategoriesService = {
             .delete()
             .eq('id', id);
         
-        if (error) throw error;
-        return true;
-    },
-
-    /**
-     * Create new subcategory
-     * @async
-     * @param {Object} subData - Subcategory data object
-     * @returns {Promise<Object>} Created subcategory object
-     * @throws {Error} If creation fails
-     */
-    createSub: async (subData) => {
-        const sb = SupabaseService.getClient();
-        const { data, error } = await sb
-            .from('subcategories')
-            .insert([subData])
-            .select()
-            .single();
-        if (error) throw error;
-        return data;
-    },
-
-    /**
-     * Update existing subcategory
-     * @async
-     * @param {number|string} id - Subcategory ID
-     * @param {Object} subData - Updated subcategory data
-     * @returns {Promise<Object>} Updated subcategory object
-     * @throws {Error} If update fails
-     */
-    updateSub: async (id, subData) => {
-        const sb = SupabaseService.getClient();
-        const { data, error} = await sb
-            .from('subcategories')
-            .update(subData)
-            .eq('id', id)
-            .select()
-            .single();
-        if (error) throw error;
-        return data;
-    },
-
-    /**
-     * Delete subcategory
-     * @async
-     * @param {number|string} id - Subcategory ID
-     * @returns {Promise<boolean>} True if deletion successful
-     * @throws {Error} If deletion fails
-     */
-    deleteSub: async (id) => {
-        const sb = SupabaseService.getClient();
-        const { error } = await sb
-            .from('subcategories')
-            .delete()
-            .eq('id', id);
         if (error) throw error;
         return true;
     }

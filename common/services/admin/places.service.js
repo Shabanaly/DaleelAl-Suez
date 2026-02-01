@@ -50,10 +50,10 @@ const PlacesService = {
         
         // Sanitize: ensure we only send fields that exist in DB to avoid errors
         const validFields = [
-            'name_ar', 'name_en', 'sub_cat_id', 'address', 'address_ar', 'address_en',
+            'name_ar', 'name_en', 'main_cat_id', 'address', 'address_ar', 'address_en',
             'desc_ar', 'desc_en', 'image_url', 'is_featured', 'is_active',
             'phone', 'whatsapp', 'working_hours', 'is_trending', 'is_urgent', 
-            'has_offer', 'offer_text_ar', 'offer_text_en'
+            'has_offer', 'offer_text_ar', 'offer_text_en', 'is_hidden_gem'
         ];
 
         const payload = {};
@@ -96,10 +96,10 @@ const PlacesService = {
 
         // Sanitize Payload
         const validFields = [
-            'name_ar', 'name_en', 'sub_cat_id', 'address', 'address_ar', 'address_en',
+            'name_ar', 'name_en', 'main_cat_id', 'address', 'address_ar', 'address_en',
             'desc_ar', 'desc_en', 'image_url', 'is_featured', 'is_active',
             'phone', 'whatsapp', 'working_hours', 'is_trending', 'is_urgent', 
-            'has_offer', 'offer_text_ar', 'offer_text_en'
+            'has_offer', 'offer_text_ar', 'offer_text_en', 'is_hidden_gem'
         ];
 
         const payload = {};

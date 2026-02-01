@@ -88,40 +88,7 @@ const PlacesService = {
         return data || [];
     },
 
-    /**
-     * Get places by sub category (with caching)
-     * @async
-     * @param {number|string} subId - Sub category ID
-     * @returns {Promise<Array>} Array of place objects
-     */
-    getPlacesBySubCategory: async (subId) => {
-        const cacheKey = `places_sub_cat_${subId}`;
-        
-        if (window.CacheService) {
-            return window.CacheService.getOrFetch(cacheKey, async () => {
-                return PlacesService._fetchPlacesBySubCategory(subId);
-            }, PlacesService.CACHE_TTL.CATEGORY);
-        }
-        
-        return PlacesService._fetchPlacesBySubCategory(subId);
-    },
 
-    _fetchPlacesBySubCategory: async (subId) => {
-        if (!window.sb) return [];
-        
-        const { data, error } = await window.sb
-            .from('places')
-            .select('*')
-            .eq('sub_cat_id', subId)
-            .eq('is_active', true)
-            .order('created_at', { ascending: false });
-
-        if (error) {
-            console.error("Error fetching sub cat:", error);
-            return [];
-        }
-        return data || [];
-    },
 
     /**
      * Get single place by ID (with caching)

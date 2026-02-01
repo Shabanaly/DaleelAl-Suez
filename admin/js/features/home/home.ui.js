@@ -61,7 +61,7 @@ const HomeUI = {
                 <div class="card-header">
                     <h3>أحدث الإضافات</h3>
                 </div>
-                <table class="data-table">
+                <table class="table table-hover">
                     <thead>
                         <tr>
                             <th>الاسم</th>
@@ -70,13 +70,24 @@ const HomeUI = {
                         </tr>
                     </thead>
                     <tbody>
-                        ${recentItems.length ? recentItems.map(i => `
+                        ${recentItems.length ? recentItems.map(i => {
+                            const date = new Intl.DateTimeFormat('ar-EG', {
+                                year: 'numeric', month: 'long', day: 'numeric'
+                            }).format(new Date(i.created_at));
+                            
+                            // Use light/soft styling for category badge
+                            return `
                             <tr>
                                 <td class="fw-bold">${i.name_ar}</td>
-                                <td><span class="badge">${i.main_cat_id || '-'}</span></td>
-                                <td dir="ltr" class="text-end">${new Date(i.created_at).toLocaleDateString('ar-EG')}</td>
+                                <td>
+                                    <span class="badge" style="background: var(--bg-body); color: var(--text-secondary); border: 1px solid var(--border);">
+                                        ${i.category_name || 'غير محدد'}
+                                    </span>
+                                </td>
+                                <td class="text-secondary" style="font-size: 0.9em;">${date}</td>
                             </tr>
-                        `).join('') : '<tr><td colspan="3" class="text-center">لا توجد بيانات حديثة</td></tr>'}
+                            `;
+                        }).join('') : '<tr><td colspan="3" class="text-center py-4 text-muted">لا توجد بيانات حديثة</td></tr>'}
                     </tbody>
                 </table>
             </div>
