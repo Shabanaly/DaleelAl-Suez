@@ -31,38 +31,56 @@ export async function initStories(containerId) {
 }
 
 async function fetchActiveStories() {
-    try {
-        // Try Supabase First
-        const { data, error } = await window.sb
-            .from('stories')
-            .select('*, places(name_ar, logo_url)')
-            .gt('expires_at', new Date().toISOString());
-
-        if (data && data.length > 0) {
-            return data.map(s => ({
-                id: s.id,
-                media: s.media_url,
-                caption: s.caption,
-                place_name: s.places?.name_ar || 'مكان',
-                place_logo: s.places?.logo_url,
-                seen: false
-            }));
-        }
-    } catch (e) {
-        console.warn("Stories table not found or empty, using mock.");
+    if (!window.StoriesService) {
+        console.warn('StoriesService not found');
+        return [];
     }
 
-    // Fallback Mock Data for Demo
-    return [
-        { id: 1, media: 'https://images.unsplash.com/photo-1544148103-0773bf10d330?w=800&q=80', caption: 'عرض خاص النهاردة! 🍔', place_name: 'برجر كينج', seen: false },
-        { id: 2, media: 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=800&q=80', caption: 'قهوتك علينا ☕', place_name: 'كوستا', seen: false }
-    ];
+    try {
+        const stories = await window.StoriesService.getActiveStories();
+        
+        if (!stories || stories.length === 0) return [];
+
+        // Group by Place
+        const groupedMap = new Map();
+        
+        stories.forEach(story => {
+            const placeId = story.place_id || 'general';
+            const placeName = story.places ? story.places.name_ar : 'دليل السويس';
+            const placeLogo = story.places ? story.places.logo_url : 'assets/images/logo-placeholder.png';
+            
+            if (!groupedMap.has(placeId)) {
+                groupedMap.set(placeId, {
+                    place_id: placeId,
+                    place_name: placeName,
+                    place_logo: placeLogo,
+                    items: [],
+                    seen: false // Logic for seen state could be added here (localStorage)
+                });
+            }
+            
+            groupedMap.get(placeId).items.push({
+                id: story.id,
+                media: story.media_url,
+                caption: story.caption,
+                link: story.link_url,
+                type: story.media_type
+            });
+        });
+
+        return Array.from(groupedMap.values());
+    } catch (e) {
+        console.error("Failed to fetch stories", e);
+        return [];
+    }
 }
 
 // Viewer Logic (Simple Overlay)
-function openStoryViewer(index) {
-    const stories = window.currentStories;
-    let currentIndex = index;
+// Viewer Logic (Grouped Support)
+function openStoryViewer(groupIndex) {
+    const groups = window.currentStories; // These are now GROUPS of stories
+    let currentGroupIndex = groupIndex;
+    let currentStoryIndex = 0; // Index within the group
 
     // Create or Get Modal
     let modal = document.getElementById('story-modal');
@@ -74,50 +92,91 @@ function openStoryViewer(index) {
     }
 
     function renderStory() {
-        if (currentIndex >= stories.length) {
+        if (currentGroupIndex >= groups.length) {
             closeStoryViewer();
             return;
         }
-        const s = stories[currentIndex];
+
+        const group = groups[currentGroupIndex];
+        
+        // Ensure valid story index
+        if (currentStoryIndex >= group.items.length) {
+            // Move to next group
+            currentGroupIndex++;
+            currentStoryIndex = 0;
+            renderStory();
+            return;
+        }
+
+        const s = group.items[currentStoryIndex];
+        
+        // Progress Bars (Segmented)
+        const progressHtml = group.items.map((_, idx) => `
+            <div class="progress-segment" style="flex:1; height:4px; background:rgba(255,255,255,0.3); border-radius:2px; margin:0 2px; overflow:hidden;">
+                <div class="${idx < currentStoryIndex ? 'filled' : (idx === currentStoryIndex ? 'filling' : '')}" 
+                     style="height:100%; background:#fff; width:${idx < currentStoryIndex ? '100%' : '0%'}; transition: width ${idx === currentStoryIndex ? '5s' : '0s'} linear;"></div>
+            </div>
+        `).join('');
+
         modal.innerHTML = `
-            <div class="story-progress-bar">
-                <div class="progress-fill" style="width: 0%"></div>
+            <div class="story-progress-bar" style="display:flex; padding: 10px 5px;">
+                ${progressHtml}
             </div>
             <div class="story-header">
-                <img src="${s.place_logo || 'assets/images/logo-placeholder.png'}">
-                <span>${s.place_name}</span>
+                <img src="${group.place_logo || 'assets/images/logo-placeholder.png'}">
+                <span>${group.place_name}</span>
                 <button onclick="closeStoryViewer()" class="close-story">✕</button>
             </div>
             <div class="story-media" style="background-image: url('${s.media}')">
-                <div class="story-caption">${s.caption}</div>
+                <div class="story-caption" style="${s.caption ? '' : 'display:none'}">${s.caption}</div>
+                ${s.link ? `<a href="${s.link}" target="_blank" class="story-cta" style="position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); background: white; color: black; padding: 10px 20px; border-radius: 30px; font-weight: bold; text-decoration: none;">زيارة الرابط 🔗</a>` : ''}
             </div>
             <div class="story-nav left" onclick="prevStory()"></div>
             <div class="story-nav right" onclick="nextStory()"></div>
         `;
 
-        // Animate Progress
+        // Animate Current Segment
+        // Small delay to allow DOM paint
         setTimeout(() => {
-            const fill = modal.querySelector('.progress-fill');
-            if(fill) fill.style.width = '100%';
+            const filling = modal.querySelector('.filling');
+            if(filling) filling.style.width = '100%';
         }, 50);
 
         // Auto Advance
+        clearTimeout(window.storyTimer);
         window.storyTimer = setTimeout(() => {
             nextStory();
         }, 5000);
     }
 
     window.nextStory = () => {
-        clearTimeout(window.storyTimer);
-        currentIndex++;
-        renderStory();
+        const group = groups[currentGroupIndex];
+        if (currentStoryIndex < group.items.length - 1) {
+            currentStoryIndex++;
+            renderStory();
+        } else {
+            // Next Group
+            if (currentGroupIndex < groups.length - 1) {
+                currentGroupIndex++;
+                currentStoryIndex = 0;
+                renderStory();
+            } else {
+                closeStoryViewer();
+            }
+        }
     };
 
     window.prevStory = () => {
-        clearTimeout(window.storyTimer);
-        if (currentIndex > 0) {
-            currentIndex--;
+        if (currentStoryIndex > 0) {
+            currentStoryIndex--;
             renderStory();
+        } else {
+            // Previous Group
+            if (currentGroupIndex > 0) {
+                currentGroupIndex--;
+                currentStoryIndex = 0; // Should ideally be last item of prev group, but start is fine for MVP
+                renderStory();
+            }
         }
     };
 

@@ -11,9 +11,15 @@
     <script src="js/services/supabase.client.js"></script>
     
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link rel="stylesheet" href="css/admin.css" />
-    <link rel="stylesheet" href="css/login.css" />
-    <script src="services/auth.service.js"></script>
+    <link rel="stylesheet" href="src/presentation/css/admin.css" />
+    <link rel="stylesheet" href="src/presentation/css/login.css" />
+    <!-- CORE ARCHITECTURE -->
+    <script src="src/data/api/supabase-client.js"></script>
+    <script src="src/business/services/auth-service.js"></script>
+    
+    <!-- Scripts -->
+    <script src="src/presentation/features/auth/login-controller.js"></script>
+
   </head>
   <body>
     <div class="login-card">
@@ -62,6 +68,6 @@
       </form>
     </div>
 
-    <script src="js/login.js"></script>
+
   </body>
 </html>

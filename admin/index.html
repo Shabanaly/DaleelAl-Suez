@@ -9,9 +9,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     
     <!-- Core CSS -->
-    <link rel="stylesheet" href="css/layouts/admin-layout.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="src/presentation/css/layouts/admin-layout.css">
     <!-- Legacy Admin CSS (To be phased out) -->
-    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="src/presentation/css/admin.css">
 
     <!-- Libraries -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -22,44 +23,81 @@
     <script src="../common/i18n/i18n.js"></script>
 
     <!-- Services -->
-    <script src="services/supabase.js"></script>
-    <script src="services/auth.service.js"></script>
 
     <!-- Utils -->
-    <script src="utils/drawer.js"></script>
+    <script src="src/utils/toast.js"></script>
+    <script src="src/utils/drawer.js"></script>
 
     <!-- Components (Legacy) -->
-    <script src="components/sidebar.js"></script>
-    <script src="components/topbar.js"></script>
+    <script src="src/presentation/components/sidebar.js"></script>
+    <script src="src/presentation/components/topbar.js"></script>
 
     <!-- Core Architecture -->
-    <script src="js/core/layout-renderer.js"></script>
-    <script src="js/core/router.js"></script>
+    <script src="src/core/layout-renderer.js"></script>
+    <script src="src/core/router.js"></script>
 
-    <script src="services/stats.service.js"></script>
-    <script src="services/places.service.js"></script>
-    <script src="services/categories.service.js"></script>
-    <script src="services/upload.service.js"></script>
+    <!-- CORE ARCHITECTURE -->
+    <script src="src/data/api/supabase-client.js"></script>
+    <script src="src/data/repositories/stats-repository.js"></script>
+    <script src="src/data/repositories/place-repository.js"></script>
+    <script src="src/data/repositories/category-repository.js"></script>
+    <script src="src/data/repositories/ad-repository.js"></script>
+    <script src="src/data/repositories/story-repository.js"></script>
+    <script src="src/data/repositories/event-repository.js"></script>
+    <script src="src/data/repositories/analytics-repository.js"></script>
+    <script src="src/data/repositories/settings-repository.js"></script>
 
-    <!-- Phase 2: Places Module -->
-    <script src="js/features/places/places.ui.js"></script>
-    <script src="js/features/places/places.controller.js"></script>
+    <script src="src/business/services/image-compression-service.js"></script>
+    <script src="src/business/services/stats-service.js"></script>
+    <script src="src/business/services/place-service.js"></script>
+    <script src="src/business/services/category-service.js"></script>
+    <script src="src/business/services/ad-service.js"></script>
+    <script src="src/business/services/story-service.js"></script>
+    <script src="src/business/services/event-service.js"></script>
+    <script src="src/business/services/analytics-service.js"></script>
+    <script src="src/business/services/settings-service.js"></script>
+    <script src="src/business/services/auth-service.js"></script>
+    
+    <script src="src/business/validators/place-validator.js"></script>
+    <script src="src/business/validators/event-validator.js"></script>
+    <script src="src/data/infrastructure/services/translation-service.js"></script>
+    <script src="src/data/infrastructure/services/cloudinary-service.js"></script>
+    <script src="src/business/validators/story-validator.js"></script>
+    
+    <!-- Phase 5: Ads & Stories (Refactored) -->
+    <script src="src/presentation/features/ads/ads-view.js"></script>
+    <script src="src/presentation/features/ads/ads-controller.js"></script>
+    <script src="src/presentation/features/stories/stories-view.js"></script>
+    <script src="src/presentation/features/stories/stories-controller.js"></script>
 
-    <!-- Phase 3: Categories Module -->
-    <script src="js/features/categories/categories.ui.js"></script>
-    <script src="js/features/categories/categories.controller.js"></script>
-    <script src="js/features/categories/subcategories.ui.js"></script>
-    <script src="js/features/categories/subcategories.controller.js"></script>
+    <!-- Phase 2: Places Module (Refactored) -->
+    <script src="src/presentation/features/places/places-view.js"></script>
+    <script src="src/presentation/features/places/places-controller.js"></script>
 
-    <!-- Phase 4: Home Module -->
-    <script src="js/features/home/home.ui.js"></script>
-    <script src="js/features/home/home.controller.js"></script>
+    <!-- Phase 3: Categories Module (Refactored) -->
+    <script src="src/presentation/features/categories/categories-view.js"></script>
+    <script src="src/presentation/features/categories/categories-controller.js"></script>
+
+    <!-- Phase 4: Home Module (Refactored) -->
+    <script src="src/presentation/features/home/home-view.js"></script>
+    <script src="src/presentation/features/home/home-controller.js"></script>
+
+    <!-- Phase 5: Events Module -->
+    <script src="src/presentation/features/events/events-view.js"></script>
+    <script src="src/presentation/features/events/events-controller.js"></script>
+
+    <!-- Phase 6: Settings Module -->
+    <script src="src/presentation/features/settings/settings-view.js"></script>
+    <script src="src/presentation/features/settings/settings-controller.js"></script>
 
     <!-- Auth Guard -->
     <script>
         // Simple Auth Check before routing
-        if (!AuthService.isAuthenticated()) {
-            window.location.href = 'login.html';
+        const auth = window.AppAuthService || window.AuthService;
+        if (auth && auth.checkAuth) {
+            auth.checkAuth();
+        } else if (auth && auth.isAuthenticated && !auth.isAuthenticated()) {
+             window.location.href = 'login.html';
         }
     </script>
 </head>
