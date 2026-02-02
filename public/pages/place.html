@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دليل السويس</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="../../common/config/config.js"></script>
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="../css/modules/place-details.css">
+    <link rel="stylesheet" href="../css/modules/card-style.css">
+    <script src="../../common/theme/theme.js"></script>
+    <script src="../../common/i18n/i18n.js"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775"
+     crossorigin="anonymous"></script></head>
+<body id="place-details-page" class="v8-details-page">
+    <!-- Universal header -->
+    <header class="site-header">
+        <a href="../index.html" class="logo">
+            <i data-lucide="compass"></i>
+            <span data-i18n="app_name">دليل <span>السويس</span></span>
+        </a>
+        <nav class="top-nav">
+            <a href="../index.html" class="top-nav-link" data-i18n="nav_home">الرئيسية</a>
+            <a href="categories.html" class="top-nav-link" data-i18n="nav_categories">الأقسام</a>
+            <a href="favorites.html" class="top-nav-link" data-i18n="nav_favorites">المفضلة</a>
+            <button class="top-nav-link" onclick="toggleLanguage()" id="lang-toggle">English</button>
+            <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-toggle">
+                <i data-lucide="sun" class="theme-toggle-icon"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- V8 MODERN LAYOUT -->
+    <main id="v8-main-content">
+        <!-- 1. Hero Section (JS Injected) -->
+        <section id="v8-hero-section" class="v8-hero">
+            <div class="v8-skeleton v8-skeleton-hero"></div>
+        </section>
+
+        <!-- 2. Desktop Content Grid (Contact + About) -->
+        <div class="v9-content-grid">
+            <!-- Contact Info List -->
+            <section id="v8-info-grid" class="v9-contact-section">
+                <!-- List Skeleton -->
+                <div style="display:flex; gap:16px; margin-bottom:12px; align-items:center;">
+                    <div class="v8-skeleton" style="width:48px; height:48px; border-radius:50%;"></div>
+                    <div style="flex:1;">
+                        <div class="v8-skeleton v8-skeleton-text short"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- About Section -->
+            <section id="v8-about-section" class="v8-content-section v8-fade-in"></section>
+        </div>
+        
+        <!-- AD SLOT: Details Sidebar -->
+        <div data-ad-slot="details_sidebar" class="ad-container" style="display:none; margin: 20px 0; text-align: center;"></div>
+
+        <!-- 5. Gallery Section -->
+        <section id="v8-gallery-section" class="v8-gallery-section v8-fade-in"></section>
+
+        <!-- 7. Map Section -->
+        <section id="v8-map-section" class="v8-content-section v8-fade-in"></section>
+
+        <!-- 8. Reviews Section -->
+        <section id="v8-reviews-section" class="v8-content-section v8-fade-in"></section>
+    </main>
+
+    <!-- Mobile Bottom Bar Removed (Merged to Hero) -->
+
+    <!-- Lightbox for Gallery -->
+    <div id="v8-lightbox" class="v8-lightbox" onclick="closeLightbox()">
+        <img id="v8-lightbox-img" src="" alt="">
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h4 data-i18n="app_name">دليل السويس</h4>
+                <p data-i18n="footer_desc">المنصة الأكبر والأكثر موثوقية لاكتشاف مدينة السويس.</p>
+            </div>
+        </div>
+        <div class="footer-bottom"><p data-i18n="footer_copyright">© 2025 دليل السويس.</p></div>
+    </footer>
+
+    <nav class="bottom-nav" id="bottom-nav-container"></nav>
+
+    <script src="https://unpkg.com/lucide@latest"></script><script>lucide.createIcons();</script>
+    <script src="../../src/presentation/ui/preloader.js"></script>
+    <script>if(typeof injectPreloader === 'function') injectPreloader();</script>
+    
+    <!-- Layered Architecture Scripts -->
+    <!-- 1. Data Layer -->
+    <script src="../../src/data/api/supabase-client.js"></script>
+    <script src="../../src/data/repositories/places-repository.js"></script>
+    <script src="../../src/data/repositories/categories-repository.js"></script>
+    <script src="../../src/data/repositories/stories-repository.js"></script>
+    <script src="../../src/data/repositories/events-repository.js"></script>
+    <script src="../../src/data/repositories/quick-services-repository.js"></script>
+    <script src="../../src/data/repositories/trending-repository.js"></script>
+    <script src="../../src/data/repositories/weather-repository.js"></script>
+    <script src="../../src/data/repositories/auth-repository.js"></script>
+    <script src="../../src/data/repositories/favorites-repository.js"></script>
+    <script src="../../src/data/repositories/reviews-repository.js"></script>
+    
+    <!-- 2. Business Layer -->
+    <script src="../../src/business/services/place-service.js"></script>
+    <script src="../../src/business/services/category-service.js"></script>
+    <script src="../../src/business/services/favorites-service.js"></script>
+    <script src="../../src/business/services/reviews-service.js"></script>
+    <script src="../../src/business/services/stories-service.js"></script>
+    <script src="../../src/business/services/events-service.js"></script>
+    <script src="../../src/business/services/quick-services-service.js"></script>
+    <script src="../../src/business/services/trending-service.js"></script>
+    <script src="../../src/business/services/weather-service.js"></script>
+    <script src="../../src/business/services/auth-service.js"></script><script src="../../src/business/services/cache.service.js"></script>
+    
+    <!-- 3. Presentation Layer - Utils & Renderers -->
+    <script src="../../src/presentation/utils/url-helpers.js"></script>
+    <script src="../../src/presentation/utils/session-manager.js"></script>
+    <script src="../../src/presentation/ui/modal.js"></script>
+    <script src="../../src/presentation/renderers/place/place-card-renderer.js"></script>
+    <script src="../../src/presentation/renderers/place/place-details-renderer.js"></script>
+    
+    <!-- 4. Presentation Layer - Controller -->
+    <script src="../../src/presentation/controllers/place-page.js"></script>
+    <script src="../../src/presentation/utils/place-ui-helpers.js"></script>
+    <script src="../../src/presentation/renderers/common/bottom-nav-renderer.js"></script>
+    <script src="../../src/app.js"></script>
+</body>
+</html>

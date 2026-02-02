@@ -1,0 +1,33 @@
+/**
+ * Trending Tags Feature
+ * Renders dynamic tags under search bar
+ */
+
+async function initTrendingTags(containerSelector) {
+    const container = document.querySelector(containerSelector);
+    if (!container) return;
+
+    try {
+        if (!window.TrendingService) throw new Error("TrendingService not found");
+        const data = await window.TrendingService.getTrendingTags();
+
+        if (data && data.length > 0) {
+            renderTags(container, data.map(t => t.tag));
+            return;
+        }
+    } catch (e) {
+        console.warn("Trending tags fetch failed", e);
+    }
+
+    // Fallback Mock Data
+    const mockTags = ['سوشي', 'فيو_بحر', 'فطار', '24_ساعة'];
+    renderTags(container, mockTags);
+}
+
+function renderTags(container, tags) {
+    const html = `
+        <span>🔥 تريند:</span>
+        ${tags.map(tag => `<a href="pages/search.html?q=${tag}">#${tag}</a>`).join('')}
+    `;
+    container.innerHTML = html;
+}

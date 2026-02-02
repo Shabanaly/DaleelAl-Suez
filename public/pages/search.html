@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>البحث - دليل السويس</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    
+    <!-- Page Specific CSS -->
+    <link rel="stylesheet" href="../css/pages/search.css">
+    
+    <!-- Core Scripts -->
+    <script src="../../common/config/config.js"></script>
+    <script src="../../common/theme/theme.js"></script>
+    <script src="../../common/i18n/i18n.js"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775"
+     crossorigin="anonymous"></script></head>
+<body>
+    <!-- Simple Sticky Header for Search -->
+    <header class="search-header">
+        <a href="../index.html" class="back-btn"><i data-lucide="arrow-right"></i></a>
+        <div class="search-bar-wrapper">
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" id="search-input" placeholder="بتدور على إيه؟" autocomplete="off">
+            <button id="clear-search" style="display:none"><i data-lucide="x"></i></button>
+        </div>
+    </header>
+
+    <!-- Filters Section -->
+    <div class="search-filters">
+        <button class="filter-chip" data-filter="open">مفتوح الآن</button>
+        <button class="filter-chip" data-filter="top">الأعلى تقييماً</button>
+        <button class="filter-chip" data-filter="offers">فيه عروض</button>
+    </div>
+
+    <!-- Results Container -->
+    <main class="search-results-layout">
+        <div id="loading-state" class="hidden">
+            <div class="loader-spinner"></div>
+            <p>جاري البحث...</p>
+        </div>
+
+        <div id="results-container" class="results-grid">
+            <!-- Results injected here -->
+        </div>
+        
+        <div id="empty-state" class="hidden">
+            <div class="empty-icon">🔍</div>
+            <h3>ملقناش حاجة!</h3>
+            <p>جرب تدور بكلمة تانية أو تصفح الأقسام</p>
+            <a href="categories.html" class="btn-primary">تصفح الأقسام</a>
+        </div>
+    </main>
+
+
+    <script src="../../src/presentation/ui/preloader.js"></script>
+    <script>if(typeof injectPreloader === 'function') injectPreloader();</script>
+    
+    <!-- Layered Architecture Scripts -->
+    <script src="../../src/data/api/supabase-client.js"></script>
+    <script src="../../src/data/repositories/places-repository.js"></script>
+    
+    <script src="../../src/business/services/place-service.js"></script>
+    
+    <script src="../../src/presentation/utils/url-helpers.js"></script>
+    <script src="../../src/presentation/ui/modal.js"></script>
+    <script src="../../src/presentation/renderers/place/place-card-renderer.js"></script>
+    <script src="../../src/presentation/features/search-engine.js"></script>
+    
+    <script src="../../src/presentation/controllers/search-page.js"></script>
+    <script src="../../src/presentation/renderers/common/bottom-nav-renderer.js"></script>
+    <script src="../../src/app.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script><script>lucide.createIcons();</script>
+</body>
+</html>

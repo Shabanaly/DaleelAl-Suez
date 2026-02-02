@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دليل السويس - دليلك المحلي الشامل</title>
+    <meta name="description" content="دليل السويس هو دليلك الشامل لأفضل المطاعم، المقاهي، الأطباء، والخدمات في مدينة السويس. اكتشف الأماكن المميزة والعروض الحصرية.">
+    <meta name="keywords" content="دليل السويس, مطاعم السويس, كافيهات السويس, أطباء السويس, خدمات السويس, عروض السويس, سياحة السويس">
+    <meta name="robots" content="index, follow">
+    <meta property="og:title" content="دليل السويس - دليلك المحلي الشامل">
+    <meta property="og:description" content="اكتشف أفضل أماكن السويس. دليلك المحلي الذكي للمطاعم، الخدمات والأطباء في مدينة السويس.">
+    <meta property="og:image" content="https://daleel-al-suez.vercel.app/assets/og-image.jpg">
+    <meta property="og:url" content="https://daleel-al-suez.vercel.app/">
+    <meta property="og:type" content="website">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/layout.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <!-- Home Page Specific Styles (Clean Architecture) -->
+    <link rel="stylesheet" href="css/pages/home.css">
+    <link rel="stylesheet" href="css/modules/offers.css">
+    <link rel="stylesheet" href="css/modules/place-details.css">
+    
+    <!-- Core Modules -->
+    <script src="../common/config/config.js"></script>
+    <script src="../common/theme/theme.js"></script>
+    <script src="../common/i18n/i18n.js"></script>
+    <script src="../src/presentation/ui/preloader.js"></script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775"
+     crossorigin="anonymous"></script></head>
+<body id="home-page">
+    <!-- Universal Top Navbar (Persistent) -->
+    <header class="site-header">
+        <a href="index.html" class="logo">
+            <i data-lucide="compass"></i>
+            <span data-i18n="app_name">دليل <span>السويس</span></span>
+        </a>
+        <nav class="top-nav">
+            <a href="index.html" class="top-nav-link active" data-i18n="nav_home">الرئيسية</a>
+            <!-- Desktop Links -->
+            <a href="pages/categories.html" class="top-nav-link" data-i18n="nav_categories">الأقسام</a>
+            <a href="pages/favorites.html" class="top-nav-link" data-i18n="nav_favorites">المفضلة</a>
+            <a href="#" onclick="openAccountModal(event)" class="top-nav-link" data-i18n="nav_account">حسابي</a>
+            <a href="pages/contact.html" class="top-nav-link" data-i18n="nav_contact">تواصل معنا</a>
+            <button class="top-nav-link" onclick="toggleLanguage()" id="lang-toggle">English</button>
+            <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-toggle">
+                <i data-lucide="sun" class="theme-toggle-icon"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- 
+        CLEAN ARCHITECTURE: Home Layout 
+        Controlled by css/pages/home.css
+    -->
+    <main class="home-layout">
+        
+        <!-- 1. HERO SECTION (Full Width) -->
+        <section class="home-hero home-full-width">
+            <!-- ... content ... -->
+            <div class="hero-content">
+                <h1 class="hero-title" data-i18n="hero_title">اكتشف <span>السويس</span> من جديد</h1>
+                <p class="hero-desc" data-i18n="hero_desc">دليلك الذكي لأفضل المطاعم، الكافيهات، والخدمات في مدينتك.</p>
+                
+                <!-- Search Component Intact -->
+                <div class="search-ui">
+                    <input type="text" data-i18n="search_placeholder" placeholder="بتدور على إيه النهاردة؟" autocomplete="off">
+                    <div id="search-suggestions" class="search-suggestions hidden"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AD SLOT: Home Hero Bottom -->
+        <div data-ad-slot="home_hero_bottom" class="ad-container home-full-width" style="display:none; margin: 20px 0; text-align: center;"></div>
+
+        <!-- 1.5 STORIES SECTION (New) -->
+        <section class="stories-section home-full-width">
+            <div id="stories-container" class="stories-track">
+                <!-- Injected by JS -->
+            </div>
+        </section>
+
+        <!-- 2. MOOD PICKER (New Feature) -->
+        <section class="home-section mood-section home-full-width">
+            <div class="section-header">
+                 <h3 class="section-title">مودك إيه النهاردة؟ 🤔</h3>
+            </div>
+            <div id="mood-picker-container" class="mood-grid">
+                <!-- Injected by JS -->
+            </div>
+        </section>
+
+      <div class="home-content">
+            <!-- 2.5 EVENTS SECTION (New) -->
+            <section class="home-section events-section">
+                <div class="section-header">
+                    <h3 class="section-title">أجندة السويس 📅</h3>
+                </div>
+                <div id="events-container" class="events-scroll">
+                    <!-- Injected by JS -->
+                </div>
+            </section>
+
+            <!-- 3. SUEZ LIVE (New Feature) -->
+            <section class="home-section">
+                 <div id="suez-live-widget" class="live-widget">
+                     <!-- Injected by JS -->
+                     <div class="live-stat">
+                         <div class="live-val">--°C</div>
+                         <div class="live-lbl">الجو الآن</div>
+                     </div>
+                     <div class="live-stat">
+                         <div class="live-val">--</div>
+                         <div class="live-lbl">مكان مفتوح</div>
+                     </div>
+                 </div>
+            </section>
+
+            <!-- 3.5 HIDDEN GEMS (New) -->
+            <section class="home-section">
+                <div class="section-header">
+                    <h3 class="section-title">جواهر مستخبية 💎</h3>
+                    <p style="font-size:12px; color:var(--text-muted); margin-top:-5px">أماكن تستاهل التجربة</p>
+                </div>
+                <div id="gems-container" class="gems-grid">
+                    <!-- Injected by JS -->
+                </div>
+            </section>
+
+
+            <!-- 4. TRENDING / OFFERS (Refactored) -->
+            <section class="home-section">
+                <div class="section-header">
+                    <h3 class="section-title">عروض مميزة 🔥</h3>
+                </div>
+                <div id="offers-container" class="offers-carousel">
+                    <!-- Injected by JS -->
+                </div>
+            </section>
+
+            <!-- 5. MAIN CONTENT (Listings) -->
+            <section class="home-section">
+                <div class="section-header">
+                    <h3 class="section-title">أحدث الإضافات</h3>
+                    <a href="pages/categories.html" class="top-nav-link" style="font-size:12px">عرض الكل</a>
+                </div>
+                
+                <div id="places-container" class="home-listings-grid">
+                    <!-- Injected by JS -->
+                </div>
+            </section>
+        </div>
+
+        <!-- SIDEBAR (Restored) -->
+        <aside class="home-sidebar">
+            <div class="sidebar-widget">
+                <h3 class="widget-title">الأقسام</h3>
+                <div id="categories-sidebar-container" class="sidebar-list">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- Professional Global Footer -->
+    <!-- AD SLOT: Home Footer Top -->
+    <div data-ad-slot="home_footer_top" class="ad-container home-full-width" style="display:none; margin: 20px auto; text-align: center; max-width: 1200px;"></div>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h4 data-i18n="app_name">دليل السويس</h4>
+                <p data-i18n="footer_desc">المنصة الأكبر والأكثر موثوقية لاكتشاف مدينة السويس.</p>
+            </div>
+            <div class="footer-links">
+                <h5 data-i18n="footer_quick_links">روابط سريعة</h5>
+                <ul>
+                    <li><a href="pages/about.html" data-i18n="footer_about">عن الموقع</a></li>
+                    <li><a href="pages/terms.html" data-i18n="footer_terms">الشروط</a></li>
+                    <li><a href="pages/privacy.html" data-i18n="footer_privacy">الخصوصية</a></li>
+                    <li><a href="pages/contact.html" data-i18n="nav_contact">تواصل معنا</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom"><p data-i18n="footer_copyright">© 2025 دليل السويس.</p></div>
+    </footer>
+
+    <!-- Universal Mobile Bottom Nav -->
+    <nav class="bottom-nav" id="bottom-nav-container"></nav>
+
+    <!-- Project Logic Assets -->
+    <!-- Layered Architecture Scripts -->
+    <!-- 1. Data Layer -->
+    <script src="../src/data/api/supabase-client.js"></script>
+    <script src="../src/data/repositories/places-repository.js"></script>
+    <script src="../src/data/repositories/categories-repository.js"></script>
+    <script src="../src/data/repositories/stories-repository.js"></script>
+    <script src="../src/data/repositories/events-repository.js"></script>
+    <script src="../src/data/repositories/quick-services-repository.js"></script>
+    <script src="../src/data/repositories/trending-repository.js"></script>
+    <script src="../src/data/repositories/weather-repository.js"></script>
+    <script src="../src/data/repositories/auth-repository.js"></script>
+    
+    <!-- 2. Business Layer -->
+    <script src="../src/business/services/place-service.js"></script>
+    <script src="../src/business/services/category-service.js"></script>
+    <script src="../src/business/services/stories-service.js"></script>
+    <script src="../src/business/services/events-service.js"></script>
+    <script src="../src/business/services/quick-services-service.js"></script>
+    <script src="../src/business/services/trending-service.js"></script>
+    <script src="../src/business/services/weather-service.js"></script>
+    <script src="../src/business/services/auth-service.js"></script>
+    <script src="../src/business/services/cache.service.js"></script>
+    
+    <!-- 3. Presentation Layer - Utils & Renderers -->
+    <script src="../src/presentation/utils/url-helpers.js"></script>
+    <script src="../src/presentation/ui/modal.js"></script>
+    <script src="../src/presentation/renderers/common/bottom-nav-renderer.js"></script>
+    <script src="../src/presentation/renderers/place/place-card-renderer.js"></script>
+    <script src="../src/presentation/renderers/home/home-renderer.js"></script>
+    <script src="../src/presentation/renderers/home/offers-renderer.js"></script>
+    
+    <!-- 4. Presentation Layer - Features -->
+    <script src="../src/presentation/features/mood-picker.js"></script>
+    <script src="../src/presentation/features/suez-live.js"></script>
+    <script src="../src/presentation/features/stories-bar.js"></script>
+    <script src="../src/presentation/features/events-widget.js"></script>
+    <script src="../src/presentation/features/hidden-gems.js"></script>
+    <script src="../src/presentation/features/categories-sidebar.js"></script>
+    <!-- 5. Page Controllers -->
+    <script src="../src/presentation/controllers/home-page.js"></script>
+    
+    <!-- 6. App Entry (Initializes everything) -->
+    <script src="../src/app.js"></script>
+
+    <script>lucide.createIcons();</script>
+</body>
+</html>

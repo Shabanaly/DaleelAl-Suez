@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>دليل السويس</title> <!-- JS will update this -->
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <!-- Page Specific Style (Compatible with new structure) -->
+    <link rel="stylesheet" href="../css/pages/categories-page.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775"
+     crossorigin="anonymous"></script></head>
+<body id="dynamic-cat-page">
+    <header class="site-header">
+        <a href="../index.html" class="logo">
+            <i data-lucide="compass"></i>
+            <span data-i18n="app_name">دليل <span>السويس</span></span>
+        </a>
+        <nav class="top-nav">
+            <a href="../index.html" class="top-nav-link" data-i18n="nav_home">الرئيسية</a>
+            <a href="categories.html" class="top-nav-link active" data-i18n="nav_categories">الأقسام</a>
+            <a href="favorites.html" class="top-nav-link" data-i18n="nav_favorites">المفضلة</a>
+            <a href="#" class="top-nav-link" data-i18n="nav_account">حسابي</a>
+            <a href="contact.html" class="top-nav-link" data-i18n="nav_contact">تواصل معنا</a>
+            <button class="top-nav-link" onclick="toggleLanguage()" id="lang-toggle">English</button>
+            <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-toggle">
+                <i data-lucide="sun" class="theme-toggle-icon"></i>
+            </button>
+        </nav>
+    </header>
+
+    <main>
+        <section class="categories-nav-section">
+            <div class="nav-scroll-wrapper">
+                <div class="categories-container" id="global-cats"></div>
+            </div>
+        </section>
+
+        <section class="section-wrapper">
+            <div class="section-head">
+                <!-- JS will populate this header -->
+                <h1 id="cat-page-title">...</h1>
+            </div>
+            
+            <div class="ad-slot" data-ad-position="category_top"></div>
+            
+            <!-- Dynamic Subcategories -->
+            <div class="sub-nav-wrapper">
+                <div class="sub-nav"></div>
+            </div>
+
+            <!-- Places List -->
+            <div id="places-container" class="places-list"></div>
+
+            <div class="ad-slot" data-ad-position="category-bottom"></div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h4 data-i18n="app_name">دليل السويس</h4>
+                <p data-i18n="footer_desc">المنصة الأكبر والأكثر موثوقية لاكتشاف مدينة السويس.</p>
+            </div>
+            <div class="footer-links">
+                <h5 data-i18n="footer_quick_links">روابط سريعة</h5>
+                <ul>
+                    <li><a href="about.html" data-i18n="footer_about">عن الموقع</a></li>
+                    <li><a href="terms.html" data-i18n="footer_terms">الشروط</a></li>
+                    <li><a href="privacy.html" data-i18n="footer_privacy">الخصوصية</a></li>
+                    <li><a href="contact.html" data-i18n="nav_contact">تواصل معنا</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom"><p data-i18n="footer_copyright">© 2025 دليل السويس.</p></div>
+    </footer>
+
+    <nav class="bottom-nav" id="bottom-nav-container"></nav>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@latest"></script><script>lucide.createIcons();</script>
+    <script src="../../src/presentation/ui/preloader.js"></script>
+    <script>if(typeof injectPreloader === 'function') injectPreloader();</script>
+    
+    <!-- Layered Architecture Scripts -->
+    <script src="../../src/data/api/supabase-client.js"></script>
+    <script src="../../src/data/repositories/places-repository.js"></script>
+    <script src="../../src/data/repositories/categories-repository.js"></script>
+    <script src="../../src/data/repositories/stories-repository.js"></script>
+    <script src="../../src/data/repositories/events-repository.js"></script>
+    <script src="../../src/data/repositories/quick-services-repository.js"></script>
+    <script src="../../src/data/repositories/trending-repository.js"></script>
+    <script src="../../src/data/repositories/weather-repository.js"></script>
+    <script src="../../src/data/repositories/auth-repository.js"></script>
+    
+    <script src="../../src/business/services/place-service.js"></script>
+    <script src="../../src/business/services/category-service.js"></script>
+    <script src="../../src/business/services/stories-service.js"></script>
+    <script src="../../src/business/services/events-service.js"></script>
+    <script src="../../src/business/services/quick-services-service.js"></script>
+    <script src="../../src/business/services/trending-service.js"></script>
+    <script src="../../src/business/services/weather-service.js"></script>
+    <script src="../../src/business/services/auth-service.js"></script><script src="../../src/business/services/cache.service.js"></script>
+    
+    <script src="../../src/presentation/utils/url-helpers.js"></script>
+    <script src="../../src/presentation/ui/modal.js"></script>
+    <script src="../../src/presentation/renderers/categories/category-renderer.js"></script>
+    <script src="../../src/presentation/renderers/place/place-card-renderer.js"></script>
+    
+    <script src="../../src/presentation/controllers/category-page.js"></script>
+    <script src="../../src/presentation/renderers/common/bottom-nav-renderer.js"></script>
+    <script src="../../src/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-i18n="profile_title">الملف الشخصي</title>
+    
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="../css/reset.css">
+    <link rel="stylesheet" href="../css/layout.css">
+    <link rel="stylesheet" href="../css/style.css">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Core Logic -->
+    <script src="../../common/theme/theme.js"></script>
+    <script src="../../common/i18n/i18n.js"></script>
+    <script src="../../common/config/config.js"></script>
+    
+    <!-- Supabase -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Data Layer -->
+    <script src="../../src/data/api/supabase-client.js"></script>
+    <script src="../../src/data/repositories/auth-repository.js"></script>
+    <!-- Business Layer -->
+    <script src="../../src/business/services/auth-service.js"></script>
+    
+    <!-- Module CSS -->
+    <link rel="stylesheet" href="../css/modules/profile.css">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5152627364584775"
+     crossorigin="anonymous"></script></head>
+<body>
+
+    <header class="site-header">
+        <a href="../index.html" class="logo">
+            <i data-lucide="compass"></i>
+            <span data-i18n="app_name">دليل <span>السويس</span></span>
+        </a>
+        <nav class="top-nav">
+            <button class="top-nav-link" onclick="window.toggleLanguage()" id="lang-toggle">English</button>
+            <button class="theme-toggle-btn" onclick="window.toggleTheme()" id="theme-toggle">
+                <i data-lucide="sun" class="theme-toggle-icon"></i>
+            </button>
+        </nav>
+    </header>
+
+    <main class="profile-wrapper">
+        <div class="profile-card" id="profile-card">
+            <div class="loading-state">
+                <i data-lucide="loader-2" class="spin" style="width: 32px; height: 32px;"></i>
+                <span data-i18n="loading">جاري التحميل...</span>
+            </div>
+            <!-- Content Injected via JS -->
+        </div>
+    </main>
+    
+    <!-- Logic -->
+    <script src="../../src/presentation/ui/preloader.js"></script>
+    <script>if(typeof injectPreloader === 'function') injectPreloader();</script>
+    <script src="../../src/presentation/controllers/profile-page.js"></script>
+
+</body>
+</html>
